@@ -17909,7 +17909,7 @@ function gj() {
   return K.jsxs("div", { className: "summary-table-container mb-2", children: [K.jsx("h3", { className: "mb-1", children: "Infection Incidence" }), K.jsxs("table", { className: "summary-table", children: [K.jsx("thead", { children: K.jsxs("tr", { children: [K.jsx("th", { children: "Age Group" }), a.map((o) => K.jsx("th", { children: o }, o))] }) }), K.jsx("tbody", { children: u.map(({ group: o, values: f }, s) => K.jsxs("tr", { children: [K.jsx("td", { children: o }), f.map((d, p) => K.jsx("td", { children: mj(d) }, p))] }, s)) })] })] });
 }
 function bj() {
-  const t14 = j6({ axis: "x", initial: 300, min: 200 }), e = j6({ axis: "x", initial: 380, min: 200, reverse: true });
+  const t14 = j6({ axis: "x", initial: 250, min: 200 }), e = j6({ axis: "x", initial: 320, min: 200, reverse: true });
   return K.jsxs("div", { className: "app", children: [K.jsx("aside", { style: { width: t14.position }, children: K.jsx(dj, {}) }), K.jsx(q6, { isDragging: t14.isDragging, ...t14.separatorProps }), K.jsx("main", { children: K.jsx(sj, { tabs: [{ title: "Epi Curve", content: () => K.jsx(lj, {}) }, { title: "Summary", content: () => K.jsx(gj, {}) }] }) }), K.jsx(q6, { isDragging: e.isDragging, ...e.separatorProps }), K.jsx("aside", { style: { width: e.position }, children: K.jsx(tO, {}) })] });
 }
 z3().then(() => {
