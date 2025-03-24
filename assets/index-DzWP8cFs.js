@@ -17888,7 +17888,7 @@ function pj(t14) {
   }), e), []);
 }
 function zp(t14) {
-  return Math.round(t14 / 1e3);
+  return Math.round(t14 / 1e3) * 1e3;
 }
 function mj(t14) {
   return t14.toLocaleString("en-US");
