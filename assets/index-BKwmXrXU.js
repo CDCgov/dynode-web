@@ -9594,7 +9594,7 @@ function QA(t14, e) {
 }
 async function L3(t14) {
   if (ae !== void 0) return ae;
-  typeof t14 < "u" && (Object.getPrototypeOf(t14) === Object.prototype ? { module_or_path: t14 } = t14 : console.warn("using deprecated parameters for the initialization function; pass a single object instead")), typeof t14 > "u" && (t14 = new URL("/dynode-web/assets/wasm_dynode_bg-BEqPwvo6.wasm", import.meta.url));
+  typeof t14 < "u" && (Object.getPrototypeOf(t14) === Object.prototype ? { module_or_path: t14 } = t14 : console.warn("using deprecated parameters for the initialization function; pass a single object instead")), typeof t14 > "u" && (t14 = new URL("/dynode-web/assets/wasm_dynode_bg-D4uwgCHQ.wasm", import.meta.url));
   const e = ZA();
   (typeof t14 == "string" || typeof Request == "function" && t14 instanceof Request || typeof URL == "function" && t14 instanceof URL) && (t14 = fetch(t14));
   const { instance: i, module: a } = await FA(await t14, e);
