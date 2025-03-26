@@ -4,7 +4,7 @@ import "./SummaryTable.css";
 import { SEIRModelOutput } from "@wasm/wasm_dynode";
 
 function summarize(modelResult: SEIRModelOutput): number[] {
-    return modelResult.values_vec.reduce((acc, { value }) => {
+    return modelResult.infection_incidence.reduce((acc, { value }) => {
         value.forEach((v, i) => {
             acc[i] = (acc[i] || 0) + v;
         });
@@ -20,17 +20,17 @@ function formatted(n: number): string {
 }
 export function SummaryTable() {
     let [params] = useParams();
-    let groups = params.populaton_fraction_labels;
+    let groups = params.population_fraction_labels;
     let { modelResult } = useModelResult();
 
     // Transpose data
     const { labels, tableData } = useMemo(() => {
         if (!modelResult) return { labels: [], tableData: [] };
 
-        const summaries = modelResult.map((result) => ({
-            label: result.label,
-            values: summarize(result),
-        }));
+        const summaries = Object.entries(modelResult).map(([key, value]) => ({
+            label: key,
+            values: summarize(value),
+        }))
 
         const labels = summaries.map((s) => s.label);
 

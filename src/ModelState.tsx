@@ -22,7 +22,7 @@ type ParamsContextType = {
     setDays: React.Dispatch<React.SetStateAction<number>>;
     model: SEIRModelUnified | null;
     runningState: RunningState;
-    modelResult: SEIRModelOutput[] | null;
+    modelResult: Record<string, SEIRModelOutput> | null;
 };
 
 const ParamsContext = createContext<ParamsContextType | undefined>(undefined);
@@ -61,7 +61,7 @@ export const ParamsProvider = ({
     // let [activePreset, activePreset] = useState(Preset | null>(null);
     let [days, setDays] = useState(200);
     let [model, setModel] = useState<SEIRModelUnified | null>(null);
-    let [modelResult, setModelResult] = useState<SEIRModelOutput[] | null>(
+    let [modelResult, setModelResult] = useState<Record<string, SEIRModelOutput> | null>(
         null
     );
 

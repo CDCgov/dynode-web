@@ -6,7 +6,7 @@ type PlotGroupProps = Omit<SEIRPlotProps, "results"> & {
 
 export function PlotGroup({ groups, ...otherProps }: PlotGroupProps) {
     let [params] = useParams();
-    let labels = params.populaton_fraction_labels;
+    let labels = params.population_fraction_labels;
     const yValues = groups
         .map((results) =>
             results.map((item) => item.values.map((v) => v.value))

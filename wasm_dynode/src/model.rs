@@ -1,14 +1,14 @@
-use crate::{DynodeModel, OutputItem, OutputItemVec, OutputType, Parameters};
+use crate::{DynodeModel, OutputItem, Parameters, SEIRModelOutput};
 use nalgebra::{Const, Matrix, MatrixView, SVector, Storage, StorageMut};
 use ode_solvers::{Dopri5, System};
-type State<const N: usize> = SVector<f64, { 8 * N }>;
+type State<const N: usize> = SVector<f64, { 10 * N }>;
 
 pub struct SEIRModel<const N: usize> {
     pub(crate) parameters: Parameters<N>,
     contact_matrix_normalization: f64,
 }
 
-trait StateWrapper<const N: usize, S: Storage<f64, Const<{ 8 * N }>> + 'static>
+trait StateWrapper<const N: usize, S: Storage<f64, Const<{ 10 * N }>> + 'static>
 where
     Self: 'static,
 {
@@ -20,10 +20,12 @@ where
     fn get_ev(&self) -> MatrixView<'_, f64, Const<N>, Const<1>, S::RStride, S::CStride>;
     fn get_iv(&self) -> MatrixView<'_, f64, Const<N>, Const<1>, S::RStride, S::CStride>;
     fn get_rv(&self) -> MatrixView<'_, f64, Const<N>, Const<1>, S::RStride, S::CStride>;
+    fn get_pre_h(&self) -> MatrixView<'_, f64, Const<N>, Const<1>, S::RStride, S::CStride>;
+    fn get_h_cum(&self) -> MatrixView<'_, f64, Const<N>, Const<1>, S::RStride, S::CStride>;
 }
 
-impl<const N: usize, S: Storage<f64, Const<{ 8 * N }>> + 'static> StateWrapper<N, S>
-    for Matrix<f64, Const<{ 8 * N }>, Const<1>, S>
+impl<const N: usize, S: Storage<f64, Const<{ 10 * N }>> + 'static> StateWrapper<N, S>
+    for Matrix<f64, Const<{ 10 * N }>, Const<1>, S>
 {
     fn get_s(&self) -> MatrixView<'_, f64, Const<N>, Const<1>, S::RStride, S::CStride> {
         self.fixed_view::<N, 1>(0, 0)
@@ -55,6 +57,14 @@ impl<const N: usize, S: Storage<f64, Const<{ 8 * N }>> + 'static> StateWrapper<N
 
     fn get_rv(&self) -> MatrixView<'_, f64, Const<N>, Const<1>, <S>::RStride, <S>::CStride> {
         self.fixed_view::<N, 1>(7 * N, 0)
+    }
+
+    fn get_pre_h(&self) -> MatrixView<'_, f64, Const<N>, Const<1>, <S>::RStride, <S>::CStride> {
+        self.fixed_view::<N, 1>(8 * N, 0)
+    }
+
+    fn get_h_cum(&self) -> MatrixView<'_, f64, Const<N>, Const<1>, <S>::RStride, <S>::CStride> {
+        self.fixed_view::<N, 1>(9 * N, 0)
     }
 }
 
@@ -101,10 +111,20 @@ where
         &mut self,
         value: &Matrix<f64, Const<N>, Const<1>, S2>,
     );
+
+    fn set_pre_h<S2: Storage<f64, Const<N>> + 'static>(
+        &mut self,
+        value: &Matrix<f64, Const<N>, Const<1>, S2>,
+    );
+
+    fn set_h_cum<S2: Storage<f64, Const<N>> + 'static>(
+        &mut self,
+        value: &Matrix<f64, Const<N>, Const<1>, S2>,
+    );
 }
 
-impl<const N: usize, S: StorageMut<f64, Const<{ 8 * N }>> + 'static> StateWrapperMut<N>
-    for Matrix<f64, Const<{ 8 * N }>, Const<1>, S>
+impl<const N: usize, S: StorageMut<f64, Const<{ 10 * N }>> + 'static> StateWrapperMut<N>
+    for Matrix<f64, Const<{ 10 * N }>, Const<1>, S>
 {
     fn set_s<S2: Storage<f64, Const<N>> + 'static>(
         &mut self,
@@ -161,6 +181,20 @@ impl<const N: usize, S: StorageMut<f64, Const<{ 8 * N }>> + 'static> StateWrappe
     ) {
         self.fixed_view_mut::<N, 1>(7 * N, 0).set_column(0, value);
     }
+
+    fn set_pre_h<S2: Storage<f64, Const<N>> + 'static>(
+        &mut self,
+        value: &Matrix<f64, Const<N>, Const<1>, S2>,
+    ) {
+        self.fixed_view_mut::<N, 1>(8 * N, 0).set_column(0, value);
+    }
+
+    fn set_h_cum<S2: Storage<f64, Const<N>> + 'static>(
+        &mut self,
+        value: &Matrix<f64, Const<N>, Const<1>, S2>,
+    ) {
+        self.fixed_view_mut::<N, 1>(9 * N, 0).set_column(0, value);
+    }
 }
 
 impl<const N: usize> SEIRModel<N> {
@@ -176,67 +210,66 @@ impl<const N: usize> SEIRModel<N> {
 
 impl<const N: usize> DynodeModel for SEIRModel<N>
 where
-    [(); 8 * N]: Sized,
+    [(); 10 * N]: Sized,
 {
-    fn integrate(&self, days: usize) -> Vec<(OutputType, Vec<OutputItem>, Vec<OutputItemVec>)> {
+    fn integrate(&self, days: usize) -> SEIRModelOutput {
         let population_fractions = self.parameters.population_fractions;
         let mut initial_state: State<N> = SVector::zeros();
         initial_state.set_s(
             &(population_fractions
                 * (self.parameters.population - self.parameters.initial_infections)),
         );
-        // Above replaces
-        // initial_state.fixed_view_mut::<N, 1>(0, 0).set_column(
-        //     0,
-        //     &(population_fractions
-        //         * (self.parameters.population - self.parameters.initial_infections)),
-        // );
         initial_state.set_i(&(population_fractions * self.parameters.initial_infections));
 
         let mut stepper = Dopri5::new(self, 0.0, days as f64, 1.0, initial_state, 1e-6, 1e-6);
         let _res = stepper.integrate();
 
-        let mut incidence = Vec::new();
-        let mut incidence_vec = Vec::new();
+        let mut output = SEIRModelOutput {
+            infection_incidence: Vec::new(),
+            hospital_incidence: Vec::new(),
+        };
 
         let mut first_loop = true;
         let mut prev_s_plus_e = SVector::zeros();
+        let mut prev_h_cum = SVector::zeros();
         for (time, state) in stepper.x_out().iter().zip(stepper.y_out().iter()) {
             let s_plus_e = state.get_s() + state.get_e() + state.get_sv() + state.get_ev();
             if first_loop {
                 prev_s_plus_e = s_plus_e;
+                prev_h_cum = state.get_h_cum().into();
                 first_loop = false;
             } else {
                 let new_infections = prev_s_plus_e - s_plus_e;
-                incidence.push(OutputItem {
-                    time: *time,
-                    value: new_infections.sum(),
-                });
-                incidence_vec.push(OutputItemVec {
+                let new_hospitalizations = state.get_h_cum() - prev_h_cum;
+                output.infection_incidence.push(OutputItem {
                     time: *time,
                     value: new_infections.data.as_slice().into(),
                 });
+                output.hospital_incidence.push(OutputItem {
+                    time: *time,
+                    value: new_hospitalizations.data.as_slice().into(),
+                });
                 prev_s_plus_e = s_plus_e;
+                prev_h_cum = state.get_h_cum().into();
             }
         }
 
-        vec![(OutputType::Incidence, incidence, incidence_vec)]
+        output
     }
 }
 
 impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
     fn system(&self, x: f64, y: &State<N>, dy: &mut State<N>) {
         let s = y.get_s();
-        // Above replaces
-        // let s = y.fixed_view::<N, 1>(0, 0);
         let e = y.get_e();
         let i = y.get_i();
         let r = y.get_r();
-
         let sv = y.get_sv();
         let ev = y.get_ev();
         let iv = y.get_iv();
+        let pre_h = y.get_pre_h();
 
+        // Transmission
         let beta = self.parameters.r0 / self.parameters.infectious_period;
         let i_effective = i + (1.0 - self.parameters.mitigations.vaccine.ve_i) * iv;
         let infection_rate =
@@ -253,6 +286,7 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
         let dev_to_iv = ev / self.parameters.latent_period;
         let div_to_rv = iv / self.parameters.infectious_period;
 
+        // Vaccine
         let administration_rate = if self.parameters.mitigations.vaccine.enabled {
             if x < self.parameters.mitigations.vaccine.start {
                 0.0
@@ -272,10 +306,13 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
             .component_mul(&self.parameters.population_fractions)
             * administration_rate;
 
+        // Severity
+        let dto_pre_h = (de_to_i + (1.0 - self.parameters.mitigations.vaccine.ve_p) * dev_to_iv)
+            .component_mul(&self.parameters.fraction_hospitalized);
+        let dpre_h_to_h_cum = pre_h * 1.0 / self.parameters.hospitalization_delay;
+
+        // Collect derivatives
         dy.set_s(&-(ds_to_e + ds_to_sv));
-        // Above replaces
-        // dy.fixed_view_mut::<N, 1>(0, 0)
-        //     .set_column(0, &-(ds_to_e + ds_to_sv));
         dy.set_e(&(ds_to_e - de_to_i));
         dy.set_i(&(de_to_i - di_to_r));
         dy.set_r(&di_to_r);
@@ -283,6 +320,8 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
         dy.set_ev(&(dsv_to_ev - dev_to_iv));
         dy.set_iv(&(dev_to_iv - div_to_rv));
         dy.set_rv(&div_to_rv);
+        dy.set_pre_h(&(dto_pre_h - dpre_h_to_h_cum));
+        dy.set_h_cum(&dpre_h_to_h_cum);
     }
 }
 
@@ -323,10 +362,18 @@ mod test {
             latent_period: 1.0,
             infectious_period: 3.0,
             mitigations: MitigationParams::default(),
+            //fraction_symptomatic: Vector1::new(0.5),
+            fraction_hospitalized: Vector1::new(0.0),
+            hospitalization_delay: 1.0,
+            //fraction_dead: Vector1::new(0.0),
         });
-        let (_, values, _) = &model.integrate(300)[0];
+        let output = model.integrate(300);
 
-        let total_incidence: f64 = values.iter().map(|x| x.value).sum();
+        let total_incidence: f64 = output
+            .infection_incidence
+            .iter()
+            .map(|x| x.value.iter().sum::<f64>())
+            .sum();
         let attack_rate = total_incidence / model.parameters.population;
 
         // Check final size relation
@@ -343,12 +390,17 @@ mod test {
         params.infectious_period = 3.0;
 
         let model = SEIRModel::new(params);
-        let (_, values, values_vec) = &model.integrate(300)[0];
+        let output = model.integrate(300);
 
-        let total_incidence: f64 = values.iter().map(|x| x.value).sum();
+        let total_incidence: f64 = output
+            .infection_incidence
+            .iter()
+            .map(|x| x.value.iter().sum::<f64>())
+            .sum();
         let attack_rate = total_incidence / model.parameters.population;
 
-        let incidence_by_group = values_vec
+        let incidence_by_group = output
+            .infection_incidence
             .iter()
             .map(|x| DVector::from_vec(x.value.clone()))
             .reduce(|acc, elem| acc + elem)
@@ -357,12 +409,24 @@ mod test {
             .component_div(&model.parameters.population_fractions)
             / model.parameters.population;
 
+        let hospitalizations_by_group = output
+            .hospital_incidence
+            .iter()
+            .map(|x| DVector::from_vec(x.value.clone()))
+            .reduce(|acc, elem| acc + elem)
+            .unwrap();
+        let ihr = hospitalizations_by_group.component_div(&incidence_by_group);
+
         // Check final size relation
         assert!((0.6755054 - attack_rate).abs() < 1e-5);
 
         // Check final size relation by group
         assert!((0.8658730 - attack_rate_by_group[0]).abs() < 1e-5);
         assert!((0.6120495 - attack_rate_by_group[1]).abs() < 1e-5);
+
+        // Check hospitalizations
+        assert!((model.parameters.fraction_hospitalized[0] - ihr[0]).abs() < 1e-5);
+        assert!((model.parameters.fraction_hospitalized[1] - ihr[1]).abs() < 1e-5);
     }
 
     #[test]
@@ -370,9 +434,13 @@ mod test {
         let mut parameters = Parameters::default();
         parameters.mitigations.vaccine.enabled = true;
         let model = SEIRModel::new(parameters);
-        let (_, values, _) = &model.integrate(200)[0];
+        let output = model.integrate(200);
 
-        let total_incidence: f64 = values.iter().map(|x| x.value).sum();
+        let total_incidence: f64 = output
+            .infection_incidence
+            .iter()
+            .map(|x| x.value.iter().sum::<f64>())
+            .sum();
         let attack_rate = total_incidence / model.parameters.population;
 
         println!("{}", attack_rate)

@@ -21,6 +21,7 @@ pub struct VaccineParams {
     pub doses_available: f64,
     pub ve_s: f64,
     pub ve_i: f64,
+    pub ve_p: f64,
 }
 
 #[derive(Tsify, Debug, Clone, Serialize, Deserialize)]
@@ -132,6 +133,7 @@ impl Default for MitigationParams {
                 doses_available: 40_000_000.0,
                 ve_s: 0.5,
                 ve_i: 0.5,
+                ve_p: 0.5,
             },
             antivirals: AntiviralsParams {
                 enabled: false,
