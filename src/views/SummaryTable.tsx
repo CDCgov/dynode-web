@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useModelResult, useParams } from "../ModelState";
 import "./SummaryTable.css";
-import { OutputType, SEIRModelOutput } from "@wasm/wasm_dynode";
+import { ModelRunType, OutputType, SEIRModelOutput } from "@wasm/wasm_dynode";
 
 function summarize(
     modelResult: SEIRModelOutput,
@@ -21,7 +21,13 @@ function rounded(n: number): number {
 function formatted(n: number): string {
     return n.toLocaleString("en-US");
 }
-export function SummaryTable() {
+function SummaryTableInner({
+    title,
+    outputType,
+}: {
+    title: string;
+    outputType: OutputType;
+}) {
     let [params] = useParams();
     let groups = params.population_fraction_labels;
     let { modelResult } = useModelResult();
@@ -32,20 +38,22 @@ export function SummaryTable() {
 
         const summaries = Object.entries(modelResult.runs).map(
             ([key, value]) => ({
-                label: key,
-                values: summarize(value, "infection_incidence"),
+                label: key as ModelRunType,
+                values: summarize(value, outputType),
             })
         );
 
-        const labels = summaries.map((s) => s.label);
+        const labels: Array<ModelRunType | "Prevented"> = summaries.map(
+            (s) => s.label
+        );
 
         let addDiff =
             labels.length === 2 &&
-            labels[0] === "unmitigated" &&
-            labels[1] === "mitigated";
+            labels[0] === "Unmitigated" &&
+            labels[1] === "Mitigated";
 
         if (addDiff) {
-            labels.push("prevented");
+            labels.push("Prevented");
         }
 
         const tableData = groups.map((group, rowIdx) => {
@@ -57,11 +65,11 @@ export function SummaryTable() {
         });
 
         return { labels, tableData };
-    }, [modelResult, groups]);
+    }, [modelResult, groups, outputType]);
 
     return (
-        <div className="summary-table-container mb-2">
-            <h3 className="mb-1">Total Infection Incidence</h3>
+        <div className="summary-table-container mb-3">
+            <h3 className="mb-1">{title}</h3>
             <table className="summary-table">
                 <thead>
                     <tr>
@@ -87,6 +95,23 @@ export function SummaryTable() {
                     ))}
                 </tbody>
             </table>
+        </div>
+    );
+}
+
+export function SummaryTable() {
+    let { modelResult } = useModelResult();
+    if (!modelResult) return null;
+    return (
+        <div>
+            <SummaryTableInner
+                title="Infection Incidence"
+                outputType="infection_incidence"
+            />
+            <SummaryTableInner
+                title="Hospitalization Incidence"
+                outputType="hospital_incidence"
+            />
         </div>
     );
 }
