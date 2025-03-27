@@ -1,16 +1,14 @@
 import { useParams } from "../ModelState";
-import { CategorizedResult, SEIRPlot, SEIRPlotProps } from "./SEIRPlot";
-type PlotGroupProps = Omit<SEIRPlotProps, "results"> & {
-    groups: Array<Array<CategorizedResult>>;
+import { Point, SEIRPlot, SEIRPlotProps } from "./SEIRPlot";
+type PlotGroupProps = Omit<SEIRPlotProps, "data"> & {
+    groups: Point[][][];
 };
 
 export function PlotGroup({ groups, ...otherProps }: PlotGroupProps) {
     let [params] = useParams();
     let labels = params.population_fraction_labels;
     const yValues = groups
-        .map((results) =>
-            results.map((item) => item.values.map((v) => v.value))
-        )
+        .map((run) => run.map((points) => points.map((p) => p.y)))
         .flat(2);
     const yDomain: [number, number] = [
         Math.min(...yValues),
@@ -19,12 +17,12 @@ export function PlotGroup({ groups, ...otherProps }: PlotGroupProps) {
 
     return (
         <>
-            {groups.map((results, i) => (
+            {groups.map((group, i) => (
                 <div key={i}>
                     <h4 className="mb-1">{labels[i]}</h4>
                     <SEIRPlot
                         key={i}
-                        results={results}
+                        data={group}
                         yDomain={yDomain}
                         {...otherProps}
                     />

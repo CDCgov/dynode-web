@@ -6,11 +6,18 @@ use serde_wasm_bindgen::from_value;
 use tsify::Tsify;
 use wasm_bindgen::prelude::*;
 
+#[derive(Tsify, Debug, Clone, Serialize, Deserialize, Hash, PartialEq, Eq)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
+pub enum ModelRunType {
+    Unmitigated,
+    Mitigated,
+}
+
 #[derive(Tsify, Debug, Clone, Serialize, Deserialize)]
 #[tsify(into_wasm_abi, from_wasm_abi)]
 pub struct OutputItem {
     pub(crate) time: f64,
-    pub(crate) value: Vec<f64>,
+    pub(crate) grouped_values: Vec<f64>,
 }
 
 #[derive(Tsify, Debug, Clone, Serialize, Deserialize)]
@@ -22,13 +29,13 @@ pub struct SEIRModelOutput {
 
 #[derive(Tsify, Debug, Clone, Serialize, Deserialize)]
 #[tsify(into_wasm_abi, from_wasm_abi)]
-pub struct SEIRModelOutputResult {
-    output: HashMap<String, SEIRModelOutput>,
+pub struct ModelRuns {
+    runs: HashMap<ModelRunType, SEIRModelOutput>,
 }
 
-impl SEIRModelOutputResult {
-    pub fn new(output: HashMap<String, SEIRModelOutput>) -> Self {
-        SEIRModelOutputResult { output }
+impl ModelRuns {
+    pub fn new(output: HashMap<ModelRunType, SEIRModelOutput>) -> Self {
+        ModelRuns { runs: output }
     }
 }
 
@@ -57,19 +64,19 @@ impl SEIRModelUnified {
         }
     }
 
-    fn run_internal(&self, days: usize) -> HashMap<String, SEIRModelOutput> {
-        let base_label: String;
+    fn run_internal(&self, days: usize) -> HashMap<ModelRunType, SEIRModelOutput> {
+        let base_label: ModelRunType;
         let mut result = HashMap::new();
 
         // Run an unmitigated version if necessary
         if self.parameters.has_mitigations() {
             result.insert(
-                "unmitigated".to_string(),
+                ModelRunType::Unmitigated,
                 select_model(self.parameters.without_mitigations()).integrate(days),
             );
-            base_label = "mitigated".to_string();
+            base_label = ModelRunType::Mitigated;
         } else {
-            base_label = "unmitigated".to_string();
+            base_label = ModelRunType::Unmitigated;
         }
 
         // Run the base version
@@ -82,8 +89,8 @@ impl SEIRModelUnified {
     }
 
     #[wasm_bindgen]
-    pub fn run(&self, days: usize) -> SEIRModelOutputResult {
-        SEIRModelOutputResult::new(self.run_internal(days))
+    pub fn run(&self, days: usize) -> ModelRuns {
+        ModelRuns::new(self.run_internal(days))
     }
 }
 
@@ -109,7 +116,7 @@ mod tests {
         let output = model.run_internal(200);
 
         assert_eq!(output.len(), 2);
-        assert!(output.contains_key("unmitigated"));
-        assert!(output.contains_key("mitigated"));
+        assert!(output.contains_key(&ModelRunType::Unmitigated));
+        assert!(output.contains_key(&ModelRunType::Mitigated));
     }
 }

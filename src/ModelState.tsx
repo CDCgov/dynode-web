@@ -2,7 +2,11 @@ import {
     MitigationParams,
     Parameters,
     SEIRModelUnified,
+    ModelRuns,
+    ModelRunType,
+    OutputType,
     SEIRModelOutput,
+    OutputItem,
 } from "@wasm/wasm_dynode";
 import {
     createContext,
@@ -11,7 +15,14 @@ import {
     ReactNode,
     useRef,
     useEffect,
+    useMemo,
 } from "react";
+import { Point } from "./plots/SEIRPlot";
+
+type OutputPoints = Record<
+    OutputType,
+    { byGroup: Point[][][]; byModelRun: Point[][] }
+>;
 
 type ParamsContextType = {
     params: Parameters;
@@ -22,7 +33,8 @@ type ParamsContextType = {
     setDays: React.Dispatch<React.SetStateAction<number>>;
     model: SEIRModelUnified | null;
     runningState: RunningState;
-    modelResult: Record<string, SEIRModelOutput> | null;
+    modelResult: ModelRuns | null;
+    points: OutputPoints | null;
 };
 
 const ParamsContext = createContext<ParamsContextType | undefined>(undefined);
@@ -61,9 +73,7 @@ export const ParamsProvider = ({
     // let [activePreset, activePreset] = useState(Preset | null>(null);
     let [days, setDays] = useState(200);
     let [model, setModel] = useState<SEIRModelUnified | null>(null);
-    let [modelResult, setModelResult] = useState<Record<string, SEIRModelOutput> | null>(
-        null
-    );
+    let [modelResult, setModelResult] = useState<ModelRuns | null>(null);
 
     // Create a new model when the parameters change
     useEffect(() => {
@@ -81,10 +91,61 @@ export const ParamsProvider = ({
         setRunningState(RunningState.Running);
         modelUpdateDebounceRef.current = setTimeout(() => {
             console.debug("Running model");
-            setModelResult(model.run(days).output);
+            setModelResult(model.run(days));
             setRunningState(RunningState.Idle);
         }, 300);
     }, [model, days]);
+
+    let points: OutputPoints | null = useMemo(() => {
+        if (!modelResult) return null;
+
+        let points: OutputPoints = {
+            infection_incidence: { byGroup: [], byModelRun: [] },
+            hospital_incidence: { byGroup: [], byModelRun: [] },
+        };
+
+        (
+            Object.entries(modelResult.runs) as [
+                ModelRunType,
+                SEIRModelOutput
+            ][]
+        ).forEach(([modelRunType, run], runIndex) => {
+            (Object.entries(run) as [OutputType, OutputItem[]][]).forEach(
+                ([outputType, output]) => {
+                    points[outputType].byModelRun.push(
+                        output.map((item) => {
+                            return {
+                                x: item.time,
+                                y: item.grouped_values.reduce(
+                                    (acc, value, groupIndex) => {
+                                        // Also push to byGroup
+                                        let byGroup =
+                                            points[outputType].byGroup;
+                                        if (!byGroup[groupIndex]) {
+                                            byGroup[groupIndex] = [];
+                                        }
+                                        if (!byGroup[groupIndex][runIndex]) {
+                                            byGroup[groupIndex][runIndex] = [];
+                                        }
+                                        byGroup[groupIndex][runIndex].push({
+                                            x: item.time,
+                                            y: value,
+                                            category: modelRunType,
+                                        });
+                                        return acc + value;
+                                    },
+                                    0
+                                ),
+                                category: modelRunType,
+                            };
+                        })
+                    );
+                }
+            );
+        });
+
+        return points;
+    }, [modelResult]);
 
     return (
         <ParamsContext.Provider
@@ -97,6 +158,7 @@ export const ParamsProvider = ({
                 setDays,
                 model,
                 modelResult,
+                points,
                 runningState,
             }}
         >
@@ -125,9 +187,9 @@ export const useDays = () => {
 };
 
 export const useModelResult = () => {
-    const { runningState, modelResult } = useParamsContext();
+    const { runningState, modelResult, points } = useParamsContext();
     const isRunning = runningState === RunningState.Running;
-    return { runningState, isRunning, modelResult };
+    return { runningState, isRunning, points, modelResult };
 };
 
 export type MitigationType = keyof MitigationParams;

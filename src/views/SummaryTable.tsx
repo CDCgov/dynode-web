@@ -1,11 +1,14 @@
 import { useMemo } from "react";
 import { useModelResult, useParams } from "../ModelState";
 import "./SummaryTable.css";
-import { SEIRModelOutput } from "@wasm/wasm_dynode";
+import { OutputType, SEIRModelOutput } from "@wasm/wasm_dynode";
 
-function summarize(modelResult: SEIRModelOutput): number[] {
-    return modelResult.infection_incidence.reduce((acc, { value }) => {
-        value.forEach((v, i) => {
+function summarize(
+    modelResult: SEIRModelOutput,
+    outputType: OutputType
+): number[] {
+    return modelResult[outputType].reduce((acc, { grouped_values }) => {
+        grouped_values.forEach((v, i) => {
             acc[i] = (acc[i] || 0) + v;
         });
         return acc;
@@ -27,10 +30,12 @@ export function SummaryTable() {
     const { labels, tableData } = useMemo(() => {
         if (!modelResult) return { labels: [], tableData: [] };
 
-        const summaries = Object.entries(modelResult).map(([key, value]) => ({
-            label: key,
-            values: summarize(value),
-        }))
+        const summaries = Object.entries(modelResult.runs).map(
+            ([key, value]) => ({
+                label: key,
+                values: summarize(value, "infection_incidence"),
+            })
+        );
 
         const labels = summaries.map((s) => s.label);
 

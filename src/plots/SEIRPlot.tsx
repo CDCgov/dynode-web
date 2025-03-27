@@ -1,31 +1,53 @@
 import * as Plot from "@observablehq/plot";
-import { OutputItem } from "@wasm/wasm_dynode";
-
+import { ModelRunType } from "@wasm/wasm_dynode";
 import { useRef, useState, useEffect, useLayoutEffect } from "react";
+
+export type Point = {
+    x: number;
+    y: number;
+    category: ModelRunType;
+};
 
 enum PlotColor {
     Default = "var(--default-plot-line-color)",
     Purple = "var(--purple)",
 }
 
-export interface CategorizedResult {
-    label: string;
-    output_type: string;
-    values: OutputItem[];
-}
-
 export interface SEIRPlotProps {
-    results: CategorizedResult[];
+    data: Point[][];
     yDomain?: [number, number];
     showLegend?: boolean;
     yTicks?: number;
+    yLabel: string;
+}
+
+function computeTickInfo(
+    data: Point[][],
+    yLabel: string
+): [number, string, (d: number) => string] {
+    const maxY = data.reduce((max, values) => {
+        return Math.max(
+            max,
+            values.reduce((max, { y }) => Math.max(max, y), 0)
+        );
+    }, 0);
+    let tickFormat = (d: number) => d.toLocaleString();
+    if (maxY >= 1_000_000) {
+        yLabel += " (millions)";
+        tickFormat = (d) => (d / 1_000_000).toLocaleString("en-US");
+    } else if (maxY >= 100_00) {
+        yLabel += " (thousands)";
+        tickFormat = (d) => (d / 1000).toLocaleString("en-US");
+    }
+    return [maxY, yLabel, tickFormat];
 }
 
 export function SEIRPlot({
     yTicks = 10,
-    results,
     yDomain,
     showLegend = true,
+    data,
+    yLabel: yLabelBase,
 }: SEIRPlotProps) {
     const plotRef = useRef<HTMLDivElement>(null);
     const [containerSize, setContainerSize] = useState<[number, number]>([
@@ -33,28 +55,17 @@ export function SEIRPlot({
     ]);
 
     useEffect(() => {
+        let results: Point[][] = data;
+
         if (!results.length || !plotRef.current) return;
-        const [, maxY] = results.reduce(
-            ([maxX, maxY], { values }) => [
-                Math.max(maxX, values[values.length - 1].time),
-                Math.max(maxY, ...values.map((d) => d.value)),
-            ],
-            [0, 0]
-        );
-        let yLabel = results[0].output_type;
-        let tickFormat = (d: number) => d.toLocaleString();
-        if (maxY >= 1_000_000) {
-            yLabel += " (millions)";
-            tickFormat = (d) => (d / 1_000_000).toLocaleString("en-US");
-        } else if (maxY >= 100_00) {
-            yLabel += " (thousands)";
-            tickFormat = (d) => (d / 1000).toLocaleString("en-US");
-        }
-        let { marks, color } = getTypedPlotData(
-            results,
-            ["unmitigated", PlotColor.Default],
-            ["mitigated", PlotColor.Purple]
-        );
+
+        let { marks, color } = getTypedPlotData(results, [
+            ["Unmitigated", PlotColor.Default],
+            ["Mitigated", PlotColor.Purple],
+        ]);
+
+        const [maxY, yLabel, tickFormat] = computeTickInfo(results, yLabelBase);
+
         const plot = Plot.plot({
             x: { label: "Days" },
             y: {
@@ -76,7 +87,7 @@ export function SEIRPlot({
         plotRef.current.appendChild(plot);
 
         return () => plot.remove();
-    }, [results, containerSize, yDomain, showLegend, yTicks]);
+    }, [data, containerSize, yLabelBase, yDomain, showLegend, yTicks]);
 
     useLayoutEffect(() => {
         if (!plotRef.current) return;
@@ -93,7 +104,7 @@ export function SEIRPlot({
                             entry.contentRect.width,
                             entry.contentRect.height,
                         ]);
-                    }, 100); // adjust delay if needed
+                    }, 100);
                 }
             }
         });
@@ -109,24 +120,19 @@ export function SEIRPlot({
     return <div ref={plotRef} />;
 }
 
-type LineConfig = {
-    x: keyof OutputItem;
-    y: keyof OutputItem;
-    stroke: PlotColor;
-};
-
 type TypedPlotData = {
     marks: Plot.Line[];
     color: ColorConfig;
 };
+
 type ColorConfig = {
     legend: boolean;
     domain: string[];
     range: string[];
 };
 function getTypedPlotData(
-    outputs: CategorizedResult[],
-    ...types: [string, PlotColor][]
+    outputs: Point[][],
+    colors: [string, PlotColor][]
 ): TypedPlotData {
     let marks: Plot.Line[] = [];
     let color: ColorConfig = {
@@ -134,8 +140,9 @@ function getTypedPlotData(
         domain: [],
         range: [],
     };
-    for (let [type, plotColor] of types) {
-        let mark = maybeRenderLine(outputs, type, plotColor);
+    for (let output of outputs) {
+        let [type, plotColor] = colors.shift() || ["", PlotColor.Default];
+        let mark = renderLine(output, plotColor);
         if (mark) {
             marks.push(mark);
             color.domain.push(type);
@@ -145,19 +152,15 @@ function getTypedPlotData(
     return { marks, color };
 }
 
-function maybeRenderLine(
-    outputs: CategorizedResult[],
-    label: string,
-    color: PlotColor
-) {
-    let output = outputs.find((o) => o.label === label);
-    if (!output) {
-        return;
-    }
-    let config: LineConfig = {
-        x: "time",
-        y: "value",
+function renderLine(values: Point[], color: PlotColor) {
+    let config: {
+        x: keyof Point;
+        y: keyof Point;
+        stroke: PlotColor;
+    } = {
+        x: "x",
+        y: "y",
         stroke: color,
     };
-    return Plot.line(output.values, config);
+    return Plot.line(values, config);
 }

@@ -243,11 +243,11 @@ where
                 let new_hospitalizations = state.get_h_cum() - prev_h_cum;
                 output.infection_incidence.push(OutputItem {
                     time: *time,
-                    value: new_infections.data.as_slice().into(),
+                    grouped_values: new_infections.data.as_slice().into(),
                 });
                 output.hospital_incidence.push(OutputItem {
                     time: *time,
-                    value: new_hospitalizations.data.as_slice().into(),
+                    grouped_values: new_hospitalizations.data.as_slice().into(),
                 });
                 prev_s_plus_e = s_plus_e;
                 prev_h_cum = state.get_h_cum().into();
@@ -372,7 +372,7 @@ mod test {
         let total_incidence: f64 = output
             .infection_incidence
             .iter()
-            .map(|x| x.value.iter().sum::<f64>())
+            .map(|x| x.grouped_values.iter().sum::<f64>())
             .sum();
         let attack_rate = total_incidence / model.parameters.population;
 
@@ -395,14 +395,14 @@ mod test {
         let total_incidence: f64 = output
             .infection_incidence
             .iter()
-            .map(|x| x.value.iter().sum::<f64>())
+            .map(|x| x.grouped_values.iter().sum::<f64>())
             .sum();
         let attack_rate = total_incidence / model.parameters.population;
 
         let incidence_by_group = output
             .infection_incidence
             .iter()
-            .map(|x| DVector::from_vec(x.value.clone()))
+            .map(|x| DVector::from_vec(x.grouped_values.clone()))
             .reduce(|acc, elem| acc + elem)
             .unwrap();
         let attack_rate_by_group = incidence_by_group
@@ -412,7 +412,7 @@ mod test {
         let hospitalizations_by_group = output
             .hospital_incidence
             .iter()
-            .map(|x| DVector::from_vec(x.value.clone()))
+            .map(|x| DVector::from_vec(x.grouped_values.clone()))
             .reduce(|acc, elem| acc + elem)
             .unwrap();
         let ihr = hospitalizations_by_group.component_div(&incidence_by_group);
@@ -439,7 +439,7 @@ mod test {
         let total_incidence: f64 = output
             .infection_incidence
             .iter()
-            .map(|x| x.value.iter().sum::<f64>())
+            .map(|x| x.grouped_values.iter().sum::<f64>())
             .sum();
         let attack_rate = total_incidence / model.parameters.population;
 
