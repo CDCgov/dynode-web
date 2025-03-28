@@ -19,9 +19,10 @@ import {
 } from "react";
 import { Point } from "./plots/SEIRPlot";
 
+export type LabeledModelRun = [ModelRunType, Point[]];
 type OutputPoints = Record<
     OutputType,
-    { byGroup: Point[][][]; byModelRun: Point[][] }
+    { byGroup: LabeledModelRun[][]; byModelRun: LabeledModelRun[] }
 >;
 
 type ParamsContextType = {
@@ -112,7 +113,8 @@ export const ParamsProvider = ({
         ).forEach(([modelRunType, run], runIndex) => {
             (Object.entries(run) as [OutputType, OutputItem[]][]).forEach(
                 ([outputType, output]) => {
-                    points[outputType].byModelRun.push(
+                    points[outputType].byModelRun.push([
+                        modelRunType,
                         output.map((item) => {
                             return {
                                 x: item.time,
@@ -125,9 +127,12 @@ export const ParamsProvider = ({
                                             byGroup[groupIndex] = [];
                                         }
                                         if (!byGroup[groupIndex][runIndex]) {
-                                            byGroup[groupIndex][runIndex] = [];
+                                            byGroup[groupIndex][runIndex] = [
+                                                modelRunType,
+                                                [],
+                                            ];
                                         }
-                                        byGroup[groupIndex][runIndex].push({
+                                        byGroup[groupIndex][runIndex][1].push({
                                             x: item.time,
                                             y: value,
                                             category: modelRunType,
@@ -138,8 +143,8 @@ export const ParamsProvider = ({
                                 ),
                                 category: modelRunType,
                             };
-                        })
-                    );
+                        }),
+                    ]);
                 }
             );
         });

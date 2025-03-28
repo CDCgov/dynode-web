@@ -1,6 +1,7 @@
 import * as Plot from "@observablehq/plot";
 import { ModelRunType } from "@wasm/wasm_dynode";
 import { useRef, useState, useEffect, useLayoutEffect } from "react";
+import { LabeledModelRun } from "../ModelState";
 
 export type Point = {
     x: number;
@@ -14,7 +15,7 @@ enum PlotColor {
 }
 
 export interface SEIRPlotProps {
-    data: Point[][];
+    data: LabeledModelRun[];
     yDomain?: [number, number];
     showLegend?: boolean;
     yTicks?: number;
@@ -22,10 +23,10 @@ export interface SEIRPlotProps {
 }
 
 function computeTickInfo(
-    data: Point[][],
+    data: LabeledModelRun[],
     yLabel: string
 ): [number, string, (d: number) => string] {
-    const maxY = data.reduce((max, values) => {
+    const maxY = data.reduce((max, [, values]) => {
         return Math.max(
             max,
             values.reduce((max, { y }) => Math.max(max, y), 0)
@@ -55,16 +56,14 @@ export function SEIRPlot({
     ]);
 
     useEffect(() => {
-        let results: Point[][] = data;
+        if (!data.length || !plotRef.current) return;
 
-        if (!results.length || !plotRef.current) return;
+        let { marks, color } = getTypedPlotData(data, {
+            Unmitigated: PlotColor.Default,
+            Mitigated: PlotColor.Purple,
+        });
 
-        let { marks, color } = getTypedPlotData(results, [
-            ["Unmitigated", PlotColor.Default],
-            ["Mitigated", PlotColor.Purple],
-        ]);
-
-        const [maxY, yLabel, tickFormat] = computeTickInfo(results, yLabelBase);
+        const [maxY, yLabel, tickFormat] = computeTickInfo(data, yLabelBase);
 
         const plot = Plot.plot({
             x: { label: "Days" },
@@ -131,8 +130,8 @@ type ColorConfig = {
     range: string[];
 };
 function getTypedPlotData(
-    outputs: Point[][],
-    colors: [string, PlotColor][]
+    outputs: LabeledModelRun[],
+    colors: Record<ModelRunType, PlotColor>
 ): TypedPlotData {
     let marks: Plot.Line[] = [];
     let color: ColorConfig = {
@@ -140,12 +139,12 @@ function getTypedPlotData(
         domain: [],
         range: [],
     };
-    for (let output of outputs) {
-        let [type, plotColor] = colors.shift() || ["", PlotColor.Default];
+    for (let [modelRunType, output] of outputs) {
+        let plotColor = colors[modelRunType];
         let mark = renderLine(output, plotColor);
         if (mark) {
             marks.push(mark);
-            color.domain.push(type);
+            color.domain.push(modelRunType);
             color.range.push(plotColor);
         }
     }

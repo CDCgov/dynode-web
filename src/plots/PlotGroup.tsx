@@ -1,14 +1,14 @@
-import { useParams } from "../ModelState";
-import { Point, SEIRPlot, SEIRPlotProps } from "./SEIRPlot";
+import { LabeledModelRun, useParams } from "../ModelState";
+import { SEIRPlot, SEIRPlotProps } from "./SEIRPlot";
 type PlotGroupProps = Omit<SEIRPlotProps, "data"> & {
-    groups: Point[][][];
+    groups: LabeledModelRun[][];
 };
 
 export function PlotGroup({ groups, ...otherProps }: PlotGroupProps) {
     let [params] = useParams();
     let labels = params.population_fraction_labels;
     const yValues = groups
-        .map((run) => run.map((points) => points.map((p) => p.y)))
+        .map((run) => run.map(([, points]) => points.map((p) => p.y)))
         .flat(2);
     const yDomain: [number, number] = [
         Math.min(...yValues),
