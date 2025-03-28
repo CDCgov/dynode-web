@@ -9594,7 +9594,7 @@ function KA(t14, e) {
 }
 async function H3(t14) {
   if (ae !== void 0) return ae;
-  typeof t14 < "u" && (Object.getPrototypeOf(t14) === Object.prototype ? { module_or_path: t14 } = t14 : console.warn("using deprecated parameters for the initialization function; pass a single object instead")), typeof t14 > "u" && (t14 = new URL("/dynode-web/assets/wasm_dynode_bg-BXLIRPH7.wasm", import.meta.url));
+  typeof t14 < "u" && (Object.getPrototypeOf(t14) === Object.prototype ? { module_or_path: t14 } = t14 : console.warn("using deprecated parameters for the initialization function; pass a single object instead")), typeof t14 > "u" && (t14 = new URL("/dynode-web/assets/wasm_dynode_bg-D9vA0PJJ.wasm", import.meta.url));
   const e = QA();
   (typeof t14 == "string" || typeof Request == "function" && t14 instanceof Request || typeof URL == "function" && t14 instanceof URL) && (t14 = fetch(t14));
   const { instance: i, module: a } = await ZA(await t14, e);
@@ -9616,12 +9616,13 @@ const V3 = Z.createContext(void 0), PA = ({ initialParams: t14, children: e }) =
   let S = Z.useMemo(() => {
     if (!y) return null;
     let x = { infection_incidence: { byGroup: [], byModelRun: [] }, hospital_incidence: { byGroup: [], byModelRun: [] } };
-    return Object.entries(y.runs).forEach(([T, E], D) => {
-      Object.entries(E).forEach(([O, A]) => {
-        x[O].byModelRun.push(A.map((N) => ({ x: N.time, y: N.grouped_values.reduce(($, L, z) => {
+    return y.types.forEach((T, E) => {
+      let D = y.runs[T];
+      Object.entries(D).forEach(([O, A]) => {
+        x[O].byModelRun.push([T, A.map((N) => ({ x: N.time, y: N.grouped_values.reduce(($, L, z) => {
           let q = x[O].byGroup;
-          return q[z] || (q[z] = []), q[z][D] || (q[z][D] = []), q[z][D].push({ x: N.time, y: L, category: T }), $ + L;
-        }, 0), category: T })));
+          return q[z] || (q[z] = []), q[z][E] || (q[z][E] = [T, []]), q[z][E][1].push({ x: N.time, y: L, category: T }), $ + L;
+        }, 0), category: T }))]);
       });
     }), x;
   }, [y]);
@@ -17766,18 +17767,17 @@ si.prototype.plot = function({ marks: t14 = [], ...e } = {}) {
   return f7({ ...e, marks: [...t14, this] });
 };
 function cB(t14, e) {
-  const i = t14.reduce((u, o) => Math.max(u, o.reduce((f, { y: s }) => Math.max(f, s), 0)), 0);
+  const i = t14.reduce((u, [, o]) => Math.max(u, o.reduce((f, { y: s }) => Math.max(f, s), 0)), 0);
   let a = (u) => u.toLocaleString();
   return i >= 1e6 ? (e += " (millions)", a = (u) => (u / 1e6).toLocaleString("en-US")) : i >= 1e4 && (e += " (thousands)", a = (u) => (u / 1e3).toLocaleString("en-US")), [i, e, a];
 }
 function d7({ yTicks: t14 = 10, yDomain: e, showLegend: i = true, data: a, yLabel: u }) {
   const o = Z.useRef(null), [f, s] = Z.useState([800, 500]);
   return Z.useEffect(() => {
-    let d = a;
-    if (!d.length || !o.current) return;
-    let { marks: p, color: m } = fB(d, [["Unmitigated", "var(--default-plot-line-color)"], ["Mitigated", "var(--purple)"]]);
-    const [b, v, y] = cB(d, u), w = f7({ x: { label: "Days" }, y: { label: v, domain: e || [0, b], grid: true, ticks: t14, tickFormat: y }, color: i ? m : void 0, width: f[0], height: Math.max(f[0] * 0.5, 200), marks: p });
-    return o.current.innerHTML = "", o.current.appendChild(w), () => w.remove();
+    if (!a.length || !o.current) return;
+    let { marks: d, color: p } = fB(a, { Unmitigated: "var(--default-plot-line-color)", Mitigated: "var(--purple)" });
+    const [m, b, v] = cB(a, u), y = f7({ x: { label: "Days" }, y: { label: b, domain: e || [0, m], grid: true, ticks: t14, tickFormat: v }, color: i ? p : void 0, width: f[0], height: Math.max(f[0] * 0.5, 200), marks: d });
+    return o.current.innerHTML = "", o.current.appendChild(y), () => y.remove();
   }, [a, f, u, e, i, t14]), Z.useLayoutEffect(() => {
     if (!o.current) return;
     let d = null;
@@ -17793,9 +17793,9 @@ function d7({ yTicks: t14 = 10, yDomain: e, showLegend: i = true, data: a, yLabe
 }
 function fB(t14, e) {
   let i = [], a = { legend: true, domain: [], range: [] };
-  for (let u of t14) {
-    let [o, f] = e.shift() || ["", "var(--default-plot-line-color)"], s = sB(u, f);
-    s && (i.push(s), a.domain.push(o), a.range.push(f));
+  for (let [u, o] of t14) {
+    let f = e[u], s = sB(o, f);
+    s && (i.push(s), a.domain.push(u), a.range.push(f));
   }
   return { marks: i, color: a };
 }
@@ -17817,7 +17817,7 @@ function k6({ title: t14, outputType: e }) {
   let [i] = _a(), a = i.population_fraction_labels, { modelResult: u } = Ws();
   const { labels: o, tableData: f } = Z.useMemo(() => {
     if (!u) return { labels: [], tableData: [] };
-    const s = Object.entries(u.runs).map(([b, v]) => ({ label: b, values: dB(v, e) })), d = s.map((b) => b.label);
+    const s = u.types.map((b) => ({ label: b, values: dB(u.runs[b], e) })), d = s.map((b) => b.label);
     let p = d.length === 2 && d[0] === "Unmitigated" && d[1] === "Mitigated";
     p && d.push("Prevented");
     const m = a.map((b, v) => {
@@ -17834,7 +17834,7 @@ function h7() {
 }
 function pB({ groups: t14, ...e }) {
   let [i] = _a(), a = i.population_fraction_labels;
-  const u = t14.map((f) => f.map((s) => s.map((d) => d.y))).flat(2), o = [Math.min(...u), Math.max(...u)];
+  const u = t14.map((f) => f.map(([, s]) => s.map((d) => d.y))).flat(2), o = [Math.min(...u), Math.max(...u)];
   return F.jsx(F.Fragment, { children: t14.map((f, s) => F.jsxs("div", { children: [F.jsx("h4", { className: "mb-1", children: a[s] }), F.jsx(d7, { data: f, yDomain: o, ...e }, s)] }, s)) });
 }
 function mB() {
