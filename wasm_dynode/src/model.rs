@@ -1,201 +1,71 @@
 use crate::{DynodeModel, OutputItem, Parameters, SEIRModelOutput};
 use nalgebra::{Const, Matrix, MatrixView, SVector, Storage, StorageMut};
 use ode_solvers::{Dopri5, System};
-type State<const N: usize> = SVector<f64, { 10 * N }>;
+use paste::paste;
 
 pub struct SEIRModel<const N: usize> {
     pub(crate) parameters: Parameters<N>,
     contact_matrix_normalization: f64,
 }
 
-trait StateWrapper<const N: usize, S: Storage<f64, Const<{ 10 * N }>> + 'static>
-where
-    Self: 'static,
-{
-    fn get_s(&self) -> MatrixView<'_, f64, Const<N>, Const<1>, S::RStride, S::CStride>;
-    fn get_e(&self) -> MatrixView<'_, f64, Const<N>, Const<1>, S::RStride, S::CStride>;
-    fn get_i(&self) -> MatrixView<'_, f64, Const<N>, Const<1>, S::RStride, S::CStride>;
-    fn get_r(&self) -> MatrixView<'_, f64, Const<N>, Const<1>, S::RStride, S::CStride>;
-    fn get_sv(&self) -> MatrixView<'_, f64, Const<N>, Const<1>, S::RStride, S::CStride>;
-    fn get_ev(&self) -> MatrixView<'_, f64, Const<N>, Const<1>, S::RStride, S::CStride>;
-    fn get_iv(&self) -> MatrixView<'_, f64, Const<N>, Const<1>, S::RStride, S::CStride>;
-    fn get_rv(&self) -> MatrixView<'_, f64, Const<N>, Const<1>, S::RStride, S::CStride>;
-    fn get_pre_h(&self) -> MatrixView<'_, f64, Const<N>, Const<1>, S::RStride, S::CStride>;
-    fn get_h_cum(&self) -> MatrixView<'_, f64, Const<N>, Const<1>, S::RStride, S::CStride>;
-}
+macro_rules! make_state {
+    ($( $x:ident),*) => {
+        type State<const N: usize> = SVector<f64, { ${count($x)} * N }>;
 
-impl<const N: usize, S: Storage<f64, Const<{ 10 * N }>> + 'static> StateWrapper<N, S>
-    for Matrix<f64, Const<{ 10 * N }>, Const<1>, S>
-{
-    fn get_s(&self) -> MatrixView<'_, f64, Const<N>, Const<1>, S::RStride, S::CStride> {
-        self.fixed_view::<N, 1>(0, 0)
-    }
+        trait StateWrapper<const N: usize, S: Storage<f64, Const<{ ${count($x)} * N }>> + 'static>
+        where Self: 'static,
+        {
+            paste! {
+            $(
+            fn [<get_  $x>](&self) -> MatrixView<'_, f64, Const<N>, Const<1>, S::RStride, S::CStride>;
+            )*
+            }
+        }
 
-    fn get_e(&self) -> MatrixView<'_, f64, Const<N>, Const<1>, <S>::RStride, <S>::CStride> {
-        self.fixed_view::<N, 1>(N, 0)
-    }
+        impl<const N: usize, S: Storage<f64, Const<{ ${count($x)} * N }>> + 'static> StateWrapper<N, S>
+            for Matrix<f64, Const<{ ${count($x)} * N }>, Const<1>, S>
+        {
+            paste! {
+            $(
+                fn [<get_  $x>](&self) -> MatrixView<'_, f64, Const<N>, Const<1>, S::RStride, S::CStride> {
+                    self.fixed_view::<N, 1>(${index()} * N, 0)
+                }
+            )*
+        }
 
-    fn get_i(&self) -> MatrixView<'_, f64, Const<N>, Const<1>, <S>::RStride, <S>::CStride> {
-        self.fixed_view::<N, 1>(2 * N, 0)
-    }
+        }
 
-    fn get_r(&self) -> MatrixView<'_, f64, Const<N>, Const<1>, <S>::RStride, <S>::CStride> {
-        self.fixed_view::<N, 1>(3 * N, 0)
-    }
+        trait StateWrapperMut<const N: usize>
+        where Self: 'static,
+        {
+            paste! {
+            $(
+            fn [<set_  $x>]<S: Storage<f64, Const<N>>>(
+                &mut self,
+                value: &Matrix<f64, Const<N>, Const<1>, S>,
+            );
+            )*
+            }
+        }
 
-    fn get_sv(&self) -> MatrixView<'_, f64, Const<N>, Const<1>, <S>::RStride, <S>::CStride> {
-        self.fixed_view::<N, 1>(4 * N, 0)
-    }
-
-    fn get_ev(&self) -> MatrixView<'_, f64, Const<N>, Const<1>, <S>::RStride, <S>::CStride> {
-        self.fixed_view::<N, 1>(5 * N, 0)
-    }
-
-    fn get_iv(&self) -> MatrixView<'_, f64, Const<N>, Const<1>, <S>::RStride, <S>::CStride> {
-        self.fixed_view::<N, 1>(6 * N, 0)
-    }
-
-    fn get_rv(&self) -> MatrixView<'_, f64, Const<N>, Const<1>, <S>::RStride, <S>::CStride> {
-        self.fixed_view::<N, 1>(7 * N, 0)
-    }
-
-    fn get_pre_h(&self) -> MatrixView<'_, f64, Const<N>, Const<1>, <S>::RStride, <S>::CStride> {
-        self.fixed_view::<N, 1>(8 * N, 0)
-    }
-
-    fn get_h_cum(&self) -> MatrixView<'_, f64, Const<N>, Const<1>, <S>::RStride, <S>::CStride> {
-        self.fixed_view::<N, 1>(9 * N, 0)
+        impl<const N: usize, S: StorageMut<f64, Const<{ ${count($x)} * N }>> + 'static> StateWrapperMut<N>
+        for Matrix<f64, Const<{ ${count($x)} * N }>, Const<1>, S>
+        {
+            paste! {
+            $(
+                fn [<set_  $x>]<S2: Storage<f64, Const<N>>>(
+                    &mut self,
+                    value: &Matrix<f64, Const<N>, Const<1>, S2>,
+                ) {
+                    self.fixed_view_mut::<N, 1>(${index()} * N, 0).set_column(0, value);
+                }
+            )*
+        }
+        }
     }
 }
 
-trait StateWrapperMut<const N: usize>
-where
-    Self: 'static,
-{
-    fn set_s<S2: Storage<f64, Const<N>> + 'static>(
-        &mut self,
-        value: &Matrix<f64, Const<N>, Const<1>, S2>,
-    );
-
-    fn set_e<S2: Storage<f64, Const<N>> + 'static>(
-        &mut self,
-        value: &Matrix<f64, Const<N>, Const<1>, S2>,
-    );
-
-    fn set_i<S2: Storage<f64, Const<N>> + 'static>(
-        &mut self,
-        value: &Matrix<f64, Const<N>, Const<1>, S2>,
-    );
-
-    fn set_r<S2: Storage<f64, Const<N>> + 'static>(
-        &mut self,
-        value: &Matrix<f64, Const<N>, Const<1>, S2>,
-    );
-
-    fn set_sv<S2: Storage<f64, Const<N>> + 'static>(
-        &mut self,
-        value: &Matrix<f64, Const<N>, Const<1>, S2>,
-    );
-
-    fn set_ev<S2: Storage<f64, Const<N>> + 'static>(
-        &mut self,
-        value: &Matrix<f64, Const<N>, Const<1>, S2>,
-    );
-
-    fn set_iv<S2: Storage<f64, Const<N>> + 'static>(
-        &mut self,
-        value: &Matrix<f64, Const<N>, Const<1>, S2>,
-    );
-
-    fn set_rv<S2: Storage<f64, Const<N>> + 'static>(
-        &mut self,
-        value: &Matrix<f64, Const<N>, Const<1>, S2>,
-    );
-
-    fn set_pre_h<S2: Storage<f64, Const<N>> + 'static>(
-        &mut self,
-        value: &Matrix<f64, Const<N>, Const<1>, S2>,
-    );
-
-    fn set_h_cum<S2: Storage<f64, Const<N>> + 'static>(
-        &mut self,
-        value: &Matrix<f64, Const<N>, Const<1>, S2>,
-    );
-}
-
-impl<const N: usize, S: StorageMut<f64, Const<{ 10 * N }>> + 'static> StateWrapperMut<N>
-    for Matrix<f64, Const<{ 10 * N }>, Const<1>, S>
-{
-    fn set_s<S2: Storage<f64, Const<N>> + 'static>(
-        &mut self,
-        value: &Matrix<f64, Const<N>, Const<1>, S2>,
-    ) {
-        self.fixed_view_mut::<N, 1>(0, 0).set_column(0, value);
-    }
-
-    fn set_e<S2: Storage<f64, Const<N>> + 'static>(
-        &mut self,
-        value: &Matrix<f64, Const<N>, Const<1>, S2>,
-    ) {
-        self.fixed_view_mut::<N, 1>(N, 0).set_column(0, value);
-    }
-
-    fn set_i<S2: Storage<f64, Const<N>> + 'static>(
-        &mut self,
-        value: &Matrix<f64, Const<N>, Const<1>, S2>,
-    ) {
-        self.fixed_view_mut::<N, 1>(2 * N, 0).set_column(0, value);
-    }
-
-    fn set_r<S2: Storage<f64, Const<N>> + 'static>(
-        &mut self,
-        value: &Matrix<f64, Const<N>, Const<1>, S2>,
-    ) {
-        self.fixed_view_mut::<N, 1>(3 * N, 0).set_column(0, value);
-    }
-
-    fn set_sv<S2: Storage<f64, Const<N>> + 'static>(
-        &mut self,
-        value: &Matrix<f64, Const<N>, Const<1>, S2>,
-    ) {
-        self.fixed_view_mut::<N, 1>(4 * N, 0).set_column(0, value);
-    }
-
-    fn set_ev<S2: Storage<f64, Const<N>> + 'static>(
-        &mut self,
-        value: &Matrix<f64, Const<N>, Const<1>, S2>,
-    ) {
-        self.fixed_view_mut::<N, 1>(5 * N, 0).set_column(0, value);
-    }
-
-    fn set_iv<S2: Storage<f64, Const<N>> + 'static>(
-        &mut self,
-        value: &Matrix<f64, Const<N>, Const<1>, S2>,
-    ) {
-        self.fixed_view_mut::<N, 1>(6 * N, 0).set_column(0, value);
-    }
-
-    fn set_rv<S2: Storage<f64, Const<N>> + 'static>(
-        &mut self,
-        value: &Matrix<f64, Const<N>, Const<1>, S2>,
-    ) {
-        self.fixed_view_mut::<N, 1>(7 * N, 0).set_column(0, value);
-    }
-
-    fn set_pre_h<S2: Storage<f64, Const<N>> + 'static>(
-        &mut self,
-        value: &Matrix<f64, Const<N>, Const<1>, S2>,
-    ) {
-        self.fixed_view_mut::<N, 1>(8 * N, 0).set_column(0, value);
-    }
-
-    fn set_h_cum<S2: Storage<f64, Const<N>> + 'static>(
-        &mut self,
-        value: &Matrix<f64, Const<N>, Const<1>, S2>,
-    ) {
-        self.fixed_view_mut::<N, 1>(9 * N, 0).set_column(0, value);
-    }
-}
+make_state!(s, e, i, r, sv, ev, iv, rv, pre_h, h_cum);
 
 impl<const N: usize> SEIRModel<N> {
     pub fn new(parameters: Parameters<N>) -> Self {
