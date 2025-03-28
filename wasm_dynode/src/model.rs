@@ -17,6 +17,7 @@ macro_rules! make_state {
         {
             paste! {
             $(
+            #[allow(dead_code)]
             fn [<get_  $x>](&self) -> MatrixView<'_, f64, Const<N>, Const<1>, S::RStride, S::CStride>;
             )*
             }

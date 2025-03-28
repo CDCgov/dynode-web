@@ -78,7 +78,7 @@ export function SEIRPlot({
             width: containerSize[0],
             // TODO allow for aspect ratio to be set
             height: Math.max(containerSize[0] * 0.5, 200),
-            marks,
+            marks: marks,
         });
 
         // Append plot to the div
@@ -148,6 +148,7 @@ function getTypedPlotData(
             color.range.push(plotColor);
         }
     }
+
     return { marks, color };
 }
 
