@@ -36,12 +36,10 @@ function SummaryTableInner({
     const { labels, tableData } = useMemo(() => {
         if (!modelResult) return { labels: [], tableData: [] };
 
-        const summaries = Object.entries(modelResult.runs).map(
-            ([key, value]) => ({
-                label: key as ModelRunType,
-                values: summarize(value, outputType),
-            })
-        );
+        const summaries = modelResult.types.map((label) => ({
+            label,
+            values: summarize(modelResult.runs[label], outputType),
+        }));
 
         const labels: Array<ModelRunType | "Prevented"> = summaries.map(
             (s) => s.label

@@ -31,11 +31,15 @@ pub struct SEIRModelOutput {
 #[tsify(into_wasm_abi, from_wasm_abi)]
 pub struct ModelRuns {
     runs: HashMap<ModelRunType, SEIRModelOutput>,
+    types: Vec<ModelRunType>,
 }
 
 impl ModelRuns {
-    pub fn new(output: HashMap<ModelRunType, SEIRModelOutput>) -> Self {
-        ModelRuns { runs: output }
+    pub fn new(output: HashMap<ModelRunType, SEIRModelOutput>, types: Vec<ModelRunType>) -> Self {
+        ModelRuns {
+            runs: output,
+            types,
+        }
     }
 }
 
@@ -64,12 +68,15 @@ impl SEIRModelUnified {
         }
     }
 
-    fn run_internal(&self, days: usize) -> HashMap<ModelRunType, SEIRModelOutput> {
+    #[wasm_bindgen]
+    pub fn run(&self, days: usize) -> ModelRuns {
         let base_label: ModelRunType;
         let mut result = HashMap::new();
+        let mut types = vec![ModelRunType::Unmitigated];
 
         // Run an unmitigated version if necessary
         if self.parameters.has_mitigations() {
+            types.push(ModelRunType::Mitigated);
             result.insert(
                 ModelRunType::Unmitigated,
                 select_model(self.parameters.without_mitigations()).integrate(days),
@@ -85,12 +92,7 @@ impl SEIRModelUnified {
             select_model(self.parameters.clone()).integrate(days),
         );
 
-        result
-    }
-
-    #[wasm_bindgen]
-    pub fn run(&self, days: usize) -> ModelRuns {
-        ModelRuns::new(self.run_internal(days))
+        ModelRuns::new(result, types)
     }
 }
 
@@ -113,7 +115,7 @@ mod tests {
         let mut parameters = Parameters::default();
         parameters.mitigations.vaccine.enabled = true;
         let model = SEIRModelUnified { parameters };
-        let output = model.run_internal(200);
+        let output = model.run(200);
 
         assert_eq!(output.len(), 2);
         assert!(output.contains_key(&ModelRunType::Unmitigated));

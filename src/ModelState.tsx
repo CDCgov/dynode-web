@@ -1,3 +1,5 @@
+/* eslint-disable react-refresh/only-export-components */
+
 import {
     MitigationParams,
     Parameters,
@@ -5,7 +7,6 @@ import {
     ModelRuns,
     ModelRunType,
     OutputType,
-    SEIRModelOutput,
     OutputItem,
 } from "@wasm/wasm_dynode";
 import {
@@ -105,12 +106,8 @@ export const ParamsProvider = ({
             hospital_incidence: { byGroup: [], byModelRun: [] },
         };
 
-        (
-            Object.entries(modelResult.runs) as [
-                ModelRunType,
-                SEIRModelOutput
-            ][]
-        ).forEach(([modelRunType, run], runIndex) => {
+        modelResult.types.forEach((modelRunType, runIndex) => {
+            let run = modelResult.runs[modelRunType];
             (Object.entries(run) as [OutputType, OutputItem[]][]).forEach(
                 ([outputType, output]) => {
                     points[outputType].byModelRun.push([
