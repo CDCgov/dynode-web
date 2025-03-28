@@ -115,7 +115,7 @@ mod tests {
         let mut parameters = Parameters::default();
         parameters.mitigations.vaccine.enabled = true;
         let model = SEIRModelUnified { parameters };
-        let output = model.run(200);
+        let output = model.run(200).runs;
 
         assert_eq!(output.len(), 2);
         assert!(output.contains_key(&ModelRunType::Unmitigated));
