@@ -1,8 +1,9 @@
 import { get_default_parameters, Parameters } from "@wasm/wasm_dynode";
 import { JSX, useEffect, useState } from "react";
-import { useModelResult, useParams } from "../ModelState";
+import { useParams } from "../ModelState";
 
 import "./PresetEditor.css";
+import { useModelRunData } from "../state/modelRuns";
 
 export interface Preset {
     label: string;
@@ -67,16 +68,12 @@ export function PresetEditor(): JSX.Element {
 
 function ModelRunStats() {
     let [count, setCount] = useState(0);
-    let { isRunning, modelResult } = useModelResult();
+    let { dt } = useModelRunData();
     useEffect(() => {
-        if (modelResult) {
+        if (dt) {
             setCount((c) => c + 1);
         }
-    }, [modelResult]);
+    }, [dt]);
 
-    return (
-        <div className="model-run-stats">
-            Model run: {isRunning ? ".." : count}
-        </div>
-    );
+    return <div className="model-run-stats">Model run: {count || 0}</div>;
 }

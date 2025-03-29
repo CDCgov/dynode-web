@@ -21,6 +21,8 @@ serde = "1.0.219"
 tsify = "0.4.5"
 nalgebra = { version = "0.33.2", features = ["serde-serialize"] }
 paste = "1.0.15"
+strum = "0.27.1"
+strum_macros = "0.27.1"
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.13"

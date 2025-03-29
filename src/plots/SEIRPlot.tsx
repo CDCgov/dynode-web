@@ -1,37 +1,32 @@
 import * as Plot from "@observablehq/plot";
-import { ModelRunType } from "@wasm/wasm_dynode";
+import { MitigationType } from "@wasm/wasm_dynode";
 import { useRef, useState, useEffect, useLayoutEffect } from "react";
-import { LabeledModelRun } from "../ModelState";
-
-export type Point = {
-    x: number;
-    y: number;
-    category: ModelRunType;
-};
+import { Point } from "../state/modelRuns";
 
 enum PlotColor {
     Default = "var(--default-plot-line-color)",
     Purple = "var(--purple)",
 }
 
-export interface SEIRPlotProps {
-    data: LabeledModelRun[];
-    yDomain?: [number, number];
-    showLegend?: boolean;
-    yTicks?: number;
-    yLabel: string;
+function getColors(group_by: keyof Point): {
+    domain: string[];
+    range: string[];
+} | null {
+    switch (group_by) {
+        case "mitigation_type":
+            return {
+                domain: ["Unmitigated", "Mitigated"] as MitigationType[],
+                range: [PlotColor.Default, PlotColor.Purple],
+            };
+        default:
+            return null;
+    }
 }
 
 function computeTickInfo(
-    data: LabeledModelRun[],
-    yLabel: string
-): [number, string, (d: number) => string] {
-    const maxY = data.reduce((max, [, values]) => {
-        return Math.max(
-            max,
-            values.reduce((max, { y }) => Math.max(max, y), 0)
-        );
-    }, 0);
+    yLabel: string,
+    maxY: number
+): [string, (d: number) => string] {
     let tickFormat = (d: number) => d.toLocaleString();
     if (maxY >= 1_000_000) {
         yLabel += " (millions)";
@@ -40,15 +35,26 @@ function computeTickInfo(
         yLabel += " (thousands)";
         tickFormat = (d) => (d / 1000).toLocaleString("en-US");
     }
-    return [maxY, yLabel, tickFormat];
+    return [yLabel, tickFormat];
 }
 
+export interface SEIRPlotProps {
+    data: Point[];
+    group_by: keyof Point;
+    yDomain?: [number, number];
+    showLegend?: boolean;
+    yTicks?: number;
+    yLabel: string;
+    maxY?: number;
+}
 export function SEIRPlot({
     yTicks = 10,
     yDomain,
     showLegend = true,
     data,
+    group_by,
     yLabel: yLabelBase,
+    maxY: userMaxY,
 }: SEIRPlotProps) {
     const plotRef = useRef<HTMLDivElement>(null);
     const [containerSize, setContainerSize] = useState<[number, number]>([
@@ -58,13 +64,14 @@ export function SEIRPlot({
     useEffect(() => {
         if (!data.length || !plotRef.current) return;
 
-        let { marks, color } = getTypedPlotData(data, {
-            Unmitigated: PlotColor.Default,
-            Mitigated: PlotColor.Purple,
-        });
+        let colors = getColors(group_by);
 
-        const [maxY, yLabel, tickFormat] = computeTickInfo(data, yLabelBase);
+        let maxY = userMaxY;
+        if (!maxY) {
+            maxY = Math.max(...data.map((d) => d.y));
+        }
 
+        const [yLabel, tickFormat] = computeTickInfo(yLabelBase, maxY);
         const plot = Plot.plot({
             x: { label: "Days" },
             y: {
@@ -74,11 +81,22 @@ export function SEIRPlot({
                 ticks: yTicks,
                 tickFormat,
             },
-            color: showLegend ? color : undefined,
+            color: colors
+                ? {
+                      legend: showLegend,
+                      ...colors,
+                  }
+                : undefined,
             width: containerSize[0],
             // TODO allow for aspect ratio to be set
             height: Math.max(containerSize[0] * 0.5, 200),
-            marks: marks,
+            marks: [
+                Plot.line(data, {
+                    x: "x",
+                    y: "y",
+                    stroke: group_by,
+                }),
+            ],
         });
 
         // Append plot to the div
@@ -117,50 +135,4 @@ export function SEIRPlot({
     }, []);
 
     return <div ref={plotRef} />;
-}
-
-type TypedPlotData = {
-    marks: Plot.Line[];
-    color: ColorConfig;
-};
-
-type ColorConfig = {
-    legend: boolean;
-    domain: string[];
-    range: string[];
-};
-function getTypedPlotData(
-    outputs: LabeledModelRun[],
-    colors: Record<ModelRunType, PlotColor>
-): TypedPlotData {
-    let marks: Plot.Line[] = [];
-    let color: ColorConfig = {
-        legend: true,
-        domain: [],
-        range: [],
-    };
-    for (let [modelRunType, output] of outputs) {
-        let plotColor = colors[modelRunType];
-        let mark = renderLine(output, plotColor);
-        if (mark) {
-            marks.push(mark);
-            color.domain.push(modelRunType);
-            color.range.push(plotColor);
-        }
-    }
-
-    return { marks, color };
-}
-
-function renderLine(values: Point[], color: PlotColor) {
-    let config: {
-        x: keyof Point;
-        y: keyof Point;
-        stroke: PlotColor;
-    } = {
-        x: "x",
-        y: "y",
-        stroke: color,
-    };
-    return Plot.line(values, config);
 }

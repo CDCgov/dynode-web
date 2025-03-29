@@ -1,4 +1,4 @@
-use crate::{DynodeModel, OutputItem, Parameters, SEIRModelOutput};
+use crate::{DynodeModel, ModelOutput, Parameters};
 use nalgebra::{Const, Matrix, MatrixView, SVector, Storage, StorageMut};
 use ode_solvers::{Dopri5, System};
 use paste::paste;
@@ -83,7 +83,7 @@ impl<const N: usize> DynodeModel for SEIRModel<N>
 where
     [(); 10 * N]: Sized,
 {
-    fn integrate(&self, days: usize) -> SEIRModelOutput {
+    fn integrate(&self, days: usize) -> ModelOutput {
         let population_fractions = self.parameters.population_fractions;
         let mut initial_state: State<N> = SVector::zeros();
         initial_state.set_s(
@@ -95,10 +95,7 @@ where
         let mut stepper = Dopri5::new(self, 0.0, days as f64, 1.0, initial_state, 1e-6, 1e-6);
         let _res = stepper.integrate();
 
-        let mut output = SEIRModelOutput {
-            infection_incidence: Vec::new(),
-            hospital_incidence: Vec::new(),
-        };
+        let mut output = ModelOutput::new();
 
         let mut first_loop = true;
         let mut prev_s_plus_e = SVector::zeros();
@@ -112,14 +109,8 @@ where
             } else {
                 let new_infections = prev_s_plus_e - s_plus_e;
                 let new_hospitalizations = state.get_h_cum() - prev_h_cum;
-                output.infection_incidence.push(OutputItem {
-                    time: *time,
-                    grouped_values: new_infections.data.as_slice().into(),
-                });
-                output.hospital_incidence.push(OutputItem {
-                    time: *time,
-                    grouped_values: new_hospitalizations.data.as_slice().into(),
-                });
+                output.add_infection_incidence(*time, new_infections.data.as_slice().into());
+                output.add_hospital_incidence(*time, new_hospitalizations.data.as_slice().into());
                 prev_s_plus_e = s_plus_e;
                 prev_h_cum = state.get_h_cum().into();
             }
@@ -219,7 +210,9 @@ mod test {
     use nalgebra::{DVector, Matrix1, Vector1, matrix};
 
     use super::SEIRModel;
-    use crate::{DynodeModel, MitigationParams, Parameters, model::get_dominant_eigendata};
+    use crate::{
+        DynodeModel, MitigationParams, OutputType, Parameters, model::get_dominant_eigendata,
+    };
 
     #[test]
     fn final_size_relation() {
@@ -241,7 +234,7 @@ mod test {
         let output = model.integrate(300);
 
         let total_incidence: f64 = output
-            .infection_incidence
+            .get_output(&OutputType::InfectionIncidence)
             .iter()
             .map(|x| x.grouped_values.iter().sum::<f64>())
             .sum();
@@ -264,14 +257,14 @@ mod test {
         let output = model.integrate(300);
 
         let total_incidence: f64 = output
-            .infection_incidence
+            .get_output(&OutputType::InfectionIncidence)
             .iter()
             .map(|x| x.grouped_values.iter().sum::<f64>())
             .sum();
         let attack_rate = total_incidence / model.parameters.population;
 
         let incidence_by_group = output
-            .infection_incidence
+            .get_output(&OutputType::InfectionIncidence)
             .iter()
             .map(|x| DVector::from_vec(x.grouped_values.clone()))
             .reduce(|acc, elem| acc + elem)
@@ -281,7 +274,7 @@ mod test {
             / model.parameters.population;
 
         let hospitalizations_by_group = output
-            .hospital_incidence
+            .get_output(&OutputType::HospitalIncidence)
             .iter()
             .map(|x| DVector::from_vec(x.grouped_values.clone()))
             .reduce(|acc, elem| acc + elem)
@@ -308,7 +301,7 @@ mod test {
         let output = model.integrate(200);
 
         let total_incidence: f64 = output
-            .infection_incidence
+            .get_output(&OutputType::InfectionIncidence)
             .iter()
             .map(|x| x.grouped_values.iter().sum::<f64>())
             .sum();

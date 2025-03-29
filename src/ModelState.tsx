@@ -4,10 +4,6 @@ import {
     MitigationParams,
     Parameters,
     SEIRModelUnified,
-    ModelRuns,
-    ModelRunType,
-    OutputType,
-    OutputItem,
 } from "@wasm/wasm_dynode";
 import {
     createContext,
@@ -18,13 +14,7 @@ import {
     useEffect,
     useMemo,
 } from "react";
-import { Point } from "./plots/SEIRPlot";
-
-export type LabeledModelRun = [ModelRunType, Point[]];
-type OutputPoints = Record<
-    OutputType,
-    { byGroup: LabeledModelRun[][]; byModelRun: LabeledModelRun[] }
->;
+import { ModelRunTable, buildModelRunTable } from "./state/modelRuns";
 
 type ParamsContextType = {
     params: Parameters;
@@ -35,8 +25,9 @@ type ParamsContextType = {
     setDays: React.Dispatch<React.SetStateAction<number>>;
     model: SEIRModelUnified | null;
     runningState: RunningState;
-    modelResult: ModelRuns | null;
-    points: OutputPoints | null;
+    modelRunTable: ModelRunTable | null;
+    isTurbo: boolean;
+    setIsTurbo: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const ParamsContext = createContext<ParamsContextType | undefined>(undefined);
@@ -56,6 +47,7 @@ export const ParamsProvider = ({
     let [runningState, setRunningState] = useState<RunningState>(
         RunningState.Idle
     );
+    let [isTurbo, setIsTurbo] = useState(false);
 
     const updateParams = (newParams: Partial<Parameters>) =>
         setParams((current) => ({
@@ -74,14 +66,11 @@ export const ParamsProvider = ({
     const modelUpdateDebounceRef = useRef<NodeJS.Timeout | null>(null);
     // let [activePreset, activePreset] = useState(Preset | null>(null);
     let [days, setDays] = useState(200);
-    let [model, setModel] = useState<SEIRModelUnified | null>(null);
-    let [modelResult, setModelResult] = useState<ModelRuns | null>(null);
+    let [modelRunTable, setModelRuns] = useState<ModelRunTable | null>(null);
 
     // Create a new model when the parameters change
-    useEffect(() => {
-        let model = new SEIRModelUnified(params);
-        setModel(model);
-        console.debug("Updating model with new params", params);
+    let model = useMemo(() => {
+        return new SEIRModelUnified(params);
     }, [params]);
 
     // Run the model when the days or model changes
@@ -91,63 +80,16 @@ export const ParamsProvider = ({
             clearTimeout(modelUpdateDebounceRef.current);
         }
         setRunningState(RunningState.Running);
-        modelUpdateDebounceRef.current = setTimeout(() => {
-            console.debug("Running model");
-            setModelResult(model.run(days));
-            setRunningState(RunningState.Idle);
-        }, 300);
+        modelUpdateDebounceRef.current = setTimeout(
+            () => {
+                console.debug("Running model");
+                let result = buildModelRunTable(model.run(days));
+                setModelRuns(result);
+                setRunningState(RunningState.Idle);
+            },
+            isTurbo ? 0 : 300
+        );
     }, [model, days]);
-
-    let points: OutputPoints | null = useMemo(() => {
-        if (!modelResult) return null;
-
-        let points: OutputPoints = {
-            infection_incidence: { byGroup: [], byModelRun: [] },
-            hospital_incidence: { byGroup: [], byModelRun: [] },
-        };
-
-        modelResult.types.forEach((modelRunType, runIndex) => {
-            let run = modelResult.runs[modelRunType];
-            (Object.entries(run) as [OutputType, OutputItem[]][]).forEach(
-                ([outputType, output]) => {
-                    points[outputType].byModelRun.push([
-                        modelRunType,
-                        output.map((item) => {
-                            return {
-                                x: item.time,
-                                y: item.grouped_values.reduce(
-                                    (acc, value, groupIndex) => {
-                                        // Also push to byGroup
-                                        let byGroup =
-                                            points[outputType].byGroup;
-                                        if (!byGroup[groupIndex]) {
-                                            byGroup[groupIndex] = [];
-                                        }
-                                        if (!byGroup[groupIndex][runIndex]) {
-                                            byGroup[groupIndex][runIndex] = [
-                                                modelRunType,
-                                                [],
-                                            ];
-                                        }
-                                        byGroup[groupIndex][runIndex][1].push({
-                                            x: item.time,
-                                            y: value,
-                                            category: modelRunType,
-                                        });
-                                        return acc + value;
-                                    },
-                                    0
-                                ),
-                                category: modelRunType,
-                            };
-                        }),
-                    ]);
-                }
-            );
-        });
-
-        return points;
-    }, [modelResult]);
 
     return (
         <ParamsContext.Provider
@@ -159,9 +101,10 @@ export const ParamsProvider = ({
                 days,
                 setDays,
                 model,
-                modelResult,
-                points,
+                modelRunTable,
                 runningState,
+                isTurbo,
+                setIsTurbo,
             }}
         >
             {children}
@@ -169,7 +112,7 @@ export const ParamsProvider = ({
     );
 };
 
-const useParamsContext = () => {
+export const useParamsContext = () => {
     const context = useContext(ParamsContext);
     if (!context) {
         throw new Error("useParams must be used within a ParamsProvider");
@@ -186,12 +129,6 @@ export const useParams = () => {
 export const useDays = () => {
     const { days, setDays } = useParamsContext();
     return [days, setDays] as const;
-};
-
-export const useModelResult = () => {
-    const { runningState, modelResult, points } = useParamsContext();
-    const isRunning = runningState === RunningState.Running;
-    return { runningState, isRunning, points, modelResult };
 };
 
 export type MitigationType = keyof MitigationParams;

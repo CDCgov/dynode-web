@@ -1,0 +1,26 @@
+/* Desktop only */
+@media (max-width: 768px) {
+    .turbo-hover {
+        display: none;
+    }
+}
+
+.turbo-hover {
+    height: 30px;
+    width: 30px;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+}
+
+.turbo-hover button {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    transform: translate(-100%, 100%);
+    transition: transform 0.2s ease;
+}
+.turbo-hover:hover button {
+    transform: translate(3px, -3px);
+    cursor: pointer;
+}

@@ -16,6 +16,7 @@
     "dependencies": {
         "@heroicons/react": "^2.2.0",
         "@observablehq/plot": "^0.6.17",
+        "arquero": "^8.0.1",
         "react": "^19.0.0",
         "react-dom": "^19.0.0",
         "react-resizable-layout": "^0.7.2",

@@ -7,6 +7,7 @@ import { PresetEditor } from "./views/PresetEditor";
 import { SummaryTable } from "./views/SummaryTable";
 import "./App.css";
 import { MobileEditor } from "./views/MobileEditor";
+import { Turbo } from "./layout/Turbo";
 
 function App() {
     const resizeLeft = useResizable({
@@ -49,6 +50,7 @@ function App() {
             />
             <aside style={{ width: resizeRight.position }}>
                 <ParamsEditor />
+                <Turbo />
             </aside>
         </div>
     );

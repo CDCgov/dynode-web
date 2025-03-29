@@ -1,19 +1,9 @@
 import { useMemo } from "react";
-import { useModelResult, useParams } from "../ModelState";
+import { useParams } from "../ModelState";
 import "./SummaryTable.css";
-import { ModelRunType, OutputType, SEIRModelOutput } from "@wasm/wasm_dynode";
-
-function summarize(
-    modelResult: SEIRModelOutput,
-    outputType: OutputType
-): number[] {
-    return modelResult[outputType].reduce((acc, { grouped_values }) => {
-        grouped_values.forEach((v, i) => {
-            acc[i] = (acc[i] || 0) + v;
-        });
-        return acc;
-    }, [] as number[]);
-}
+import { MitigationType, OutputType } from "@wasm/wasm_dynode";
+import { useModelRunData } from "../state/modelRuns";
+import { ColumnTable, op } from "arquero";
 
 function rounded(n: number): number {
     return Math.round(n / 1000) * 1000;
@@ -21,6 +11,7 @@ function rounded(n: number): number {
 function formatted(n: number): string {
     return n.toLocaleString("en-US");
 }
+
 function SummaryTableInner({
     title,
     outputType,
@@ -30,40 +21,25 @@ function SummaryTableInner({
 }) {
     let [params] = useParams();
     let groups = params.population_fraction_labels;
-    let { modelResult } = useModelResult();
+    let { dt, mitigation_types } = useModelRunData();
+
+    let addPrevented =
+        (mitigation_types?.includes("Unmitigated") &&
+            mitigation_types?.includes("Mitigated")) ||
+        false;
 
     // Transpose data
-    const { labels, tableData } = useMemo(() => {
-        if (!modelResult) return { labels: [], tableData: [] };
-
-        const summaries = modelResult.types.map((label) => ({
-            label,
-            values: summarize(modelResult.runs[label], outputType),
-        }));
-
-        const labels: Array<ModelRunType | "Prevented"> = summaries.map(
-            (s) => s.label
-        );
-
-        let addDiff =
-            labels.length === 2 &&
-            labels[0] === "Unmitigated" &&
-            labels[1] === "Mitigated";
-
-        if (addDiff) {
-            labels.push("Prevented");
+    let summaries = useMemo(() => {
+        if (!dt || !mitigation_types) {
+            return null;
         }
+        let addPrevented =
+            mitigation_types.includes("Unmitigated") &&
+            mitigation_types.includes("Mitigated");
+        return computeSummaryRows(dt, outputType, addPrevented);
+    }, [dt, outputType]);
 
-        const tableData = groups.map((group, rowIdx) => {
-            const row = summaries.map((s) => rounded(s.values[rowIdx]));
-            if (addDiff) {
-                row.push(rounded(row[0]) - rounded(row[1]));
-            }
-            return { group, values: row };
-        });
-
-        return { labels, tableData };
-    }, [modelResult, groups, outputType]);
+    if (!summaries || !mitigation_types) return null;
 
     return (
         <div className="summary-table-container mb-3">
@@ -72,25 +48,35 @@ function SummaryTableInner({
                 <thead>
                     <tr>
                         <th>Age group</th>
-                        {labels.map((label) => (
+                        {mitigation_types.map((label) => (
                             <th key={label}>{label}</th>
                         ))}
+                        {addPrevented && <th>Prevented</th>}
                         <th />
                     </tr>
                 </thead>
                 <tbody>
-                    {tableData.map(({ group, values }, i) => (
-                        <tr key={i}>
-                            <td>{group}</td>
-                            {values.map((val, j) => (
-                                <td className={labels[j]} key={j}>
-                                    {formatted(val)}
-                                </td>
-                            ))}
-
-                            <td />
-                        </tr>
-                    ))}
+                    {summaries.map((summary) => {
+                        return (
+                            <tr key={summary.group}>
+                                <td>{groups[summary.group]}</td>
+                                {mitigation_types.map((label) => {
+                                    let sum = summary[label];
+                                    return (
+                                        <td key={label}>
+                                            {formatted(rounded(sum))}
+                                        </td>
+                                    );
+                                })}
+                                {summary.prevented !== undefined && (
+                                    <td>
+                                        {formatted(rounded(summary.prevented))}
+                                    </td>
+                                )}
+                                <td />
+                            </tr>
+                        );
+                    })}
                 </tbody>
             </table>
         </div>
@@ -98,18 +84,47 @@ function SummaryTableInner({
 }
 
 export function SummaryTable() {
-    let { modelResult } = useModelResult();
-    if (!modelResult) return null;
+    let { dt } = useModelRunData();
+    if (!dt) return null;
     return (
         <div>
             <SummaryTableInner
                 title="Infection Incidence"
-                outputType="infection_incidence"
+                outputType="InfectionIncidence"
             />
             <SummaryTableInner
                 title="Hospitalization Incidence"
-                outputType="hospital_incidence"
+                outputType="HospitalIncidence"
             />
         </div>
     );
+}
+
+type SummaryRow = {
+    group: number;
+    total: number;
+    prevented?: number;
+} & { [key in MitigationType]: number };
+
+function computeSummaryRows(
+    dt: ColumnTable,
+    outputType: OutputType,
+    addPrevented: boolean
+): SummaryRow[] | null {
+    let result: SummaryRow[] = dt
+        .params({ outputType })
+        // @ts-expect-error d and & are untyped
+        .filter((d, $) => d.output_type === $.outputType)
+        .groupby("group")
+        .pivot("mitigation_type", { value: op.sum("value") })
+        .objects() as SummaryRow[];
+
+    if (addPrevented) {
+        result.forEach((summary) => {
+            let unmitigated = summary["Unmitigated"];
+            let mitigated = summary["Mitigated"];
+            summary.prevented = unmitigated - mitigated;
+        });
+    }
+    return result;
 }
