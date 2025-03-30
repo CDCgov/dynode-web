@@ -5,9 +5,6 @@ import { MitigationType, OutputType } from "@wasm/wasm_dynode";
 import { useModelRunData } from "../state/modelRuns";
 import { ColumnTable, op } from "arquero";
 
-function rounded(n: number): number {
-    return Math.round(n / 1000) * 1000;
-}
 function formatted(n: number): string {
     return n.toLocaleString("en-US");
 }
@@ -37,7 +34,7 @@ function SummaryTableInner({
             mitigation_types.includes("Unmitigated") &&
             mitigation_types.includes("Mitigated");
         return computeSummaryRows(dt, outputType, addPrevented);
-    }, [dt, outputType]);
+    }, [dt, outputType, mitigation_types]);
 
     if (!summaries || !mitigation_types) return null;
 
@@ -51,7 +48,16 @@ function SummaryTableInner({
                         {mitigation_types.map((label) => (
                             <th key={label}>{label}</th>
                         ))}
-                        {addPrevented && <th>Prevented</th>}
+                        {addPrevented && (
+                            <th
+                                style={{
+                                    color: "var(--black)",
+                                    fontWeight: "bold",
+                                }}
+                            >
+                                Prevented
+                            </th>
+                        )}
                         <th />
                     </tr>
                 </thead>
@@ -63,14 +69,16 @@ function SummaryTableInner({
                                 {mitigation_types.map((label) => {
                                     let sum = summary[label];
                                     return (
-                                        <td key={label}>
-                                            {formatted(rounded(sum))}
-                                        </td>
+                                        <td key={label}>{formatted(sum)}</td>
                                     );
                                 })}
                                 {summary.prevented !== undefined && (
                                     <td>
-                                        {formatted(rounded(summary.prevented))}
+                                        {summary.prevent_pct && (
+                                            <Underbar pct={summary.prevent_pct}>
+                                                {formatted(summary.prevented)}
+                                            </Underbar>
+                                        )}
                                     </td>
                                 )}
                                 <td />
@@ -104,6 +112,7 @@ type SummaryRow = {
     group: number;
     total: number;
     prevented?: number;
+    prevent_pct?: number;
 } & { [key in MitigationType]: number };
 
 function computeSummaryRows(
@@ -115,6 +124,12 @@ function computeSummaryRows(
         .params({ outputType })
         // @ts-expect-error d and & are untyped
         .filter((d, $) => d.output_type === $.outputType)
+        .groupby("group", "mitigation_type")
+        .rollup({
+            value: op.sum("value"),
+        })
+        // @ts-expect-error d is untyped
+        .derive({ value: (d) => Math.round(d.value / 1000) * 1000 })
         .groupby("group")
         .pivot("mitigation_type", { value: op.sum("value") })
         .objects() as SummaryRow[];
@@ -124,7 +139,32 @@ function computeSummaryRows(
             let unmitigated = summary["Unmitigated"];
             let mitigated = summary["Mitigated"];
             summary.prevented = unmitigated - mitigated;
+            summary.prevent_pct = (unmitigated - mitigated) / unmitigated;
         });
     }
+
     return result;
+}
+
+function Underbar({
+    pct,
+    children,
+}: {
+    pct?: number;
+    children: React.ReactNode;
+}) {
+    if (pct === undefined) return children;
+    return (
+        <div className="underbar-wrapper">
+            {children}
+            <div className="underbar">
+                <div
+                    className="underbar-bar"
+                    style={{
+                        width: `${pct * 100}%`,
+                    }}
+                />
+            </div>
+        </div>
+    );
 }
