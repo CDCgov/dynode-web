@@ -18,7 +18,9 @@ pub enum MitigationType {
 #[tsify(into_wasm_abi, from_wasm_abi)]
 pub enum OutputType {
     InfectionIncidence,
+    SymptomaticIncidence,
     HospitalIncidence,
+    DeathIncidence,
 }
 
 #[derive(Tsify, Debug, Clone, Serialize, Deserialize)]
@@ -57,8 +59,14 @@ impl ModelOutput {
     pub fn add_infection_incidence(&mut self, time: f64, grouped_values: Vec<f64>) {
         self.add_output(&OutputType::InfectionIncidence, time, grouped_values);
     }
+    pub fn add_symptomatic_incidence(&mut self, time: f64, grouped_values: Vec<f64>) {
+        self.add_output(&OutputType::SymptomaticIncidence, time, grouped_values);
+    }
     pub fn add_hospital_incidence(&mut self, time: f64, grouped_values: Vec<f64>) {
         self.add_output(&OutputType::HospitalIncidence, time, grouped_values);
+    }
+    pub fn add_death_incidence(&mut self, time: f64, grouped_values: Vec<f64>) {
+        self.add_output(&OutputType::DeathIncidence, time, grouped_values);
     }
 }
 

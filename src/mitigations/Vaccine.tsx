@@ -85,6 +85,16 @@ export function VaccineEditor() {
                     onValue={(ve_i) => updateParams({ ve_i: ve_i / 100 })}
                 />
             </FormGroup>
+            <FormGroup>
+                <label>Vaccine effectiveness against illness</label>
+                <NumberInput
+                    range
+                    min={0}
+                    max={100}
+                    value={params.ve_p * 100}
+                    onValue={(ve_p) => updateParams({ ve_p: ve_p / 100 })}
+                />
+            </FormGroup>
         </div>
     );
 }

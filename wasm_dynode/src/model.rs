@@ -66,7 +66,7 @@ macro_rules! make_state {
     }
 }
 
-make_state!(s, e, i, r, sv, ev, iv, rv, pre_h, h_cum);
+make_state!(s, e, i, r, sv, ev, iv, rv, pre_h, h_cum, pre_d, d_cum);
 
 impl<const N: usize> SEIRModel<N> {
     pub fn new(parameters: Parameters<N>) -> Self {
@@ -81,7 +81,7 @@ impl<const N: usize> SEIRModel<N> {
 
 impl<const N: usize> DynodeModel for SEIRModel<N>
 where
-    [(); 10 * N]: Sized,
+    [(); 12 * N]: Sized,
 {
     fn integrate(&self, days: usize) -> ModelOutput {
         let population_fractions = self.parameters.population_fractions;
@@ -98,21 +98,36 @@ where
         let mut output = ModelOutput::new();
 
         let mut first_loop = true;
-        let mut prev_s_plus_e = SVector::zeros();
+        let mut prev_i_plus_r = SVector::zeros();
+        let mut prev_iv_plus_rv = SVector::zeros();
         let mut prev_h_cum = SVector::zeros();
+        let mut prev_d_cum = SVector::zeros();
         for (time, state) in stepper.x_out().iter().zip(stepper.y_out().iter()) {
-            let s_plus_e = state.get_s() + state.get_e() + state.get_sv() + state.get_ev();
+            let i_plus_r = state.get_i() + state.get_r();
+            let iv_plus_rv = state.get_iv() + state.get_rv();
             if first_loop {
-                prev_s_plus_e = s_plus_e;
+                prev_i_plus_r = i_plus_r;
+                prev_iv_plus_rv = iv_plus_rv;
                 prev_h_cum = state.get_h_cum().into();
+                prev_d_cum = state.get_d_cum().into();
                 first_loop = false;
             } else {
-                let new_infections = prev_s_plus_e - s_plus_e;
+                let new_infections_unvac = i_plus_r - prev_i_plus_r;
+                let new_infections_vac = iv_plus_rv - prev_iv_plus_rv;
+                let new_infections = new_infections_unvac + new_infections_vac;
+                let new_symptomatic = (new_infections_unvac
+                    + (1.0 - self.parameters.mitigations.vaccine.ve_p) * new_infections_vac)
+                    .component_mul(&self.parameters.fraction_symptomatic);
                 let new_hospitalizations = state.get_h_cum() - prev_h_cum;
+                let new_deaths = state.get_d_cum() - prev_d_cum;
                 output.add_infection_incidence(*time, new_infections.data.as_slice().into());
+                output.add_symptomatic_incidence(*time, new_symptomatic.data.as_slice().into());
                 output.add_hospital_incidence(*time, new_hospitalizations.data.as_slice().into());
-                prev_s_plus_e = s_plus_e;
+                output.add_death_incidence(*time, new_deaths.data.as_slice().into());
+                prev_i_plus_r = i_plus_r;
+                prev_iv_plus_rv = iv_plus_rv;
                 prev_h_cum = state.get_h_cum().into();
+                prev_d_cum = state.get_d_cum().into();
             }
         }
 
@@ -130,6 +145,7 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
         let ev = y.get_ev();
         let iv = y.get_iv();
         let pre_h = y.get_pre_h();
+        let pre_d = y.get_pre_d();
 
         // Transmission
         let beta = self.parameters.r0 / self.parameters.infectious_period;
@@ -171,7 +187,11 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
         // Severity
         let dto_pre_h = (de_to_i + (1.0 - self.parameters.mitigations.vaccine.ve_p) * dev_to_iv)
             .component_mul(&self.parameters.fraction_hospitalized);
-        let dpre_h_to_h_cum = pre_h * 1.0 / self.parameters.hospitalization_delay;
+        let dpre_h_to_h_cum = pre_h / self.parameters.hospitalization_delay;
+
+        let dto_pre_d = (de_to_i + (1.0 - self.parameters.mitigations.vaccine.ve_p) * dev_to_iv)
+            .component_mul(&self.parameters.fraction_dead);
+        let dpre_d_to_d_cum = pre_d / self.parameters.death_delay;
 
         // Collect derivatives
         dy.set_s(&-(ds_to_e + ds_to_sv));
@@ -184,6 +204,8 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
         dy.set_rv(&div_to_rv);
         dy.set_pre_h(&(dto_pre_h - dpre_h_to_h_cum));
         dy.set_h_cum(&dpre_h_to_h_cum);
+        dy.set_pre_d(&(dto_pre_d - dpre_d_to_d_cum));
+        dy.set_d_cum(&dpre_d_to_d_cum);
     }
 }
 
@@ -226,10 +248,11 @@ mod test {
             latent_period: 1.0,
             infectious_period: 3.0,
             mitigations: MitigationParams::default(),
-            //fraction_symptomatic: Vector1::new(0.5),
+            fraction_symptomatic: Vector1::new(0.5),
             fraction_hospitalized: Vector1::new(0.0),
             hospitalization_delay: 1.0,
-            //fraction_dead: Vector1::new(0.0),
+            fraction_dead: Vector1::new(0.0),
+            death_delay: 1.0,
         });
         let output = model.integrate(300);
 
@@ -239,6 +262,13 @@ mod test {
             .map(|x| x.grouped_values.iter().sum::<f64>())
             .sum();
         let attack_rate = total_incidence / model.parameters.population;
+
+        let total_symptomatic: f64 = output
+            .get_output(&OutputType::SymptomaticIncidence)
+            .iter()
+            .map(|x| x.grouped_values.iter().sum::<f64>())
+            .sum();
+        assert!((total_symptomatic - 0.5 * total_incidence).abs() < 1e-6);
 
         // Check final size relation
         assert!((0.7968216 - attack_rate).abs() < 1e-5);
@@ -281,6 +311,14 @@ mod test {
             .unwrap();
         let ihr = hospitalizations_by_group.component_div(&incidence_by_group);
 
+        let deaths_by_group = output
+            .get_output(&OutputType::DeathIncidence)
+            .iter()
+            .map(|x| DVector::from_vec(x.grouped_values.clone()))
+            .reduce(|acc, elem| acc + elem)
+            .unwrap();
+        let ifr = deaths_by_group.component_div(&incidence_by_group);
+
         // Check final size relation
         assert!((0.6755054 - attack_rate).abs() < 1e-5);
 
@@ -291,6 +329,10 @@ mod test {
         // Check hospitalizations
         assert!((model.parameters.fraction_hospitalized[0] - ihr[0]).abs() < 1e-5);
         assert!((model.parameters.fraction_hospitalized[1] - ihr[1]).abs() < 1e-5);
+
+        // Check deaths
+        assert!((model.parameters.fraction_dead[0] - ifr[0]).abs() < 1e-5);
+        assert!((model.parameters.fraction_dead[1] - ifr[1]).abs() < 1e-5);
     }
 
     #[test]

@@ -15,10 +15,11 @@ pub struct Parameters<const N: usize> {
     pub r0: f64,
     pub latent_period: f64,
     pub infectious_period: f64,
-    //pub fraction_symptomatic: SVector<f64, N>,
+    pub fraction_symptomatic: SVector<f64, N>,
     pub fraction_hospitalized: SVector<f64, N>,
     pub hospitalization_delay: f64,
-    //pub fraction_dead: SVector<f64, N>,
+    pub fraction_dead: SVector<f64, N>,
+    pub death_delay: f64,
     pub mitigations: MitigationParams,
 }
 
@@ -47,10 +48,11 @@ impl Default for Parameters<2> {
             r0: 1.5,
             latent_period: 1.0,
             infectious_period: 2.5,
-            //fraction_symptomatic: vector![0.5, 0.5],
+            fraction_symptomatic: vector![0.5, 0.5],
             fraction_hospitalized: vector![0.01, 0.1],
             hospitalization_delay: 7.0,
-            //fraction_dead: vector![0.0005, 0.005],
+            fraction_dead: vector![0.0005, 0.005],
+            death_delay: 10.0,
             mitigations: MitigationParams::default(),
         }
     }
@@ -68,10 +70,11 @@ pub struct ParametersExport {
     pub r0: f64,
     pub latent_period: f64,
     pub infectious_period: f64,
-    //pub fraction_symptomatic: Vec<f64>,
+    pub fraction_symptomatic: Vec<f64>,
     pub fraction_hospitalized: Vec<f64>,
     pub hospitalization_delay: f64,
-    //pub fraction_dead: Vec<f64>,
+    pub fraction_dead: Vec<f64>,
+    pub death_delay: f64,
     pub mitigations: MitigationParams,
 }
 
@@ -97,10 +100,11 @@ impl<const N: usize> TryFrom<ParametersExport> for Parameters<N> {
             r0: params.r0,
             latent_period: params.latent_period,
             infectious_period: params.infectious_period,
-            //fraction_symptomatic: SVector::from_iterator(params.fraction_symptomatic),
+            fraction_symptomatic: SVector::from_iterator(params.fraction_symptomatic),
             fraction_hospitalized: SVector::from_iterator(params.fraction_hospitalized),
             hospitalization_delay: params.hospitalization_delay,
-            //fraction_dead: SVector::from_iterator(params.fraction_dead),
+            fraction_dead: SVector::from_iterator(params.fraction_dead),
+            death_delay: params.death_delay,
             mitigations: params.mitigations,
         })
     }
@@ -118,10 +122,11 @@ impl<const N: usize> From<Parameters<N>> for ParametersExport {
             r0: params.r0,
             latent_period: params.latent_period,
             infectious_period: params.infectious_period,
-            //fraction_symptomatic: params.fraction_symptomatic.iter().copied().collect(),
+            fraction_symptomatic: params.fraction_symptomatic.iter().copied().collect(),
             fraction_hospitalized: params.fraction_hospitalized.iter().copied().collect(),
             hospitalization_delay: params.hospitalization_delay,
-            //fraction_dead: params.fraction_dead.iter().copied().collect(),
+            fraction_dead: params.fraction_dead.iter().copied().collect(),
+            death_delay: params.hospitalization_delay,
             mitigations: params.mitigations,
         }
     }

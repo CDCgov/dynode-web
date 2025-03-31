@@ -100,12 +100,20 @@ export function SummaryTable() {
     return (
         <div className="summaries">
             <SummaryTableInner
-                title="Infection Incidence"
+                title="Infections"
                 outputType="InfectionIncidence"
             />
             <SummaryTableInner
-                title="Hospitalization Incidence"
+                title="Symptomatic Infections"
+                outputType="SymptomaticIncidence"
+            />
+            <SummaryTableInner
+                title="Hospitalizations"
                 outputType="HospitalIncidence"
+            />
+            <SummaryTableInner
+                title="Deaths"
+                outputType="DeathIncidence"
             />
         </div>
     );
