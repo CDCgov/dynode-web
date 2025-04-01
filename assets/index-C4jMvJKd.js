@@ -9702,7 +9702,7 @@ function _L(t14, e) {
 }
 async function N8(t14) {
   if (we !== void 0) return we;
-  typeof t14 < "u" && (Object.getPrototypeOf(t14) === Object.prototype ? { module_or_path: t14 } = t14 : console.warn("using deprecated parameters for the initialization function; pass a single object instead")), typeof t14 > "u" && (t14 = new URL("/dynode-web/assets/wasm_dynode_bg-Cfu6MHyO.wasm", import.meta.url));
+  typeof t14 < "u" && (Object.getPrototypeOf(t14) === Object.prototype ? { module_or_path: t14 } = t14 : console.warn("using deprecated parameters for the initialization function; pass a single object instead")), typeof t14 > "u" && (t14 = new URL("/dynode-web/assets/wasm_dynode_bg-C8gC8Mya.wasm", import.meta.url));
   const e = bL();
   (typeof t14 == "string" || typeof Request == "function" && t14 instanceof Request || typeof URL == "function" && t14 instanceof URL) && (t14 = fetch(t14));
   const { instance: n, module: i } = await vL(await t14, e);
