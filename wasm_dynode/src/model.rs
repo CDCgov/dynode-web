@@ -147,13 +147,27 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
         let pre_h = y.get_pre_h();
         let pre_d = y.get_pre_d();
 
+        let params = &self.parameters;
+        let community_params = &params.mitigations.community;
+
+        // Community mitigation
+        let contact_matrix = if community_params.enabled
+            && x >= community_params.start
+            && x < (community_params.start + community_params.duration)
+        {
+            self.parameters
+                .contact_matrix
+                .component_mul(&community_params.contact_multiplier)
+                / self.contact_matrix_normalization
+        } else {
+            self.parameters.contact_matrix / self.contact_matrix_normalization
+        };
+
         // Transmission
         let beta = self.parameters.r0 / self.parameters.infectious_period;
         let i_effective = i + (1.0 - self.parameters.mitigations.vaccine.ve_i) * iv;
-        let infection_rate =
-            (beta / self.contact_matrix_normalization / self.parameters.population)
-                * (self.parameters.contact_matrix * i_effective)
-                    .component_div(&self.parameters.population_fractions);
+        let infection_rate = (beta / self.parameters.population)
+            * (contact_matrix * i_effective).component_div(&self.parameters.population_fractions);
 
         let ds_to_e = s.component_mul(&infection_rate);
         let de_to_i = e / self.parameters.latent_period;

@@ -55,7 +55,12 @@ impl Default for Parameters<2> {
             hospitalization_delay: 7.0,
             fraction_dead: vector![0.0005, 0.005],
             death_delay: 10.0,
-            mitigations: MitigationParams::default(),
+            mitigations: {
+                let mut default = MitigationParams::default();
+                default.community.contact_multiplier = matrix![0.5, 1.10;
+                                                               1.10, 1.0];
+                default
+            },
         }
     }
 }

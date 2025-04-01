@@ -1,11 +1,11 @@
 import { FormGroup } from "../forms/FormGroup";
 import { NumberInput } from "../forms/NumberInput";
 import { useMitigation } from "../ModelState";
-import { CommunityMitigationParams } from "@wasm/wasm_dynode";
+import { CommunityMitigationParamsExport } from "@wasm/wasm_dynode";
 
 export function CommunityEditor() {
     let [params, updateParams] =
-        useMitigation<CommunityMitigationParams>("community");
+        useMitigation<CommunityMitigationParamsExport>("community");
     return (
         <div>
             <FormGroup>

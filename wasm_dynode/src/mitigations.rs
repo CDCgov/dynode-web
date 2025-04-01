@@ -116,9 +116,9 @@ impl<const N: usize> Default for MitigationParams<N> {
             },
             community: CommunityMitigationParams {
                 enabled: false,
-                editable: false,
-                start: 0.0,
-                duration: 0.0,
+                editable: true,
+                start: 60.0,
+                duration: 20.0,
                 contact_multiplier: SMatrix::from_element(1.0),
             },
         }
