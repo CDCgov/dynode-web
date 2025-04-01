@@ -1,3 +1,4 @@
+use nalgebra::SMatrix;
 use serde::{Deserialize, Serialize};
 use tsify::Tsify;
 
@@ -35,18 +36,54 @@ pub struct AntiviralsParams {
 
 #[derive(Tsify, Debug, Clone, Serialize, Deserialize)]
 #[tsify(into_wasm_abi, from_wasm_abi)]
-pub struct CommunityMitigationParams {
+pub struct CommunityMitigationParamsExport {
     pub enabled: bool,
     pub editable: bool,
     pub start: f64,
     pub duration: f64,
+    pub contact_multiplier: Vec<f64>,
 }
 
-macro_rules! mitigation_options {
+#[derive(Debug, Clone)]
+pub struct CommunityMitigationParams<const N: usize> {
+    pub enabled: bool,
+    pub editable: bool,
+    pub start: f64,
+    pub duration: f64,
+    pub contact_multiplier: SMatrix<f64, N, N>,
+}
+
+impl<const N: usize> From<CommunityMitigationParams<N>> for CommunityMitigationParamsExport {
+    fn from(value: CommunityMitigationParams<N>) -> Self {
+        CommunityMitigationParamsExport {
+            enabled: value.enabled,
+            editable: value.editable,
+            start: value.start,
+            duration: value.duration,
+            contact_multiplier: value.contact_multiplier.data.as_slice().into(),
+        }
+    }
+}
+
+impl<const N: usize> TryFrom<CommunityMitigationParamsExport> for CommunityMitigationParams<N> {
+    type Error = &'static str;
+
+    fn try_from(value: CommunityMitigationParamsExport) -> Result<Self, Self::Error> {
+        Ok(CommunityMitigationParams {
+            enabled: value.enabled,
+            editable: value.editable,
+            start: value.start,
+            duration: value.duration,
+            contact_multiplier: SMatrix::from_iterator(value.contact_multiplier.into_iter()),
+        })
+    }
+}
+
+macro_rules! mitigation_options_export {
     ( $( ($field:ident, $type:ty) ),* $(,)? ) => {
         #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, tsify::Tsify)]
         #[tsify(into_wasm_abi, from_wasm_abi)]
-        pub struct MitigationParams {
+        pub struct MitigationParamsExport {
             $(
                 pub $field: $type,
             )*
@@ -67,7 +104,7 @@ macro_rules! mitigation_options {
             }
         })*
 
-        impl MitigationParams {
+        impl MitigationParamsExport {
             pub fn iter(&self) -> impl Iterator<Item = &dyn Mitigation> {
                 vec![
                     $(
@@ -84,7 +121,7 @@ macro_rules! mitigation_options {
             }
         }
 
-        impl<'a> IntoIterator for &'a MitigationParams {
+        impl<'a> IntoIterator for &'a MitigationParamsExport {
             type Item = &'a dyn Mitigation;
             type IntoIter = std::vec::IntoIter<Self::Item>;
 
@@ -98,7 +135,7 @@ macro_rules! mitigation_options {
             }
         }
 
-        impl IntoIterator for MitigationParams {
+        impl IntoIterator for MitigationParamsExport {
             type Item = Box<dyn Mitigation>;
             type IntoIter = std::vec::IntoIter<Self::Item>;
 
@@ -115,13 +152,20 @@ macro_rules! mitigation_options {
     };
 }
 
-mitigation_options!(
+mitigation_options_export!(
     (vaccine, VaccineParams),
     (antivirals, AntiviralsParams),
-    (community, CommunityMitigationParams)
+    (community, CommunityMitigationParamsExport)
 );
 
-impl Default for MitigationParams {
+#[derive(Debug, Clone)]
+pub struct MitigationParams<const N: usize> {
+    pub vaccine: VaccineParams,
+    pub antivirals: AntiviralsParams,
+    pub community: CommunityMitigationParams<N>,
+}
+
+impl<const N: usize> Default for MitigationParams<N> {
     fn default() -> Self {
         MitigationParams {
             vaccine: VaccineParams {
@@ -146,7 +190,30 @@ impl Default for MitigationParams {
                 editable: false,
                 start: 0.0,
                 duration: 0.0,
+                contact_multiplier: SMatrix::from_element(1.0),
             },
         }
+    }
+}
+
+impl<const N: usize> From<MitigationParams<N>> for MitigationParamsExport {
+    fn from(value: MitigationParams<N>) -> Self {
+        MitigationParamsExport {
+            vaccine: value.vaccine,
+            antivirals: value.antivirals,
+            community: CommunityMitigationParamsExport::from(value.community),
+        }
+    }
+}
+
+impl<const N: usize> TryFrom<MitigationParamsExport> for MitigationParams<N> {
+    type Error = &'static str;
+
+    fn try_from(value: MitigationParamsExport) -> Result<Self, Self::Error> {
+        Ok(MitigationParams {
+            vaccine: value.vaccine,
+            antivirals: value.antivirals,
+            community: CommunityMitigationParams::try_from(value.community)?,
+        })
     }
 }

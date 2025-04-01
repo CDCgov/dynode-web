@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use tsify::Tsify;
 use wasm_bindgen::prelude::*;
 
-use crate::MitigationParams;
+use crate::{MitigationParams, MitigationParamsExport};
 
 #[derive(Debug, Clone)]
 pub struct Parameters<const N: usize> {
@@ -20,18 +20,20 @@ pub struct Parameters<const N: usize> {
     pub hospitalization_delay: f64,
     pub fraction_dead: SVector<f64, N>,
     pub death_delay: f64,
-    pub mitigations: MitigationParams,
+    pub mitigations: MitigationParams<N>,
 }
 
 impl<const N: usize> Parameters<N> {
     pub fn has_mitigations(&self) -> bool {
-        self.mitigations.iter().any(|m| m.get_enabled())
+        self.mitigations.antivirals.enabled
+            || self.mitigations.community.enabled
+            || self.mitigations.vaccine.enabled
     }
     pub fn without_mitigations(&self) -> Self {
         let mut params = self.clone();
-        for m in params.mitigations.iter_mut() {
-            m.set_enabled(false);
-        }
+        params.mitigations.antivirals.enabled = false;
+        params.mitigations.community.enabled = false;
+        params.mitigations.vaccine.enabled = false;
         params
     }
 }
@@ -75,7 +77,7 @@ pub struct ParametersExport {
     pub hospitalization_delay: f64,
     pub fraction_dead: Vec<f64>,
     pub death_delay: f64,
-    pub mitigations: MitigationParams,
+    pub mitigations: MitigationParamsExport,
 }
 
 impl<const N: usize> TryFrom<ParametersExport> for Parameters<N> {
@@ -105,7 +107,7 @@ impl<const N: usize> TryFrom<ParametersExport> for Parameters<N> {
             hospitalization_delay: params.hospitalization_delay,
             fraction_dead: SVector::from_iterator(params.fraction_dead),
             death_delay: params.death_delay,
-            mitigations: params.mitigations,
+            mitigations: MitigationParams::try_from(params.mitigations)?,
         })
     }
 }
@@ -127,7 +129,7 @@ impl<const N: usize> From<Parameters<N>> for ParametersExport {
             hospitalization_delay: params.hospitalization_delay,
             fraction_dead: params.fraction_dead.iter().copied().collect(),
             death_delay: params.hospitalization_delay,
-            mitigations: params.mitigations,
+            mitigations: params.mitigations.into(),
         }
     }
 }
