@@ -79,84 +79,13 @@ impl<const N: usize> TryFrom<CommunityMitigationParamsExport> for CommunityMitig
     }
 }
 
-macro_rules! mitigation_options_export {
-    ( $( ($field:ident, $type:ty) ),* $(,)? ) => {
-        #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, tsify::Tsify)]
-        #[tsify(into_wasm_abi, from_wasm_abi)]
-        pub struct MitigationParamsExport {
-            $(
-                pub $field: $type,
-            )*
-        }
-
-        $(impl Mitigation for $type {
-            fn get_enabled(&self) -> bool {
-                self.enabled
-            }
-            fn get_editable(&self) -> bool {
-                self.editable
-            }
-            fn set_enabled(&mut self, enabled: bool) {
-                self.enabled = enabled;
-            }
-            fn set_editable(&mut self, editable: bool) {
-                self.editable = editable;
-            }
-        })*
-
-        impl MitigationParamsExport {
-            pub fn iter(&self) -> impl Iterator<Item = &dyn Mitigation> {
-                vec![
-                    $(
-                        &self.$field as &dyn Mitigation,
-                    )*
-                ].into_iter()
-            }
-            pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut dyn Mitigation> {
-                vec![
-                    $(
-                        &mut self.$field as &mut dyn Mitigation,
-                    )*
-                ].into_iter()
-            }
-        }
-
-        impl<'a> IntoIterator for &'a MitigationParamsExport {
-            type Item = &'a dyn Mitigation;
-            type IntoIter = std::vec::IntoIter<Self::Item>;
-
-            fn into_iter(self) -> Self::IntoIter {
-                let vec: Vec<&'a dyn Mitigation> = vec![
-                    $(
-                        &self.$field as &dyn Mitigation,
-                    )*
-                ];
-                vec.into_iter()
-            }
-        }
-
-        impl IntoIterator for MitigationParamsExport {
-            type Item = Box<dyn Mitigation>;
-            type IntoIter = std::vec::IntoIter<Self::Item>;
-
-            fn into_iter(self) -> Self::IntoIter {
-                let vec: Vec<Box<dyn Mitigation>> = vec![
-                    $(
-                        Box::new(self.$field) as Box<dyn Mitigation>,
-                    )*
-                ];
-                vec.into_iter()
-            }
-        }
-
-    };
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, tsify::Tsify)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
+pub struct MitigationParamsExport {
+    pub vaccine: VaccineParams,
+    pub antivirals: AntiviralsParams,
+    pub community: CommunityMitigationParamsExport,
 }
-
-mitigation_options_export!(
-    (vaccine, VaccineParams),
-    (antivirals, AntiviralsParams),
-    (community, CommunityMitigationParamsExport)
-);
 
 #[derive(Debug, Clone)]
 pub struct MitigationParams<const N: usize> {
