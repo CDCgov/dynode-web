@@ -9,6 +9,12 @@ enum PlotColor {
     Purple = "var(--purple)",
 }
 
+export type Annotation = {
+    label: string;
+    color: string;
+    x: number;
+};
+
 function getColors(group_by: keyof Point): {
     domain: string[];
     range: string[];
@@ -47,7 +53,9 @@ export interface SEIRPlotProps {
     yTicks?: number;
     yLabel: string;
     maxY?: number;
+    annotations?: Annotation[];
 }
+
 export function SEIRPlot({
     yTicks = 10,
     yDomain,
@@ -56,18 +64,28 @@ export function SEIRPlot({
     group_by,
     yLabel: yLabelBase,
     maxY: userMaxY,
+    annotations = [],
 }: SEIRPlotProps) {
     const plotRef = useRef<HTMLDivElement>(null);
     const [containerSize, setContainerSize] = useState<[number, number]>([
         800, 500,
     ]);
 
+    // TODO<ryl8@cdc.gov> clean this up and make it more generic
+    if (annotations.length) {
+        let mitigations = data.filter((d) => d.mitigation_type === "Mitigated");
+        annotations = annotations.map((a) => ({
+            ...a,
+            y: mitigations.find((d) => d.x === a.x)?.y || 0,
+        }));
+    }
+
     useEffect(() => {
         if (!data.length || !plotRef.current) return;
 
         let colors = getColors(group_by);
 
-        let maxY = userMaxY;
+        let maxY = userMaxY || yDomain?.[1];
         if (!maxY) {
             maxY = Math.max(...data.map((d) => d.y));
         }
@@ -97,6 +115,28 @@ export function SEIRPlot({
                     y: "y",
                     stroke: group_by,
                 }),
+                Plot.ruleX(annotations, {
+                    x: "x",
+                    y1: "y",
+                    y2: maxY,
+                    stroke: "color",
+                    strokeDasharray: "2,2",
+                }),
+                Plot.text(
+                    annotations,
+                    Plot.dodgeY(
+                        { anchor: "top", padding: 10 },
+                        {
+                            text: "label",
+                            x: "x",
+                            dy: -10,
+                            dx: 3,
+                            fill: "color",
+                            stroke: "white",
+                            textAnchor: "start",
+                        }
+                    )
+                ),
             ],
         });
 

@@ -1,4 +1,4 @@
-import { SEIRPlot } from "../plots/SEIRPlot";
+import { Annotation, SEIRPlot } from "../plots/SEIRPlot";
 // import { SelectInput } from "../forms/SelectInput";
 
 import "./EpiCurve.css";
@@ -7,10 +7,17 @@ import { op } from "arquero";
 import { PlotGroup } from "../plots/PlotGroup";
 import { useMemo } from "react";
 import { SummaryTable } from "./SummaryTable";
+import { useParams } from "../ModelState";
+import { entries } from "../utils";
+import {
+    CommunityMitigationParamsExport,
+    VaccineParams,
+} from "@wasm/wasm_dynode";
 
 export function EpiCurve() {
+    let [params] = useParams();
     const { dt, mitigation_types } = useModelRunData();
-    let { d1, d2, maxY } = useMemo(() => {
+    let { d1, d2, maxY, annotations } = useMemo(() => {
         if (!dt) return { mainData: null, groupedData: null, maxY: null };
         let infectionData = dt.filter(
             (d) => d.output_type === "InfectionIncidence"
@@ -36,11 +43,41 @@ export function EpiCurve() {
                 mitigation_type: "mitigation_type",
             })
             .objects({ grouped: true }) as unknown;
-        // TODO deal with the types being wrong in arquero
+
         let d1 = _d1 as Point[];
         let d2 = _d2 as Map<number, Point[]>;
-        return { d1, d2, maxY };
-    }, [dt]);
+
+        let annotations: Array<Annotation> = entries(params.mitigations)
+            .map(([label, value]) => {
+                if (!value.enabled) return;
+                if (label == "vaccine") {
+                    let { start } = value as VaccineParams;
+                    return {
+                        label: "Vaccination",
+                        color: "var(--purple)",
+                        x: start,
+                    };
+                } else if (label == "community") {
+                    let { start, duration } =
+                        value as CommunityMitigationParamsExport;
+                    return [
+                        {
+                            label: "Community",
+                            color: "var(--dark-purple)",
+                            x: start,
+                        },
+                        {
+                            label: "Community ends",
+                            color: "var(--dark-purple)",
+                            x: start + duration,
+                        },
+                    ];
+                }
+            })
+            .filter((x) => x !== undefined)
+            .flat();
+        return { d1, d2, maxY, annotations };
+    }, [dt, params]);
 
     return (
         <>
@@ -51,6 +88,7 @@ export function EpiCurve() {
                         data={d1}
                         group_by="mitigation_type"
                         yLabel="Infection Incidence"
+                        annotations={annotations}
                         showLegend={mitigation_types.length > 1}
                     />
                 )}
