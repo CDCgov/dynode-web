@@ -66,7 +66,9 @@ macro_rules! make_state {
     }
 }
 
-make_state!(s, e, i, r, sv, ev, iv, rv, pre_h, h_cum, pre_d, d_cum);
+make_state!(
+    s, e, i, r, sv, ev, iv, rv, pre_h, pre_hv, h_cum, hv_cum, pre_d, d_cum
+);
 
 impl<const N: usize> SEIRModel<N> {
     pub fn new(parameters: Parameters<N>) -> Self {
@@ -81,7 +83,7 @@ impl<const N: usize> SEIRModel<N> {
 
 impl<const N: usize> DynodeModel for SEIRModel<N>
 where
-    [(); 12 * N]: Sized,
+    [(); 14 * N]: Sized,
 {
     fn integrate(&self, days: usize) -> ModelOutput {
         let population_fractions = self.parameters.population_fractions;
@@ -145,6 +147,7 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
         let ev = y.get_ev();
         let iv = y.get_iv();
         let pre_h = y.get_pre_h();
+        let pre_hv = y.get_pre_hv();
         let pre_d = y.get_pre_d();
 
         let params = &self.parameters;
@@ -163,9 +166,37 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
             self.parameters.contact_matrix / self.contact_matrix_normalization
         };
 
+        // Antivirals
+        let ave_params = &self.parameters.mitigations.antivirals;
+        let ave_i = if ave_params.enabled {
+            ave_params.ave_i
+                * ave_params.fraction_adhere
+                * ave_params.fraction_diagnosed_prescribed_outpatient
+                * ave_params.fraction_seek_care
+            // TODO add symptomatic?
+        } else {
+            0.0
+        };
+
+        let ave_p_outpatient = if ave_params.enabled {
+            ave_params.ave_p
+                * ave_params.fraction_adhere
+                * ave_params.fraction_diagnosed_prescribed_outpatient
+        } else {
+            0.0
+        };
+        let ave_p_inpatient = if ave_params.enabled {
+            ave_params.ave_p
+                * ave_params.fraction_adhere
+                * ave_params.fraction_diagnosed_prescribed_outpatient
+        } else {
+            0.0
+        };
+
         // Transmission
         let beta = self.parameters.r0 / self.parameters.infectious_period;
-        let i_effective = i + (1.0 - self.parameters.mitigations.vaccine.ve_i) * iv;
+        let i_effective = (1.0 - ave_i) * i
+            + (1.0 - ave_i) * (1.0 - self.parameters.mitigations.vaccine.ve_i) * iv;
         let infection_rate = (beta / self.parameters.population)
             * (contact_matrix * i_effective).component_div(&self.parameters.population_fractions);
 
@@ -193,18 +224,31 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
         } else {
             0.0
         };
+
         let ds_to_sv = s
             .component_div(&(s + e + i + r))
             .component_mul(&self.parameters.population_fractions)
             * administration_rate;
 
-        // Severity
-        let dto_pre_h = (de_to_i + (1.0 - self.parameters.mitigations.vaccine.ve_p) * dev_to_iv)
+        // Hospitalization
+        let dto_pre_h = de_to_i.component_mul(&self.parameters.fraction_hospitalized);
+        let dto_pre_hv = (dev_to_iv * (1.0 - self.parameters.mitigations.vaccine.ve_p))
             .component_mul(&self.parameters.fraction_hospitalized);
-        let dpre_h_to_h_cum = pre_h / self.parameters.hospitalization_delay;
 
-        let dto_pre_d = (de_to_i + (1.0 - self.parameters.mitigations.vaccine.ve_p) * dev_to_iv)
-            .component_mul(&self.parameters.fraction_dead);
+        let dpre_h_to_h_cum = pre_h / self.parameters.hospitalization_delay;
+        let dpre_hv_to_hv_cum = pre_hv / self.parameters.hospitalization_delay;
+
+        // Death
+        let dto_pre_d_in = (dpre_h_to_h_cum
+            + (1.0 - self.parameters.mitigations.vaccine.ve_p) * dpre_hv_to_hv_cum)
+            .component_mul(&self.parameters.fraction_dead)
+            * (1.0 - ave_p_inpatient);
+        let dto_pre_d_out = (((de_to_i - dpre_h_to_h_cum)
+            + (1.0 - self.parameters.mitigations.vaccine.ve_p) * (dev_to_iv - dpre_hv_to_hv_cum))
+            .component_mul(&self.parameters.fraction_dead))
+            * (1.0 - ave_p_outpatient);
+
+        let dto_pre_d = dto_pre_d_in + dto_pre_d_out;
         let dpre_d_to_d_cum = pre_d / self.parameters.death_delay;
 
         // Collect derivatives
@@ -217,7 +261,9 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
         dy.set_iv(&(dev_to_iv - div_to_rv));
         dy.set_rv(&div_to_rv);
         dy.set_pre_h(&(dto_pre_h - dpre_h_to_h_cum));
+        dy.set_pre_hv(&(dto_pre_hv - dpre_hv_to_hv_cum));
         dy.set_h_cum(&dpre_h_to_h_cum);
+        dy.set_hv_cum(&dpre_hv_to_hv_cum);
         dy.set_pre_d(&(dto_pre_d - dpre_d_to_d_cum));
         dy.set_d_cum(&dpre_d_to_d_cum);
     }
@@ -247,7 +293,8 @@ mod test {
 
     use super::SEIRModel;
     use crate::{
-        DynodeModel, MitigationParams, OutputType, Parameters, model::get_dominant_eigendata,
+        AntiviralsParams, DynodeModel, MitigationParams, ModelOutput, OutputType, Parameters,
+        model::get_dominant_eigendata,
     };
 
     #[test]
@@ -364,6 +411,38 @@ mod test {
         let attack_rate = total_incidence / model.parameters.population;
 
         println!("{}", attack_rate)
+    }
+
+    #[test]
+    fn test_antiviral_i() {
+        let baseline_params = Parameters::default();
+        let mut mitigated_params = Parameters::default();
+        mitigated_params.mitigations.antivirals = AntiviralsParams {
+            enabled: true,
+            editable: true,
+            ave_i: 0.5,
+            ave_p: 0.0,
+            fraction_adhere: 0.5,
+            fraction_diagnosed_prescribed_inpatient: 0.5,
+            fraction_diagnosed_prescribed_outpatient: 0.5,
+            fraction_seek_care: 0.5,
+        };
+
+        let (attack_rate, mitigated_attack_rate) = {
+            let population = baseline_params.population;
+            let f = |params: Parameters<2>| {
+                let output = SEIRModel::new(params).integrate(200);
+                let total_incidence: f64 = output
+                    .get_output(&OutputType::InfectionIncidence)
+                    .iter()
+                    .map(|x| x.grouped_values.iter().sum::<f64>())
+                    .sum();
+                total_incidence / population
+            };
+            (f(baseline_params), f(mitigated_params))
+        };
+
+        println!("{} {}", attack_rate, mitigated_attack_rate);
     }
 
     #[test]

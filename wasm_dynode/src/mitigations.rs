@@ -30,6 +30,10 @@ pub struct VaccineParams {
 pub struct AntiviralsParams {
     pub enabled: bool,
     pub editable: bool,
+    pub fraction_adhere: f64,
+    pub fraction_diagnosed_prescribed_inpatient: f64,
+    pub fraction_diagnosed_prescribed_outpatient: f64,
+    pub fraction_seek_care: f64,
     pub ave_i: f64,
     pub ave_p: f64,
 }
@@ -110,9 +114,13 @@ impl<const N: usize> Default for MitigationParams<N> {
             },
             antivirals: AntiviralsParams {
                 enabled: false,
-                editable: false,
-                ave_i: 0.0,
-                ave_p: 0.0,
+                editable: true,
+                ave_i: 0.5,
+                ave_p: 0.5,
+                fraction_adhere: 0.8,
+                fraction_diagnosed_prescribed_inpatient: 1.0,
+                fraction_diagnosed_prescribed_outpatient: 0.7,
+                fraction_seek_care: 0.6,
             },
             community: CommunityMitigationParams {
                 enabled: false,
