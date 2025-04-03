@@ -84,7 +84,7 @@ where the time-varying vaccination rate is:
 The effective number of infectious in group $j$ (`i_effective`) is:
 
 ```math
-I^\mathrm{eff}_j = \left[ \mathrm{IU}_j + (1 - \mathrm{VE}_I) \times \mathrm{IV}_j \right] \times (1 - A_\mathrm{op} \mathrm{AE}_I) \\
+I^\mathrm{eff}_j = \left[ \mathrm{IU}_j + (1 - \mathrm{VE}_I) \times \mathrm{IV}_j \right] \times (1 - \mathrm{IYR}_j A_\mathrm{op} \mathrm{AE}_I) \\
 ```
 
 The force of infection on group $i$ (`infection_rate`, modulo a factor of $1/N_i$) is:
@@ -120,7 +120,7 @@ and similarly for the vaccinated compartments.
 The rate of new infections that are not protected by vaccination or outpatient antivirals is:
 
 ```math
-\dot{X}_i = \left[ f(\mathrm{EU}_i, \mathrm{EI}_i) + (1 - \mathrm{VE}_P) f(\mathrm{EV}_i, \mathrm{EI}_i) \right] \times (1 - A_\mathrm{op} \mathrm{AE}_P)
+\dot{X}_i = \left[ f(\mathrm{EU}_i, \mathrm{EI}_i) + (1 - \mathrm{VE}_P) f(\mathrm{EV}_i, \mathrm{EI}_i) \right] \times (1 - \mathrm{IYR}_i A_\mathrm{op} \mathrm{AE}_P)
 ```
 
 The number of outcomes is:
