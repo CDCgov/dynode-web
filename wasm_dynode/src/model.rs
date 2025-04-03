@@ -4,49 +4,50 @@ use ode_solvers::{Dopri5, System};
 use paste::paste;
 
 pub struct AVE<const N: usize> {
-    pub i_effective: SVector<f64, N>,
-    pub p_outpatient_effective: SVector<f64, N>,
-    pub p_inpatient_effective: SVector<f64, N>,
+    pub pop_eff_i: SVector<f64, N>,
+    pub pop_eff_p_hosp: SVector<f64, N>,
+    pub pop_eff_p_death: SVector<f64, N>,
 }
 
 impl<const N: usize> AVE<N> {
     fn new(params: &Parameters<N>) -> Self {
         let av_params = &params.mitigations.antivirals;
 
-        let i_effective = if av_params.enabled {
-            (av_params.ave_i
-                * av_params.fraction_adhere
+        // population-level effectiveness against transmission
+        let pop_eff_i = if av_params.enabled {
+            params.fraction_symptomatic
                 * av_params.fraction_seek_care
-                * av_params.fraction_diagnosed_prescribed_outpatient)
-                * params.fraction_symptomatic
+                * av_params.fraction_diagnosed_prescribed_outpatient
+                * av_params.fraction_adhere
+                * av_params.ave_i
         } else {
             SVector::zeros()
         };
 
-        let p_outpatient_effective = if av_params.enabled {
-            SVector::<f64, N>::from_element(
-                av_params.ave_p
-                    * av_params.fraction_adhere
-                    * av_params.fraction_diagnosed_prescribed_outpatient
-                    * av_params.fraction_seek_care,
-            )
+        // population-level effectiveness against hospitalization given infection
+        let pop_eff_p_hosp = if av_params.enabled {
+            params.fraction_symptomatic
+                * av_params.fraction_seek_care
+                * av_params.fraction_diagnosed_prescribed_outpatient
+                * av_params.fraction_adhere
+                * av_params.ave_p
         } else {
             SVector::zeros()
         };
 
-        let p_inpatient_effective = if av_params.enabled {
-            (av_params.ave_p
+        // population-level effectiveness against death given infection
+        let pop_eff_p_death = if av_params.enabled {
+            params.fraction_hospitalized
                 * av_params.fraction_diagnosed_prescribed_inpatient
-                * params.fraction_hospitalized)
-                .component_mul(&p_outpatient_effective.map(|x| 1.0 - x))
+                * av_params.ave_p
         } else {
             SVector::zeros()
         };
 
         Self {
-            i_effective,
-            p_outpatient_effective,
-            p_inpatient_effective,
+            pop_eff_i,
+            pop_eff_p_hosp,
+            pop_eff_p_death,
         }
     }
 }
@@ -201,6 +202,7 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
         let params = &self.parameters;
         let community_params = &params.mitigations.community;
 
+        let ve_s = self.parameters.mitigations.vaccine.ve_s;
         let ve_i = self.parameters.mitigations.vaccine.ve_i;
         let ve_p = self.parameters.mitigations.vaccine.ve_p;
 
@@ -219,9 +221,13 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
 
         // Transmission
         let beta = self.parameters.r0 / self.parameters.infectious_period;
-        let i_effective = (i + (1.0 - ve_i) * iv)
-            .component_mul(&self.ave.i_effective.map(|x| 1.0 - x))
-            + (ve_p * (1.0 - ve_i) * iv).component_mul(&self.ave.i_effective);
+        let i_effective = i.component_mul(&self.ave.pop_eff_i.map(|x| 1.0 - x))
+            + iv.component_mul(
+                &self
+                    .ave
+                    .pop_eff_i
+                    .map(|x| (1.0 - ve_i) * (1.0 - (1.0 - ve_p) * x)),
+            );
 
         let infection_rate = (beta / self.parameters.population)
             * (contact_matrix * i_effective).component_div(&self.parameters.population_fractions);
@@ -230,8 +236,7 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
         let de_to_i = e / self.parameters.latent_period;
         let di_to_r = i / self.parameters.infectious_period;
 
-        let dsv_to_ev =
-            sv.component_mul(&((1.0 - self.parameters.mitigations.vaccine.ve_s) * infection_rate));
+        let dsv_to_ev = sv.component_mul(&((1.0 - ve_s) * infection_rate));
         let dev_to_iv = ev / self.parameters.latent_period;
         let div_to_rv = iv / self.parameters.infectious_period;
 
@@ -258,8 +263,8 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
 
         // Hospitalizations
         let dto_pre_h = (de_to_i + dev_to_iv * (1.0 - ve_p))
-            .component_mul(&self.ave.p_outpatient_effective.map(|x| 1.0 - x))
-            .component_mul(&self.parameters.fraction_hospitalized);
+            .component_mul(&self.parameters.fraction_hospitalized)
+            .component_mul(&self.ave.pop_eff_p_hosp.map(|x| 1.0 - x));
         let dpre_h_to_h_cum = pre_h / self.parameters.hospitalization_delay;
 
         // Deaths
