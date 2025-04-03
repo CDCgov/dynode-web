@@ -18,7 +18,7 @@ The key dynamical compartments are:
 
 There are other compartments, that reflect real epidemiological processes, that do not affect transmission:
 
-- $Y$: symptomatic infections
+- $Y^\mathrm{cum}$: cumulative number of symptomatic infections
 - $H^\mathrm{pre}$: current number of infected individuals who will become hospitalized
 - $H^\mathrm{cum}$: cumulative number of hospitalizations (i.e., admissions)
 - $D^\mathrm{pre}$: current number of infected individuals who will die
@@ -43,18 +43,21 @@ There are other compartments, that reflect real epidemiological processes, that 
 - Vaccine efficacy
   - $\mathrm{VE}_S$: efficacy against infection (i.e., being infected)
   - $\mathrm{VE}_I$: efficacy against transmission given infection
-  - $\mathrm{VE}_P$: efficacy against symptoms given infection
+  - $\mathrm{VE}_P$: efficacy against hospitalization given infection. (Vaccines are assumed to have no additional protection against death given hospitalization.)
 - Antiviral efficacy
-  - $\mathrm{AVE}_I$: antiviral efficacy against transmission given
+  - $\mathrm{AE}_I$: antiviral efficacy against transmission given
   infected
-  - $\mathrm{AVE}_P$: antiviral efficacy against symptoms given infected
-  - $\mathrm{AVE}^\mathrm{eff,out}_I$: population-level effectiveness of antivirals in reducing transmission
+  - $\mathrm{AE}_P$: antiviral efficacy against progression. Efficacy against hospitalization given symptoms is assumed equal to efficacy against death given hospitalization.
+  - In the model, antivirals are presumed not given before exposure, so $\mathrm{AE}_S$ is undefined.
+- Antiviral usage
+  - $A_\mathrm{op}$: proportion of symptomatic but not (yet) hospitalized people who receive antivirals. This probability is a combination of seeking care, being diagnosed, getting an antiviral prescribed, and adhering to the regimen. ("op" is for "outpatient.)
+  - $A_\mathrm{ip}$: proportion of hospitalized ("ip" is for "inpatient") people who receive antivirals, conditioned on not having received outpatient antivirals.
 - Outcomes
   - $\mathrm{IYR}_i$: proportion of infections that are symptomatic (read "Y" as "symptomatic", so this is "infection-symptomatic ratio"; this is not standard nomenclature; this is one minus the asymptomatic fraction)
   - $\mathrm{IHR}_i$: proportion of infections that result in hospitalization
   - $\mathrm{IFR}_i$: proportion of infections that result in death ("F" is for "fatality"; this is the standard nomenclature)
 - proportion of the population initially infected, assumed identical across groups
-- $N$: total population size (used for reporting only)
+- $N$: total population size
 
 ### Equations
 
@@ -78,10 +81,10 @@ where the time-varying vaccination rate is:
 
 #### Transmission
 
-The effective number of infectious in group $i$ (`i_effective`) is:
+The effective number of infectious in group $j$ (`i_effective`) is:
 
 ```math
-I^\mathrm{eff}_i = \mathrm{IU}_i + (1 - \mathrm{VE}_I) \times \mathrm{IV}_i \\
+I^\mathrm{eff}_j = \left[ \mathrm{IU}_j + (1 - \mathrm{VE}_I) \times \mathrm{IV}_j \right] \times (1 - A_\mathrm{op} \mathrm{AE}_I) \\
 ```
 
 The force of infection on group $i$ (`infection_rate`, modulo a factor of $1/N_i$) is:
@@ -89,6 +92,8 @@ The force of infection on group $i$ (`infection_rate`, modulo a factor of $1/N_i
 ```math
 \phi_i = \frac{\beta}{N} \sum_j C_{ij} I^\mathrm{eff}_j
 ```
+
+***I couldn't find the sum over $j$ in model.rs lines 154-155?***
 
 So that the fluxes from susceptible to exposed are:
 
@@ -110,23 +115,22 @@ f(\mathrm{IU}_i, \mathrm{RU}_i) &= \mathrm{IU}_i \times \frac{1}{T_I} \\
 
 and similarly for the vaccinated compartments.
 
-```math
-\begin{align*}
-\dot{Y}_i &= \mathrm{IYR}_i \left[ \dot{\mathrm{IU}}_i + (1 - \mathrm{VE}_P) \times \dot{\mathrm{IV}}_i \right]
-\end{align*}
-```
-
 #### Severity
 
+The rate of new infections that are not protected by vaccination or outpatient antivirals is:
+
 ```math
-\begin{align*}
-\dot{H}^\mathrm{pre}_i &= \left[ f(\mathrm{EU}_i, \mathrm{EI}_i) + (1 - \mathrm{VE}_P) f(\mathrm{EV}_i, \mathrm{EI}_i) \right] \times \mathrm{IHR}_i \\
-\dot{H}^\mathrm{cum}_i &= \dot{H}^\mathrm{pre} \times \frac{1}{T_H^\mathrm{pre}} \\
-\dot{D}^\mathrm{pre}_i &= \left[ f(\mathrm{EU}_i, \mathrm{EI}_i) + (1 - \mathrm{VE}_P) f(\mathrm{EV}_i, \mathrm{EI}_i) \right] \times \mathrm{IFR}_i \\
-\dot{H}^\mathrm{cum}_i &= \dot{H}^\mathrm{pre} \times \frac{1}{T_D^\mathrm{pre}}
-\end{align*}
+\dot{X}_i = \left[ f(\mathrm{EU}_i, \mathrm{EI}_i) + (1 - \mathrm{VE}_P) f(\mathrm{EV}_i, \mathrm{EI}_i) \right] \times (1 - A_\mathrm{op} \mathrm{AE}_P)
 ```
 
-## Questions
+The number of outcomes is:
 
-- I couldn't easily find the sum over $j$ in model.rs lines 154-155
+```math
+\begin{align*}
+\dot{Y}^\mathrm{cum}_i &= \dot{X}_i \times \mathrm{IYR}_i \\
+\dot{H}^\mathrm{pre}_i &= \dot{X}_i \times \mathrm{IHR}_i \\
+\dot{H}^\mathrm{cum}_i &= \dot{H}^\mathrm{pre} \times \frac{1}{T_H^\mathrm{pre}} \\
+\dot{D}^\mathrm{pre}_i &= \dot{X}_i \times (1 - A_\mathrm{ip} \mathrm{AE}_P) \times \mathrm{IFR}_i \\
+\dot{D}^\mathrm{cum}_i &= \dot{H}^\mathrm{pre} \times \frac{1}{T_D^\mathrm{pre}}
+\end{align*}
+```
