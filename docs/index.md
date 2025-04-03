@@ -118,20 +118,20 @@ and similarly for the vaccinated compartments.
 
 #### Severity
 
-The rate of new infections that are not protected by vaccination or outpatient antivirals is:
+The rate of new infections that are not protected by vaccination against progression to symptoms is:
 
 ```math
-\dot{X}_i = \left[ f(\mathrm{EU}_i, \mathrm{EI}_i) + (1 - \mathrm{VE}_P) f(\mathrm{EV}_i, \mathrm{EI}_i) \right] \times (1 - \mathrm{IYR}_i A_\mathrm{op} \mathrm{AE}_P)
+\dot{X}_i = f(\mathrm{EU}_i, \mathrm{EI}_i) + (1 - \mathrm{VE}_P) f(\mathrm{EV}_i, \mathrm{EI}_i)
 ```
 
 The number of outcomes is:
 
 ```math
 \begin{align*}
-\dot{Y}^\mathrm{cum}_i &= \dot{X}_i \times \mathrm{IYR}_i \\
-\dot{H}^\mathrm{pre}_i &= \dot{X}_i \times \mathrm{IHR}_i \\
+\dot{Y}^\mathrm{cum}_i &= \mathrm{IYR}_i \times \dot{X}_i \\
+\dot{H}^\mathrm{pre}_i &= \mathrm{IHR}_i \times (1 - \mathrm{IYR}_i A_\mathrm{op} \mathrm{AE}_P) \times \dot{X}_i \\
 \dot{H}^\mathrm{cum}_i &= \dot{H}^\mathrm{pre} \times \frac{1}{T_H^\mathrm{pre}} \\
-\dot{D}^\mathrm{pre}_i &= \dot{X}_i \times (1 - A_\mathrm{ip} \mathrm{AE}_P) \times \mathrm{IFR}_i \\
+\dot{D}^\mathrm{pre}_i &= \mathrm{IFR}_i \times (1 - A_\mathrm{ip} \mathrm{AE}_P) \times (1 - \mathrm{IYR}_i A_\mathrm{op} \mathrm{AE}_P) \times \dot{X}_i \\
 \dot{D}^\mathrm{cum}_i &= \dot{H}^\mathrm{pre} \times \frac{1}{T_D^\mathrm{pre}}
 \end{align*}
 ```
