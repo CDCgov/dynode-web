@@ -85,7 +85,7 @@ The effective number of infectious people in group $j$ (`i_effective`), accounti
 
 ```math
 I^\mathrm{eff}_j = \mathrm{IU}_j (1 - \mathrm{IYR}_j A_\mathrm{op} \mathrm{AE}_I)
-  + \mathrm{IV}_j \left[ 1 - \mathrm{IYR}_j (1 - \mathrm{VE}_I) A_\mathrm{op} \mathrm{AE}_I \right]
+  + \mathrm{IV}_j (1 - \mathrm{VE}_I) \left[ 1 - \mathrm{IYR}_j (1 - \mathrm{VE}_P) A_\mathrm{op} \mathrm{AE}_I \right]
 ```
 
 The force of infection on group $i$ (`infection_rate`, modulo a factor of $1/N_i$) is:
