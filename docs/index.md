@@ -8,13 +8,13 @@ The population is divided into (age) groups $i$.
 
 The key dynamical compartments are:
 
-- $\mathrm{SU}_i$: susceptible, unvaccinated
-- $\mathrm{EU}_i$: exposed (i.e., latent), unvaccinated
-- $\mathrm{IU}_i$: infectious, unvaccinated
+- $\mathrm{SU}_i$: unvaccinated susceptibles
+- $\mathrm{EU}_i$: unvaccinated exposed (i.e., latent)
+- $\mathrm{IU}_i$: unvaccinated who would be infectious in the absence of vaccination or therapeutics
 - $R_i$: removed
-- $\mathrm{SV}_i$: susceptible, vaccinated
-- $\mathrm{EV}_i$: exposed, vaccinated
-- $\mathrm{IV}_i$: infected, vaccinated
+- $\mathrm{SV}_i$: vaccinated susceptible
+- $\mathrm{EV}_i$: vaccinated exposed
+- $\mathrm{IV}_i$: vaccinated who would be infectious in the absence of vaccination or therapeutics
 
 There are other compartments, that reflect real epidemiological processes, that do not affect transmission:
 
@@ -81,10 +81,11 @@ where the time-varying vaccination rate is:
 
 #### Transmission
 
-The effective number of infectious in group $j$ (`i_effective`) is:
+The effective number of infectious people in group $j$ (`i_effective`), accounting for the effects of vaccination and therapeutics on reducing transmission, is:
 
 ```math
-I^\mathrm{eff}_j = \left[ \mathrm{IU}_j + (1 - \mathrm{VE}_I) \times \mathrm{IV}_j \right] \times (1 - \mathrm{IYR}_j A_\mathrm{op} \mathrm{AE}_I) \\
+I^\mathrm{eff}_j = \mathrm{IU}_j (1 - \mathrm{IYR}_j A_\mathrm{op} \mathrm{AE}_I)
+  + \mathrm{IV}_j \left[ 1 - \mathrm{IYR}_j (1 - \mathrm{VE}_I) A_\mathrm{op} \mathrm{AE}_I \right]
 ```
 
 The force of infection on group $i$ (`infection_rate`, modulo a factor of $1/N_i$) is:
