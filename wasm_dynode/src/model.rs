@@ -3,9 +3,58 @@ use nalgebra::{Const, Matrix, MatrixView, SVector, Storage, StorageMut};
 use ode_solvers::{Dopri5, System};
 use paste::paste;
 
+pub struct AVE<const N: usize> {
+    pub i_effective: SVector<f64, N>,
+    pub p_outpatient_effective: SVector<f64, N>,
+    pub p_inpatient_effective: SVector<f64, N>,
+}
+
+impl<const N: usize> AVE<N> {
+    fn new(params: &Parameters<N>) -> Self {
+        let av_params = &params.mitigations.antivirals;
+
+        let i_effective = if av_params.enabled {
+            (av_params.ave_i
+                * av_params.fraction_adhere
+                * av_params.fraction_seek_care
+                * av_params.fraction_diagnosed_prescribed_outpatient)
+                * params.fraction_symptomatic
+        } else {
+            SVector::zeros()
+        };
+
+        let p_outpatient_effective = if av_params.enabled {
+            SVector::<f64, N>::from_element(
+                av_params.ave_p
+                    * av_params.fraction_adhere
+                    * av_params.fraction_diagnosed_prescribed_outpatient
+                    * av_params.fraction_seek_care,
+            )
+        } else {
+            SVector::zeros()
+        };
+
+        let p_inpatient_effective = if av_params.enabled {
+            (av_params.ave_p
+                * av_params.fraction_diagnosed_prescribed_inpatient
+                * params.fraction_hospitalized)
+                .component_mul(&p_outpatient_effective.map(|x| 1.0 - x))
+        } else {
+            SVector::zeros()
+        };
+
+        Self {
+            i_effective,
+            p_outpatient_effective,
+            p_inpatient_effective,
+        }
+    }
+}
+
 pub struct SEIRModel<const N: usize> {
     pub(crate) parameters: Parameters<N>,
     contact_matrix_normalization: f64,
+    ave: AVE<N>,
 }
 
 macro_rules! make_state {
@@ -66,24 +115,24 @@ macro_rules! make_state {
     }
 }
 
-make_state!(
-    s, e, i, r, sv, ev, iv, rv, pre_h, pre_hv, h_cum, hv_cum, pre_d, d_cum
-);
+make_state!(s, e, i, r, sv, ev, iv, rv, pre_h, h_cum, pre_d, d_cum);
 
 impl<const N: usize> SEIRModel<N> {
     pub fn new(parameters: Parameters<N>) -> Self {
         let contact_matrix = parameters.contact_matrix;
         let (eigenvalue, _) = get_dominant_eigendata(&contact_matrix);
+        let ave = AVE::new(&parameters);
         SEIRModel {
             parameters,
             contact_matrix_normalization: eigenvalue,
+            ave,
         }
     }
 }
 
 impl<const N: usize> DynodeModel for SEIRModel<N>
 where
-    [(); 14 * N]: Sized,
+    [(); 12 * N]: Sized,
 {
     fn integrate(&self, days: usize) -> ModelOutput {
         let population_fractions = self.parameters.population_fractions;
@@ -147,11 +196,13 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
         let ev = y.get_ev();
         let iv = y.get_iv();
         let pre_h = y.get_pre_h();
-        let pre_hv = y.get_pre_hv();
         let pre_d = y.get_pre_d();
 
         let params = &self.parameters;
         let community_params = &params.mitigations.community;
+
+        let ve_i = self.parameters.mitigations.vaccine.ve_i;
+        let ve_p = self.parameters.mitigations.vaccine.ve_p;
 
         // Community mitigation
         let contact_matrix = if community_params.enabled
@@ -166,37 +217,12 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
             self.parameters.contact_matrix / self.contact_matrix_normalization
         };
 
-        // Antivirals
-        let ave_params = &self.parameters.mitigations.antivirals;
-        let ave_i = if ave_params.enabled {
-            ave_params.ave_i
-                * ave_params.fraction_adhere
-                * ave_params.fraction_diagnosed_prescribed_outpatient
-                * ave_params.fraction_seek_care
-            // TODO add symptomatic?
-        } else {
-            0.0
-        };
-
-        let ave_p_outpatient = if ave_params.enabled {
-            ave_params.ave_p
-                * ave_params.fraction_adhere
-                * ave_params.fraction_diagnosed_prescribed_outpatient
-        } else {
-            0.0
-        };
-        let ave_p_inpatient = if ave_params.enabled {
-            ave_params.ave_p
-                * ave_params.fraction_adhere
-                * ave_params.fraction_diagnosed_prescribed_outpatient
-        } else {
-            0.0
-        };
-
         // Transmission
         let beta = self.parameters.r0 / self.parameters.infectious_period;
-        let i_effective = (1.0 - ave_i) * i
-            + (1.0 - ave_i) * (1.0 - self.parameters.mitigations.vaccine.ve_i) * iv;
+        let i_effective = (i + (1.0 - ve_i) * iv)
+            .component_mul(&self.ave.i_effective.map(|x| 1.0 - x))
+            + (ve_p * (1.0 - ve_i) * iv).component_mul(&self.ave.i_effective);
+
         let infection_rate = (beta / self.parameters.population)
             * (contact_matrix * i_effective).component_div(&self.parameters.population_fractions);
 
@@ -230,25 +256,20 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
             .component_mul(&self.parameters.population_fractions)
             * administration_rate;
 
-        // Hospitalization
-        let dto_pre_h = de_to_i.component_mul(&self.parameters.fraction_hospitalized);
-        let dto_pre_hv = (dev_to_iv * (1.0 - self.parameters.mitigations.vaccine.ve_p))
+        // Hospitalizations
+        let dto_pre_h = (de_to_i + dev_to_iv * (1.0 - ve_p))
+            .component_mul(&self.ave.p_outpatient_effective.map(|x| 1.0 - x))
             .component_mul(&self.parameters.fraction_hospitalized);
-
         let dpre_h_to_h_cum = pre_h / self.parameters.hospitalization_delay;
-        let dpre_hv_to_hv_cum = pre_hv / self.parameters.hospitalization_delay;
 
-        // Death
-        let dto_pre_d_in = (dpre_h_to_h_cum
-            + (1.0 - self.parameters.mitigations.vaccine.ve_p) * dpre_hv_to_hv_cum)
-            .component_mul(&self.parameters.fraction_dead)
-            * (1.0 - ave_p_inpatient);
-        let dto_pre_d_out = (((de_to_i - dpre_h_to_h_cum)
-            + (1.0 - self.parameters.mitigations.vaccine.ve_p) * (dev_to_iv - dpre_hv_to_hv_cum))
-            .component_mul(&self.parameters.fraction_dead))
-            * (1.0 - ave_p_outpatient);
-
-        let dto_pre_d = dto_pre_d_in + dto_pre_d_out;
+        // Deaths
+        let dto_pre_d = (de_to_i + (1.0 - ve_p) * dev_to_iv)
+            .component_mul(
+                &(SVector::from_element(1.0)
+                    - self.ave.p_outpatient_effective
+                    - self.ave.p_inpatient_effective),
+            )
+            .component_mul(&self.parameters.fraction_dead);
         let dpre_d_to_d_cum = pre_d / self.parameters.death_delay;
 
         // Collect derivatives
@@ -261,9 +282,7 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
         dy.set_iv(&(dev_to_iv - div_to_rv));
         dy.set_rv(&div_to_rv);
         dy.set_pre_h(&(dto_pre_h - dpre_h_to_h_cum));
-        dy.set_pre_hv(&(dto_pre_hv - dpre_hv_to_hv_cum));
         dy.set_h_cum(&dpre_h_to_h_cum);
-        dy.set_hv_cum(&dpre_hv_to_hv_cum);
         dy.set_pre_d(&(dto_pre_d - dpre_d_to_d_cum));
         dy.set_d_cum(&dpre_d_to_d_cum);
     }
@@ -293,7 +312,7 @@ mod test {
 
     use super::SEIRModel;
     use crate::{
-        AntiviralsParams, DynodeModel, MitigationParams, ModelOutput, OutputType, Parameters,
+        AntiviralsParams, DynodeModel, MitigationParams, OutputType, Parameters,
         model::get_dominant_eigendata,
     };
 
@@ -414,7 +433,7 @@ mod test {
     }
 
     #[test]
-    fn test_antiviral_i() {
+    fn test_antiviral() {
         let baseline_params = Parameters::default();
         let mut mitigated_params = Parameters::default();
         mitigated_params.mitigations.antivirals = AntiviralsParams {
