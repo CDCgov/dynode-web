@@ -43,11 +43,11 @@ There are other compartments, that reflect real epidemiological processes, that 
 - Vaccine efficacy
   - $\mathrm{VE}_S$: efficacy against infection (i.e., being infected)
   - $\mathrm{VE}_I$: efficacy against transmission given infection
-  - $\mathrm{VE}_P$: efficacy against hospitalization given infection. (Vaccines are assumed to have no additional protection against death given hospitalization.)
+  - $\mathrm{VE}_P$: efficacy against symptoms given infection. (Vaccines are assumed to have no additional protection against hospitalization given symptoms or death given hospitalization.)
 - Antiviral efficacy
-  - $\mathrm{AE}_I$: antiviral efficacy against transmission given
-  infected
-  - $\mathrm{AE}_P$: antiviral efficacy against progression. Efficacy against hospitalization given symptoms is assumed equal to efficacy against death given hospitalization.
+  - $\mathrm{AE}_I$: antiviral effectiveness against transmission given
+  infected. Note that this is the *effectiveness*. Upon exposure, if a person is flagged as receiving outpatient antivirals, they instantaneously get a reduction in transmission, so this reduction needs to account for the interaction between delays from infection to symptom onset to taking antivirals, versus the infectivity profile. E.g., an antiviral might be very effective against transmission if given immediately upon exposure, but less effective if given after a delay of a week, and it's the latter, lower quantity that we're using here.
+  - $\mathrm{AE}_P$: antiviral efficacy against progression. Efficacy against hospitalization given symptoms is assumed equal to efficacy against death given hospitalization, and individuals can "double dip" if they get antivirals twice.
   - In the model, antivirals are presumed not given before exposure, so $\mathrm{AE}_S$ is undefined.
 - Antiviral usage
   - $A_\mathrm{op}$: proportion of symptomatic but not (yet) hospitalized people who receive antivirals. This probability is a combination of seeking care, being diagnosed, getting an antiviral prescribed, and adhering to the regimen. ("op" is for "outpatient.)
