@@ -267,7 +267,6 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
         // Deaths
         let dto_pre_d = dat_risk
             .component_mul(&self.parameters.fraction_dead)
-            .component_mul(&self.ave.rr_p_hosp)
             .component_mul(&self.ave.rr_p_death);
 
         let dpre_d_to_d_cum = pre_d / self.parameters.death_delay;
