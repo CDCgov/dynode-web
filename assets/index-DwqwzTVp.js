@@ -9717,7 +9717,7 @@ function CL(t14, e) {
 }
 async function z8(t14) {
   if (Se !== void 0) return Se;
-  typeof t14 < "u" && (Object.getPrototypeOf(t14) === Object.prototype ? { module_or_path: t14 } = t14 : console.warn("using deprecated parameters for the initialization function; pass a single object instead")), typeof t14 > "u" && (t14 = new URL("/dynode-web/assets/wasm_dynode_bg-DnVq1I7Q.wasm", import.meta.url));
+  typeof t14 < "u" && (Object.getPrototypeOf(t14) === Object.prototype ? { module_or_path: t14 } = t14 : console.warn("using deprecated parameters for the initialization function; pass a single object instead")), typeof t14 > "u" && (t14 = new URL("/dynode-web/assets/wasm_dynode_bg-BRn8CKD4.wasm", import.meta.url));
   const e = AL();
   (typeof t14 == "string" || typeof Request == "function" && t14 instanceof Request || typeof URL == "function" && t14 instanceof URL) && (t14 = fetch(t14));
   const { instance: n, module: i } = await TL(await t14, e);
