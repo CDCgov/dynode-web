@@ -416,7 +416,22 @@ mod test {
 
     #[test]
     fn test_vaccine() {
-        let mut parameters = Parameters::default();
+        let mut parameters = Parameters {
+            population: 330_000_000.0,
+            population_fractions: Vector1::new(1.0),
+            population_fraction_labels: Vector1::new("All".to_string()),
+            contact_matrix: Matrix1::new(1.0),
+            initial_infections: 1_000.0,
+            r0: 2.0,
+            latent_period: 1.0,
+            infectious_period: 3.0,
+            mitigations: MitigationParams::default(),
+            fraction_symptomatic: Vector1::new(0.5),
+            fraction_hospitalized: Vector1::new(0.1),
+            hospitalization_delay: 1.0,
+            fraction_dead: Vector1::new(0.01),
+            death_delay: 1.0,
+        };
         parameters.mitigations.vaccine.enabled = true;
         let model = SEIRModel::new(parameters);
         let output = model.integrate(200);
@@ -433,9 +448,23 @@ mod test {
 
     #[test]
     fn test_antiviral() {
-        let baseline_params = Parameters::default();
-        let mut mitigated_params = Parameters::default();
-        mitigated_params.mitigations.antivirals = AntiviralsParams {
+        let mut params = Parameters {
+            population: 330_000_000.0,
+            population_fractions: Vector1::new(1.0),
+            population_fraction_labels: Vector1::new("All".to_string()),
+            contact_matrix: Matrix1::new(1.0),
+            initial_infections: 1_000.0,
+            r0: 2.0,
+            latent_period: 1.0,
+            infectious_period: 3.0,
+            mitigations: MitigationParams::default(),
+            fraction_symptomatic: Vector1::new(0.5),
+            fraction_hospitalized: Vector1::new(0.1),
+            hospitalization_delay: 1.0,
+            fraction_dead: Vector1::new(0.01),
+            death_delay: 1.0,
+        };
+        params.mitigations.antivirals = AntiviralsParams {
             enabled: true,
             editable: true,
             ave_i: 0.5,
@@ -446,21 +475,16 @@ mod test {
             fraction_seek_care: 0.5,
         };
 
-        let (attack_rate, mitigated_attack_rate) = {
-            let population = baseline_params.population;
-            let f = |params: Parameters<2>| {
-                let output = SEIRModel::new(params).integrate(200);
-                let total_incidence: f64 = output
-                    .get_output(&OutputType::InfectionIncidence)
-                    .iter()
-                    .map(|x| x.grouped_values.iter().sum::<f64>())
-                    .sum();
-                total_incidence / population
-            };
-            (f(baseline_params), f(mitigated_params))
-        };
+        let population = params.population;
+        let output = SEIRModel::new(params).integrate(200);
+        let total_incidence: f64 = output
+            .get_output(&OutputType::InfectionIncidence)
+            .iter()
+            .map(|x| x.grouped_values.iter().sum::<f64>())
+            .sum();
+        let attack_rate = total_incidence / population;
 
-        println!("{} {}", attack_rate, mitigated_attack_rate);
+        assert!((attack_rate - 0.77889514).abs() < 1e-5);
     }
 
     #[test]
