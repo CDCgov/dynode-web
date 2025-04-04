@@ -23,6 +23,7 @@ nalgebra = { version = "0.33.2", features = ["serde-serialize"] }
 paste = "1.0.15"
 strum = "0.27.1"
 strum_macros = "0.27.1"
+float_eq = "1.0.1"
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.13"

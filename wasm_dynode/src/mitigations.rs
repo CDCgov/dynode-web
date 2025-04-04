@@ -107,7 +107,7 @@ impl<const N: usize> Default for MitigationParams<N> {
                 doses: 1,
                 start: 0.0,
                 administration_rate: 1_500_000.0,
-                doses_available: 40_000_000.0,
+                doses_available: 20_000_000.0,
                 ve_s: 0.5,
                 ve_i: 0.5,
                 ve_p: 0.5,

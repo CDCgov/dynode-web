@@ -153,6 +153,7 @@ where
         let mut prev_iv_plus_rv = SVector::zeros();
         let mut prev_h_cum = SVector::zeros();
         let mut prev_d_cum = SVector::zeros();
+
         for (time, state) in stepper.x_out().iter().zip(stepper.y_out().iter()) {
             let i_plus_r = state.get_i() + state.get_r();
             let iv_plus_rv = state.get_iv() + state.get_rv();
@@ -181,7 +182,6 @@ where
                 prev_d_cum = state.get_d_cum().into();
             }
         }
-
         output
     }
 }
@@ -241,7 +241,7 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
                 0.0
             } else if (x - self.parameters.mitigations.vaccine.start)
                 * self.parameters.mitigations.vaccine.administration_rate
-                < self.parameters.mitigations.vaccine.doses_available
+                <= self.parameters.mitigations.vaccine.doses_available
             {
                 self.parameters.mitigations.vaccine.administration_rate
             } else {
@@ -250,7 +250,7 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
         } else {
             0.0
         };
-
+        // 0.5828430256204575
         let ds_to_sv = s
             .component_div(&(s + e + i + r))
             .component_mul(&self.parameters.population_fractions)
@@ -307,22 +307,81 @@ fn get_dominant_eigendata<const N: usize, S: Storage<f64, Const<N>, Const<N>>>(
 
 #[cfg(test)]
 mod test {
+    use float_eq::assert_float_eq;
     use nalgebra::{DVector, Matrix1, Vector1, matrix};
 
     use super::SEIRModel;
     use crate::{
-        AntiviralsParams, DynodeModel, MitigationParams, OutputType, Parameters,
-        model::get_dominant_eigendata,
+        AntiviralsParams, DynodeModel, MitigationParams, ModelOutput, OutputType, Parameters,
+        VaccineParams, model::get_dominant_eigendata,
     };
 
+    #[derive(Debug)]
+    #[allow(dead_code)]
+    struct TestResults<const N: usize> {
+        pub total_incidence: f64,
+        pub attack_rate: f64,
+        pub symptomatic_incidence: f64,
+        pub hospitalization_incidence: f64,
+        pub death_incidence: f64,
+    }
+
+    impl<const N: usize> TestResults<N> {
+        pub fn new(params: &Parameters<N>, output: &ModelOutput) -> Self {
+            let total_incidence: f64 = output
+                .get_output(&OutputType::InfectionIncidence)
+                .iter()
+                .map(|x| x.grouped_values.iter().sum::<f64>())
+                .sum();
+
+            let symptomatic_incidence: f64 = output
+                .get_output(&OutputType::SymptomaticIncidence)
+                .iter()
+                .map(|x| x.grouped_values.iter().sum::<f64>())
+                .sum();
+
+            let hospitalization_incidence: f64 = output
+                .get_output(&OutputType::HospitalIncidence)
+                .iter()
+                .map(|x| x.grouped_values.iter().sum::<f64>())
+                .sum();
+
+            let death_incidence: f64 = output
+                .get_output(&OutputType::DeathIncidence)
+                .iter()
+                .map(|x| x.grouped_values.iter().sum::<f64>())
+                .sum();
+
+            let attack_rate = total_incidence / params.population;
+
+            TestResults {
+                total_incidence,
+                attack_rate,
+                symptomatic_incidence,
+                hospitalization_incidence,
+                death_incidence,
+            }
+        }
+    }
+
+    // population <- 3.3e8
+    // SEIRTVModel(
+    //     simulationLength = 300,
+    //     population = population,
+    //     R0 = 2.0,
+    //     latentPeriod = 1.0,
+    //     infectiousPeriod = 3.0,
+    //     seedInfections = 1000.0 / population,
+    //     tolerance = 1e-6,
+    // )
     #[test]
-    fn final_size_relation() {
+    fn test_seir_unmitigated() {
         let model = SEIRModel::new(Parameters {
-            population: 1.0,
+            population: 330_000_000.0,
             population_fractions: Vector1::new(1.0),
             population_fraction_labels: Vector1::new("All".to_string()),
             contact_matrix: Matrix1::new(1.0),
-            initial_infections: 1e-8,
+            initial_infections: 1000.0,
             r0: 2.0,
             latent_period: 1.0,
             infectious_period: 3.0,
@@ -333,24 +392,62 @@ mod test {
             fraction_dead: Vector1::new(0.0),
             death_delay: 1.0,
         });
-        let output = model.integrate(300);
+        let results = TestResults::new(&model.parameters, &model.integrate(300));
+        assert_float_eq!(results.attack_rate, 0.796814, abs <= 1e-5);
+    }
 
-        let total_incidence: f64 = output
-            .get_output(&OutputType::InfectionIncidence)
-            .iter()
-            .map(|x| x.grouped_values.iter().sum::<f64>())
-            .sum();
-        let attack_rate = total_incidence / model.parameters.population;
+    // population <- 3.3e8
+    // SEIRTVModel(
+    //     simulationLength = 300,
+    //     population = population,
+    //     R0 = 2.0,
+    //     latentPeriod = 1.0,
+    //     infectiousPeriod = 3.0,
+    //     seedInfections = 1000.0 / population,
+    //     tolerance = 1e-8,
+    //     VEs = 0.5,
+    //     VEi = 0.5,
+    //     VEp = 0.5,
+    //     vaccineAdministrationRatePerDay = 1e6,
+    //     vaccineAvailabilityByDay = c(2e7),
+    // )
+    #[test]
+    fn test_seir_vaccine() {
+        let vaccine_params = VaccineParams {
+            enabled: true,
+            editable: true,
+            doses: 1,
+            start: 0.0,
+            administration_rate: 1_000_000.0,
+            doses_available: 20_000_000.0,
+            ve_s: 0.5,
+            ve_i: 0.5,
+            ve_p: 0.5,
+        };
 
-        let total_symptomatic: f64 = output
-            .get_output(&OutputType::SymptomaticIncidence)
-            .iter()
-            .map(|x| x.grouped_values.iter().sum::<f64>())
-            .sum();
-        assert!((total_symptomatic - 0.5 * total_incidence).abs() < 1e-6);
-
-        // Check final size relation
-        assert!((0.7968216 - attack_rate).abs() < 1e-5);
+        let model = SEIRModel::new(Parameters {
+            population: 330_000_000.0,
+            population_fractions: Vector1::new(1.0),
+            population_fraction_labels: Vector1::new("All".to_string()),
+            contact_matrix: Matrix1::new(1.0),
+            initial_infections: 1000.0,
+            r0: 2.0,
+            latent_period: 1.0,
+            infectious_period: 3.0,
+            mitigations: MitigationParams {
+                vaccine: vaccine_params,
+                antivirals: MitigationParams::<1>::default().antivirals,
+                community: MitigationParams::<1>::default().community,
+            },
+            fraction_symptomatic: Vector1::new(0.5),
+            fraction_hospitalized: Vector1::new(0.0),
+            hospitalization_delay: 1.0,
+            fraction_dead: Vector1::new(0.0),
+            death_delay: 1.0,
+        });
+        let results = TestResults::new(&model.parameters, &model.integrate(300));
+        let expected = 0.7583813;
+        assert_float_eq!(results.attack_rate, expected, abs <= 1e-5);
     }
 
     #[test]
@@ -412,38 +509,6 @@ mod test {
         // Check deaths
         assert!((model.parameters.fraction_dead[0] - ifr[0]).abs() < 1e-5);
         assert!((model.parameters.fraction_dead[1] - ifr[1]).abs() < 1e-5);
-    }
-
-    #[test]
-    fn test_vaccine() {
-        let mut parameters = Parameters {
-            population: 330_000_000.0,
-            population_fractions: Vector1::new(1.0),
-            population_fraction_labels: Vector1::new("All".to_string()),
-            contact_matrix: Matrix1::new(1.0),
-            initial_infections: 1_000.0,
-            r0: 2.0,
-            latent_period: 1.0,
-            infectious_period: 3.0,
-            mitigations: MitigationParams::default(),
-            fraction_symptomatic: Vector1::new(0.5),
-            fraction_hospitalized: Vector1::new(0.1),
-            hospitalization_delay: 1.0,
-            fraction_dead: Vector1::new(0.01),
-            death_delay: 1.0,
-        };
-        parameters.mitigations.vaccine.enabled = true;
-        let model = SEIRModel::new(parameters);
-        let output = model.integrate(200);
-
-        let total_incidence: f64 = output
-            .get_output(&OutputType::InfectionIncidence)
-            .iter()
-            .map(|x| x.grouped_values.iter().sum::<f64>())
-            .sum();
-        let attack_rate = total_incidence / model.parameters.population;
-
-        println!("{}", attack_rate)
     }
 
     #[test]
