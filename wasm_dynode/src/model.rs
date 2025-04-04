@@ -319,11 +319,10 @@ mod test {
     #[derive(Debug)]
     #[allow(dead_code)]
     struct TestResults<const N: usize> {
-        pub total_incidence: f64,
         pub attack_rate: f64,
-        pub symptomatic_incidence: f64,
-        pub hospitalization_incidence: f64,
-        pub death_incidence: f64,
+        pub symptomatic_rate: f64,
+        pub hospitalization_rate: f64,
+        pub death_rate: f64,
     }
 
     impl<const N: usize> TestResults<N> {
@@ -352,14 +351,11 @@ mod test {
                 .map(|x| x.grouped_values.iter().sum::<f64>())
                 .sum();
 
-            let attack_rate = total_incidence / params.population;
-
             TestResults {
-                total_incidence,
-                attack_rate,
-                symptomatic_incidence,
-                hospitalization_incidence,
-                death_incidence,
+                attack_rate: total_incidence / params.population,
+                symptomatic_rate: symptomatic_incidence / params.population,
+                hospitalization_rate: hospitalization_incidence / params.population,
+                death_rate: death_incidence / params.population,
             }
         }
     }
@@ -511,6 +507,24 @@ mod test {
         assert!((model.parameters.fraction_dead[1] - ifr[1]).abs() < 1e-5);
     }
 
+    // population <- 3.3e8
+    // model <- SEIRTVModel(
+    //     simulationLength = 300,
+    //     population = population,
+    //     R0 = 2.0,
+    //     latentPeriod = 1.0,
+    //     infectiousPeriod = 3.0,
+    //     seedInfections = 1000.0 / population,
+    //     tolerance = 1e-6,
+    //     fractionSymptomatic = 0.5,
+    //     fractionSeekCare = 0.5,
+    //     fractionDiagnosedAndPrescribedOutpatient = 0.5,
+    //     fractionDiagnosedAndPrescribedInpatient = 0.5,
+    //     fractionAdhere = 0.5,
+    //     fractionAdmitted = 0.1,
+    //     AVEi = 0.5,
+    //     AVEp = 0.5,
+    // )
     #[test]
     fn test_antiviral() {
         let mut params = Parameters {
@@ -540,16 +554,9 @@ mod test {
             fraction_seek_care: 0.5,
         };
 
-        let population = params.population;
-        let output = SEIRModel::new(params).integrate(200);
-        let total_incidence: f64 = output
-            .get_output(&OutputType::InfectionIncidence)
-            .iter()
-            .map(|x| x.grouped_values.iter().sum::<f64>())
-            .sum();
-        let attack_rate = total_incidence / population;
-
-        assert!((attack_rate - 0.77889514).abs() < 1e-5);
+        let model = SEIRModel::new(params);
+        let results = TestResults::new(&model.parameters, &model.integrate(300));
+        assert_float_eq!(results.attack_rate, 0.77889514, abs <= 1e-5);
     }
 
     #[test]
