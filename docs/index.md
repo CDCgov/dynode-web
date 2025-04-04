@@ -8,13 +8,14 @@ The population is divided into (age) groups $i$.
 
 The key dynamical compartments are:
 
-- $\mathrm{SU}_i$: unvaccinated susceptibles
-- $\mathrm{EU}_i$: unvaccinated exposed (i.e., latent)
-- $\mathrm{IU}_i$: unvaccinated who would be infectious in the absence of vaccination or therapeutics
-- $R_i$: removed
-- $\mathrm{SV}_i$: vaccinated susceptible
-- $\mathrm{EV}_i$: vaccinated exposed
-- $\mathrm{IV}_i$: vaccinated who would be infectious in the absence of vaccination or therapeutics
+- $\mathrm{SU}_i$: unvaccinated susceptible individuals
+- $\mathrm{EU}_i$: exposed (i.e., latent) individuals who were not vaccinated or had not completed the ramp up period at the time of exposure
+- $\mathrm{IU}_i$: infectious individuals who were not vaccinated, etc.
+- $\mathrm{RU}_i$: removed individuals who were not vaccinated, etc.
+- $\mathrm{SV}_i$: vaccinated susceptible individuals
+- $\mathrm{EV}_i$: exposed individuals who were vaccinated and had completed their ramp up period at the time of exposure
+- $\mathrm{IV}_i$: infectious exposed individuals who were vaccinated, etc.
+- $\mathrm{RV}_i$: removed exposed individuals who were vaccinated, etc.
 
 There are other compartments, that reflect real epidemiological processes, that do not affect transmission:
 
@@ -24,12 +25,14 @@ There are other compartments, that reflect real epidemiological processes, that 
 - $D^\mathrm{pre}$: current number of infected individuals who will die
 - $D^\mathrm{cum}$: cumulative number of deaths
 
+These compartments currently represent the proportion of the total population $N$ that is in each group and disease state.
+
 ### Parameters
 
 - Transmission
   - $R_0$: basic reproduction number
-  - Derive: - $\beta = R_0 / T_I$ (note that this is a scalar)
-  - $C_{ij}$: contact matrix, normalized (i.e., so that dominant eigenvector is 1)
+  - Derive: $\beta = R_0 / T_I$ (note that this is a population-wide, average scalar)
+  - $C_{ij}$: contact matrix, normalized so that dominant eigenvector is 1
 - Times & delays
   - $T_E$: mean duration of latent period
   - $T_I$: mean duration of infectious period
@@ -43,27 +46,34 @@ There are other compartments, that reflect real epidemiological processes, that 
 - Vaccine efficacy
   - $\mathrm{VE}_S$: efficacy against infection (i.e., being infected)
   - $\mathrm{VE}_I$: efficacy against transmission given infection
-  - $\mathrm{VE}_P$: efficacy against symptoms given infection. (Vaccines are assumed to have no additional protection against hospitalization given symptoms or death given hospitalization.)
+  - $\mathrm{VE}_{P,Y|I}$: efficacy against symptoms given infection.
+    - At this time, vaccines are assumed to have no *additional* protection against downstream outcomes. In future iterations, vaccines might provide further protection against hospitalization given symptomatic $\mathrm{VE}_{P,H|Y}$, or protection against death given hospitalization $\mathrm{VE}_{P,D|H}$.
 - Antiviral efficacy
-  - $\mathrm{AE}_I$: antiviral effectiveness against transmission given
-  infected. Note that this is the *effectiveness*. Upon exposure, if a person is flagged as receiving outpatient antivirals, they instantaneously get a reduction in transmission, so this reduction needs to account for the interaction between delays from infection to symptom onset to taking antivirals, versus the infectivity profile. E.g., an antiviral might be very effective against transmission if given immediately upon exposure, but less effective if given after a delay of a week, and it's the latter, lower quantity that we're using here.
-  - $\mathrm{AE}_P$: antiviral efficacy against progression. Efficacy against hospitalization given symptoms is assumed equal to efficacy against death given hospitalization, and individuals can "double dip" if they get antivirals twice.
-  - In the model, antivirals are presumed not given before exposure, so $\mathrm{AE}_S$ is undefined.
+  - $\mathrm{AVE}_I$: antiviral effectiveness against transmission given
+  infected.
+    - Note that this is the *effectiveness* and incorporates the interaction between the delay from exposure to receiving antivirals and the generation time distribution.
+  - $\mathrm{AVE}_P$: antiviral efficacy against progression.
+    - At this time, efficacy against hospitalization given symptoms $\mathrm{AVE}_{P,H|Y}$ is assumed equal to efficacy against death given hospitalization $\mathrm{AVE}_{P,D|H}$.
+    - However, outpatient and inpatient antivirals are considered sufficiently different that individuals can receive both and they have independent effects.
+  - In the model, antivirals are not given before exposure, so $\mathrm{AVE}_S$ is undefined.
 - Antiviral usage
   - $A_\mathrm{op}$: proportion of symptomatic but not (yet) hospitalized people who receive antivirals. This probability is a combination of seeking care, being diagnosed, getting an antiviral prescribed, and adhering to the regimen. ("op" is for "outpatient.)
   - $A_\mathrm{ip}$: proportion of hospitalized ("ip" is for "inpatient") people who receive antivirals, conditioned on not having received outpatient antivirals.
 - Outcomes
-  - $\mathrm{IYR}_i$: proportion of infections that are symptomatic (read "Y" as "symptomatic", so this is "infection-symptomatic ratio"; this is not standard nomenclature; this is one minus the asymptomatic fraction)
+  - $\mathrm{FS}_i$: fraction symptomatic, i.e., proportion of infections that are symptomatic
   - $\mathrm{IHR}_i$: proportion of infections that result in hospitalization
   - $\mathrm{IFR}_i$: proportion of infections that result in death ("F" is for "fatality"; this is the standard nomenclature)
 - proportion of the population initially infected, assumed identical across groups
 - $N$: total population size
+- $N_i$: size of group $i$
 
 ### Equations
 
 Let $f(A, B)$ be the flux from compartment $A$ to $B$.
 
 #### Vaccination
+
+All individuals, in any disease state, are eligible for vaccination. Vaccines are distributed equally across groups and states. The model tracks the total number of vaccine doses administered but the effect on the dynamical compartments is only to move susceptible individuals into the vaccinated track of compartments:
 
 ```math
 f(\mathrm{SU}_i, \mathrm{SV}_i) = \frac{\mathrm{SU}}{\mathrm{SU} + \mathrm{EU} + \mathrm{IU} + \mathrm{RU}} \frac{N_i}{N} \dot{V}
@@ -84,24 +94,24 @@ where the time-varying vaccination rate is:
 The effective number of infectious people in group $j$ (`i_effective`), accounting for the effects of vaccination and therapeutics on reducing transmission, is:
 
 ```math
-I^\mathrm{eff}_j = \mathrm{IU}_j (1 - \mathrm{IYR}_j A_\mathrm{op} \mathrm{AE}_I)
-  + \mathrm{IV}_j (1 - \mathrm{VE}_I) \left[ 1 - \mathrm{IYR}_j (1 - \mathrm{VE}_P) A_\mathrm{op} \mathrm{AE}_I \right]
+I^\mathrm{eff}_j = \mathrm{IU}_j (1 - \mathrm{FS}_j A_\mathrm{op} \mathrm{AVE}_I)
+  + \mathrm{IV}_j (1 - \mathrm{VE}_I) \left[ 1 - \mathrm{FS}_j (1 - \mathrm{VE}_P) A_\mathrm{op} \mathrm{AVE}_I \right]
 ```
 
-The force of infection on group $i$ (`infection_rate`, modulo a factor of $1/N_i$) is:
+The force of infection on group $i$ (`infection_rate`, modulo a factor of the population fractions) is:
 
 ```math
 \phi_i = \frac{\beta}{N} \sum_j C_{ij} I^\mathrm{eff}_j
 ```
 
-***I couldn't find the sum over $j$ in model.rs lines 154-155?***
+Note that $\beta$ is divided by $N$ to convert from numbers of people (in terms of which $R_0$ is defined) to proportions,
 
 So that the fluxes from susceptible to exposed are:
 
 ```math
 \begin{align*}
-f(\mathrm{SU_i, \mathrm{EU}_i}) &= \phi_i \frac{\mathrm{SU}_i}{N_i} \\
-f(\mathrm{SV_i, \mathrm{EV}_i}) &= \phi_i (1 - \mathrm{VE}_S) \frac{\mathrm{SV}_i}{N_i}
+f(\mathrm{SU_i, \mathrm{EU}_i}) &= \phi_i \frac{\mathrm{SU}_i}{N_i/N} \\
+f(\mathrm{SV_i, \mathrm{EV}_i}) &= \phi_i (1 - \mathrm{VE}_S) \frac{\mathrm{SV}_i}{N_i/N}
 \end{align*}
 ```
 
@@ -129,9 +139,9 @@ The number of outcomes is:
 ```math
 \begin{align*}
 \dot{Y}^\mathrm{cum}_i &= \mathrm{IYR}_i \times \dot{X}_i \\
-\dot{H}^\mathrm{pre}_i &= \mathrm{IHR}_i \times (1 - \mathrm{IYR}_i A_\mathrm{op} \mathrm{AE}_P) \times \dot{X}_i \\
+\dot{H}^\mathrm{pre}_i &= \mathrm{IHR}_i \times (1 - \mathrm{IYR}_i A_\mathrm{op} \mathrm{AVE}_P) \times \dot{X}_i \\
 \dot{H}^\mathrm{cum}_i &= \dot{H}^\mathrm{pre} \times \frac{1}{T_H^\mathrm{pre}} \\
-\dot{D}^\mathrm{pre}_i &= \mathrm{IFR}_i \times (1 - A_\mathrm{ip} \mathrm{AE}_P) \times (1 - \mathrm{IYR}_i A_\mathrm{op} \mathrm{AE}_P) \times \dot{X}_i \\
+\dot{D}^\mathrm{pre}_i &= \mathrm{IFR}_i \times (1 - A_\mathrm{ip} \mathrm{AVE}_P) \times (1 - \mathrm{IYR}_i A_\mathrm{op} \mathrm{AVE}_P) \times \dot{X}_i \\
 \dot{D}^\mathrm{cum}_i &= \dot{H}^\mathrm{pre} \times \frac{1}{T_D^\mathrm{pre}}
 \end{align*}
 ```
