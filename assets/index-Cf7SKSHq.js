@@ -24854,7 +24854,7 @@ class Ent {
     this.show(), e.pointerType === "touch" && this.render(e);
   }
   onPointerMove(e) {
-    e.pointerType !== "touch" && this.render(e);
+    this.render(e);
   }
   onPointerLeave() {
     this.tooltipEl.style.display = "none", this.focusLine.style("display", "none");
