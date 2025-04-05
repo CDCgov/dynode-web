@@ -24840,15 +24840,21 @@ class Ent {
   cleanup() {
     this.tooltipEl.remove(), this.node.removeEventListener("pointerenter", this.onPointerEnter), this.node.removeEventListener("pointermove", this.onPointerMove), this.node.removeEventListener("pointerleave", this.onPointerLeave);
   }
-  onPointerEnter() {
+  show() {
     this.tooltipEl.style.display = "", this.focusLine.style("display", ""), this.trackEnter = true;
   }
-  onPointerMove(e) {
-    this.trackEnter || this.onPointerEnter();
+  render(e) {
+    this.trackEnter || this.show();
     const [n] = K9(e), i = this.bisector.center(this.xValues, this.xScaleInverted(n)), r = this.xValues[i];
     this.renderContent(r, this.pointMap.get(r), this.tooltipEl);
     let u = e.clientX + this.margin, o = e.clientY, c = this.tooltipWidth + u - window.innerWidth, f = this.tooltipEl.clientHeight + o - window.innerHeight;
     this.tooltipEl.style.left = `${Math.min(u, u - c)}px`, this.tooltipEl.style.top = `${Math.min(o, o - f)}px`, this.focusLine.attr("transform", `translate(${this.xScale(r)},0)`);
+  }
+  onPointerEnter(e) {
+    this.show(), e.pointerType === "touch" && this.render(e);
+  }
+  onPointerMove(e) {
+    e.pointerType !== "touch" && this.render(e);
   }
   onPointerLeave() {
     this.tooltipEl.style.display = "none", this.focusLine.style("display", "none");
