@@ -11,7 +11,8 @@ const DEFAULT_STYLE: Partial<CSSStyleDeclaration> = {
 };
 
 interface TooltipOptions<P> {
-    points: P[];
+    points?: P[];
+    pointMap?: Map<number, P[]>;
     containerEl: HTMLElement;
     plot: (HTMLElement | SVGElement) & Plot;
     xProperty: keyof P & (string | number);
@@ -64,6 +65,7 @@ export class Tooltip<P> {
         yProperty,
         getColor,
         points,
+        pointMap,
         margin = 15,
         tooltipWidth = 200,
         renderContent,
@@ -106,10 +108,13 @@ export class Tooltip<P> {
         }
 
         this.bisector = bisector((d) => d);
-        // @ts-expect-error Map is not typed correctly
-        this.pointMap = from(points)
-            .groupby(this.xProperty)
-            .objects({ grouped: true }) as Map<number, P[]>;
+
+        this.pointMap =
+            pointMap ||
+            // @ts-expect-error Map is not typed correctly
+            (from(points)
+                .groupby(this.xProperty)
+                .objects({ grouped: true }) as Map<number, P[]>);
         this.xValues = [...this.pointMap.keys()];
         this.focusLineStartY = focusLineCoords[0];
         this.focusLineEndY = focusLineCoords[1];
@@ -205,7 +210,9 @@ export class Tooltip<P> {
                 .attr("cx", (d) => this.xScale(d[this.xProperty] as number))
                 .attr("cy", (d) => this.yScale(d[this.yProperty] as number))
                 .attr("r", 3)
-                .attr("fill", (d) => this.getColor(d));
+                .attr("fill", "white")
+                .attr("stroke-width", 2)
+                .attr("stroke", (d) => this.getColor(d));
         }
 
         this.focusLine.attr(

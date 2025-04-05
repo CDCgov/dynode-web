@@ -6,16 +6,11 @@ import {
 import { entries } from "../utils";
 import { useParamsContext } from "../ModelState";
 import { useMemo } from "react";
-import { table } from "arquero";
+import { ColumnTable, table } from "arquero";
+import { BasePoint } from "../plots/plotUtils";
 
 export type ModelRunTable = {
-    rows: {
-        day: number[];
-        value: number[];
-        group: number[];
-        output_type: OutputType[];
-        mitigation_type: MitigationType[];
-    };
+    rows: Rows<Point>;
     mitigation_types: MitigationType[];
     output_types: OutputType[];
 };
@@ -23,17 +18,31 @@ export type ModelRunTable = {
 export type Point = {
     x: number;
     y: number;
-    mitigation_type?: string;
-    output_type?: string;
-    group?: number;
+    mitigation_type: MitigationType;
+    output_type: OutputType;
+    age_group: number;
 };
+
+export type Rows<P extends BasePoint> = {
+    [K in keyof P]: Array<P[K]>;
+};
+
+export class DataTable<P extends BasePoint> {
+    private _table: ColumnTable;
+    constructor(rows: Rows<P>) {
+        this._table = table(rows);
+    }
+    get table() {
+        return this._table;
+    }
+}
 
 export function buildModelRunTable(exported: ModelOutputExport): ModelRunTable {
     let table: ModelRunTable = {
         rows: {
-            day: [],
-            value: [],
-            group: [],
+            x: [],
+            y: [],
+            age_group: [],
             output_type: [],
             mitigation_type: [],
         },
@@ -48,9 +57,9 @@ export function buildModelRunTable(exported: ModelOutputExport): ModelRunTable {
                 .forEach(([output_type, items]) => {
                     items.forEach((item) => {
                         item.grouped_values.forEach((val, i) => {
-                            table.rows.day.push(item.time);
-                            table.rows.value.push(val);
-                            table.rows.group.push(i);
+                            table.rows.x.push(item.time);
+                            table.rows.y.push(val);
+                            table.rows.age_group.push(i);
                             table.rows.output_type.push(output_type);
                             table.rows.mitigation_type.push(mitigation_type);
                         });
@@ -64,7 +73,7 @@ export function useModelRunData() {
     const { modelRunTable } = useParamsContext();
     let dt = useMemo(() => {
         if (!modelRunTable) return null;
-        return table(modelRunTable.rows);
+        return new DataTable<Point>(modelRunTable.rows);
     }, [modelRunTable]);
     return {
         dt,
