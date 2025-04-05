@@ -1,13 +1,6 @@
 import { Plot } from "@observablehq/plot";
 import { from } from "arquero";
-import {
-    bisector,
-    Bisector,
-    pointer,
-    select,
-    Selection,
-    ScaleLinear,
-} from "d3";
+import { bisector, Bisector, pointer, select, Selection } from "d3";
 
 const DEFAULT_STYLE: Partial<CSSStyleDeclaration> = {
     backgroundColor: "white",
@@ -20,10 +13,10 @@ const DEFAULT_STYLE: Partial<CSSStyleDeclaration> = {
 interface TooltipOptions<P> {
     points: P[];
     containerEl: HTMLElement;
-    plot?: (HTMLElement | SVGElement) & Plot;
-    svg?: SVGElement;
-    scaleX?: ScaleLinear<number, number>;
+    plot: (HTMLElement | SVGElement) & Plot;
     xProperty: keyof P & (string | number);
+    yProperty: keyof P & (string | number);
+    getColor: (d: P) => string;
     renderContent: (
         x: number,
         points: P[] | undefined,
@@ -42,7 +35,10 @@ export class Tooltip<P> {
     private plotSelection: Selection<SVGElement, unknown, null, undefined>;
     private xScale: (x: number) => number;
     private xScaleInverted: (x: number) => number;
+    private yScale: (y: number) => number;
+    private getColor: (d: P) => string;
     private xProperty: keyof P & (string | number);
+    private yProperty: keyof P & (string | number);
     private bisector: Bisector<number, number>;
     private xValues: number[];
     private pointMap: Map<number, P[]>;
@@ -56,6 +52,7 @@ export class Tooltip<P> {
     ) => void;
     private containerEl: HTMLElement;
     private focusLine: Selection<SVGLineElement, unknown, null, undefined>;
+    private focusDots: Selection<SVGGElement, unknown, null, undefined>;
     private margin: number;
     private trackEnter: boolean;
     private style: Partial<CSSStyleDeclaration> | null;
@@ -63,55 +60,44 @@ export class Tooltip<P> {
     constructor({
         containerEl,
         plot,
-        svg,
         xProperty,
-        scaleX,
+        yProperty,
+        getColor,
         points,
-        yRange,
         margin = 15,
         tooltipWidth = 200,
         renderContent,
         style = DEFAULT_STYLE,
     }: TooltipOptions<P>) {
-        let yScale = plot?.scale("y");
-        let focusLineCoords: [number, number];
+        let xScale = plot.scale("x");
+        let yScale = plot.scale("y");
+        this.getColor = getColor;
 
-        if (yRange) {
-            focusLineCoords = yRange;
-        } else if (yScale && yScale.range instanceof Array) {
-            focusLineCoords = [
-                yScale.range[0],
-                yScale.range[yScale.range.length - 1],
-            ];
-        } else {
+        if (!xScale || !xScale.invert) {
+            throw new Error("You must provide a x scale with invert");
+        }
+        if (!yScale || !(yScale.range instanceof Array)) {
             throw new Error(
-                "You must provide a ycale range as an array or a yRange"
+                "You must provide a yScale range as an array or a yRange"
             );
         }
-        if (scaleX) {
-            this.xScale = (n) => scaleX(n);
-            this.xScaleInverted = (n) => scaleX.invert(n);
-        } else if (plot) {
-            let scale = plot.scale("x");
-            if (!scale || !scale.invert) {
-                throw new Error(
-                    "You must provide a x scale with an invert method"
-                );
-            }
-            this.xScale = (n) => scale.apply(n);
-            this.xScaleInverted = (n) => scale.invert && scale.invert(n);
-        } else {
-            throw new Error(
-                "You must provide an x scale with an invert method or a plot"
-            );
-        }
+        this.xScale = (n) => xScale.apply(n);
+        this.xScaleInverted = (n) => xScale.invert && xScale.invert(n);
+        this.yScale = (n) => yScale.apply(n);
+
+        this.xProperty = xProperty;
+        this.yProperty = yProperty;
+
+        let focusLineCoords = [
+            yScale.range[0],
+            yScale.range[yScale.range.length - 1],
+        ];
 
         if (plot instanceof SVGElement) {
             this.node = plot;
             this.plotSelection = select(plot as SVGElement);
         } else {
-            let node =
-                svg || plot?.querySelector<SVGElement>("svg[class^='plot']");
+            let node = plot.querySelector<SVGElement>("svg[class^='plot']");
             if (!node) {
                 throw new Error("No svg found");
             }
@@ -119,7 +105,6 @@ export class Tooltip<P> {
             this.plotSelection = select(node);
         }
 
-        this.xProperty = xProperty;
         this.bisector = bisector((d) => d);
         // @ts-expect-error Map is not typed correctly
         this.pointMap = from(points)
@@ -142,20 +127,14 @@ export class Tooltip<P> {
         this.tooltipEl.className = "tooltip";
         this.containerEl.appendChild(this.tooltipEl);
         this.focusLine = this.plotSelection.append("line");
+        this.focusDots = this.plotSelection.append("g");
+
         this.trackEnter = false;
 
         this.style = style;
 
         // Needs to be re-run when points changes
         this.setup();
-    }
-
-    getX(d: P): number {
-        let value = d[this.xProperty];
-        if (typeof value !== "number") {
-            console.warn(`Value of x property should be a number`);
-        }
-        return value as number;
     }
 
     setup() {
@@ -203,13 +182,10 @@ export class Tooltip<P> {
             this.xScaleInverted(x)
         );
         const nearestX = this.xValues[index];
+        const pointsAtX = this.pointMap.get(nearestX);
 
         // this.tooltipEl.innerText = "";
-        this.renderContent(
-            nearestX,
-            this.pointMap.get(nearestX),
-            this.tooltipEl
-        );
+        this.renderContent(nearestX, pointsAtX, this.tooltipEl);
 
         let left = event.clientX + this.margin;
         let top = event.clientY;
@@ -218,6 +194,19 @@ export class Tooltip<P> {
 
         this.tooltipEl.style.left = `${Math.min(left, left - overlapX)}px`;
         this.tooltipEl.style.top = `${Math.min(top, top - overlapY)}px`;
+
+        this.focusDots.selectAll("circle").remove();
+        if (pointsAtX) {
+            this.focusDots
+                .selectAll("circle")
+                .data(pointsAtX)
+                .enter()
+                .append("circle")
+                .attr("cx", (d) => this.xScale(d[this.xProperty] as number))
+                .attr("cy", (d) => this.yScale(d[this.yProperty] as number))
+                .attr("r", 3)
+                .attr("fill", (d) => this.getColor(d));
+        }
 
         this.focusLine.attr(
             "transform",
@@ -237,6 +226,7 @@ export class Tooltip<P> {
     }
 
     onPointerLeave() {
+        this.focusDots.selectAll("circle").remove();
         this.tooltipEl.style.display = "none";
         this.focusLine.style("display", "none");
     }

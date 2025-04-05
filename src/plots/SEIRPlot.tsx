@@ -1,5 +1,4 @@
 import * as Plot from "@observablehq/plot";
-import { MitigationType } from "@wasm/wasm_dynode";
 import { useRef, useState, useEffect, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
 import { Point } from "../state/modelRuns";
@@ -17,20 +16,44 @@ export type Annotation = {
     x: number;
 };
 
-function getColors(groupBy: keyof Point): {
-    domain: string[];
-    range: string[];
-} | null {
-    switch (groupBy) {
-        case "mitigation_type":
-            return {
-                domain: ["Unmitigated", "Mitigated"] as MitigationType[],
-                range: [PlotColor.Default, PlotColor.Purple],
-            };
-        default:
-            return null;
+class ColorMapEntry<V extends string | number> extends Map<V, PlotColor> {
+    constructor(...pairs: [V, PlotColor][]) {
+        super(pairs);
     }
 }
+
+class ColorMap extends Map<keyof Point, ColorMapEntry<string | number>> {
+    constructor(...pairs: [keyof Point, ColorMapEntry<string | number>][]) {
+        super(pairs);
+    }
+    getColor(key: keyof Point, value: string | number | undefined): PlotColor {
+        if (value === undefined) return PlotColor.Default;
+        return this.get(key)?.get(value) || PlotColor.Default;
+    }
+    getDomain(key: keyof Point): Array<string | number> {
+        return [...(this.get(key)?.keys() || [])];
+    }
+    getRange(key: keyof Point): Array<PlotColor> {
+        return [...(this.get(key)?.values() || [])];
+    }
+}
+
+const COLOR_MAP = new ColorMap(
+    [
+        "mitigation_type",
+        new ColorMapEntry<string | number>(
+            ["Unmitigated", PlotColor.Default],
+            ["Mitigated", PlotColor.Purple]
+        ),
+    ],
+    [
+        "output_type",
+        new ColorMapEntry<string | number>(
+            ["HospitalIncidence", PlotColor.Default],
+            ["DeathIncidence", PlotColor.Purple]
+        ),
+    ]
+);
 
 function computeTickInfo(
     yLabel: string,
@@ -87,7 +110,10 @@ export function SEIRPlot({
     useEffect(() => {
         if (!data.length || !plotRef.current) return;
 
-        let colors = getColors(groupBy);
+        let colors = {
+            domain: COLOR_MAP.getDomain(groupBy),
+            range: COLOR_MAP.getRange(groupBy),
+        };
 
         let maxY = userMaxY || yDomain?.[1];
         if (!maxY) {
@@ -161,6 +187,8 @@ export function SEIRPlot({
                     plot,
                     points: data,
                     xProperty: "x",
+                    yProperty: "y",
+                    getColor: (d) => COLOR_MAP.getColor(groupBy, d[groupBy]),
                     renderContent: (_, points) => {
                         setTooltipData(points || null);
                     },
@@ -236,7 +264,15 @@ function TooltipContent({
                 <tbody>
                     {data.map((d, i) => (
                         <tr key={i}>
-                            <td>{d[groupBy]}</td>
+                            <td>
+                                <Swatch
+                                    color={COLOR_MAP.getColor(
+                                        groupBy,
+                                        d[groupBy]
+                                    )}
+                                />
+                                {d[groupBy]}
+                            </td>
                             <td style={{ textAlign: "right" }}>
                                 <strong>{formatTooltipNumber(d.y)}</strong>
                             </td>
@@ -245,6 +281,20 @@ function TooltipContent({
                 </tbody>
             </table>
         </div>
+    );
+}
+
+function Swatch({ color }: { color: PlotColor }) {
+    return (
+        <span
+            style={{
+                display: "inline-block",
+                width: "10px",
+                height: "10px",
+                backgroundColor: color,
+                marginRight: "5px",
+            }}
+        />
     );
 }
 
