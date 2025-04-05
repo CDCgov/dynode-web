@@ -27,8 +27,8 @@ export function CommunityEditor() {
                 <label>Duration of community mitigation</label>
                 <NumberInput
                     range
-                    min={0}
-                    max={days}
+                    min={1}
+                    max={days - start}
                     value={duration}
                     onValue={(duration) => updateParams({ duration })}
                 />

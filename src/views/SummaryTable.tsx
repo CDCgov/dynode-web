@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useParams } from "../ModelState";
 import "./SummaryTable.css";
 import { MitigationType, OutputType } from "@wasm/wasm_dynode";
-import { useModelRunData } from "../state/modelRuns";
+import { Point, useModelRunData } from "../state/modelRuns";
 import { ColumnTable, op } from "arquero";
 
 function formatted(n: number): string {
@@ -33,8 +33,13 @@ function SummaryTableInner({
         let addPrevented =
             mitigation_types.includes("Unmitigated") &&
             mitigation_types.includes("Mitigated");
-        return computeSummaryRows(dt, outputType, addPrevented, groupLabels);
-    }, [dt, outputType, mitigation_types]);
+        return computeSummaryRows(
+            dt.table,
+            outputType,
+            addPrevented,
+            groupLabels
+        );
+    }, [dt, outputType, mitigation_types, groupLabels]);
 
     if (!summaries || !mitigation_types) return null;
 
@@ -64,8 +69,8 @@ function SummaryTableInner({
                 <tbody>
                     {summaries.map((summary) => {
                         return (
-                            <tr key={summary.group}>
-                                <td>{summary.group}</td>
+                            <tr key={summary.age_group}>
+                                <td>{summary.age_group}</td>
                                 {mitigation_types.map((label) => {
                                     let sum = summary[label];
                                     return (
@@ -117,7 +122,7 @@ export function SummaryTable() {
 }
 
 type SummaryRow = {
-    group: string;
+    age_group: string;
     total: number;
     prevented?: number;
     prevent_pct?: number;
@@ -133,29 +138,28 @@ function computeSummaryRows(
         .params({ outputType, groupLabels })
         // @ts-expect-error d and & are untyped
         .filter((d, $) => d.output_type === $.outputType)
-        .groupby("group", "mitigation_type")
+        .groupby("age_group", "mitigation_type")
         .rollup({
-            value: op.sum("value"),
+            y: op.sum("y"),
         })
 
         .derive({
-            // @ts-expect-error d is untyped
-            value: (d) => Math.round(d.value / 1000) * 1000,
-            // @ts-expect-error d is untyped
-            group: (d, $) => $.groupLabels[d.group],
+            y: (d: Point) => Math.round(d.y / 1000) * 1000,
+            // @ts-expect-error d and & are untyped
+            age_group: (d, $) => $.groupLabels[d.age_group],
         });
 
     let totals = grouped
         .groupby("mitigation_type")
         .rollup({
-            value: op.sum("value"),
+            y: op.sum("y"),
         })
-        .derive({ group: () => "All" });
+        .derive({ age_group: () => "All" });
 
     let result: SummaryRow[] = totals
         .concat(grouped)
-        .groupby("group")
-        .pivot("mitigation_type", { value: op.sum("value") })
+        .groupby("age_group")
+        .pivot("mitigation_type", { value: op.sum("y") })
         .objects() as SummaryRow[];
 
     if (addPrevented) {
