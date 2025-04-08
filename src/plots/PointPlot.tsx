@@ -188,15 +188,18 @@ export function PointPlotInner<
     useEffect(() => {
         if (!plotRef.current || !widthHeight) return;
 
-        let width = widthHeight[0];
-        let height = Math.max(widthHeight[0] * aspectRatio, 200);
-
-        const isSmall = height < 300 || width < 300;
-
         let marginTop = extraConfig?.marginTop || 20;
         let marginBottom = extraConfig?.marginBottom || 30;
         let marginLeft = extraConfig?.marginLeft || 40;
         let marginRight = extraConfig?.marginRight || 20;
+
+        let width = widthHeight[0];
+        let height = Math.max(
+            widthHeight[0] * aspectRatio,
+            200 + marginBottom - marginTop
+        );
+
+        const isSmall = height < 300 || width < 300;
 
         let [yLabelExtended, tickFormat] = computeTickInfo(yLabel, maxY);
 

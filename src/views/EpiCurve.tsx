@@ -1,5 +1,4 @@
 import "./EpiCurve.css";
-import { SummaryTable } from "./SummaryTable";
 import { MitigationPlot } from "../plots/MitigationPlot";
 import { useParams } from "../ModelState";
 import { useModelRunData } from "../state/modelRuns";
@@ -21,10 +20,10 @@ export function EpiCurve() {
                 <h4 className="mb-1">Overall Infection Incidence</h4>
                 <MitigationPlot
                     yLabel="Incidence"
-                    aspectRatio={0.4}
+                    aspectRatio={0.5}
                     ticks={10}
                     filter={(d) => d.output_type === "InfectionIncidence"}
-                    annotations
+                    annotations={hasMitigations}
                 />
                 <MitigationPlot
                     yLabel="Incidence"
@@ -54,8 +53,6 @@ export function EpiCurve() {
                     singleYAxis
                 />
             </section>
-
-            <SummaryTable />
         </>
     );
 }

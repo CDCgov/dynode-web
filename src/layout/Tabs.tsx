@@ -50,9 +50,7 @@ export function Tabs({ tabs }: { tabs: TabData[] }) {
 
             {tabContent.map((content, i) => (
                 <div
-                    className={`tab-wrapper ${
-                        tabs[i].isDark ? " dark" : ""
-                    } p-3 pt-2`}
+                    className={`tab-wrapper ${tabs[i].isDark ? " dark" : ""}`}
                     key={i}
                     style={{ display: i === active ? "" : "none" }}
                 >

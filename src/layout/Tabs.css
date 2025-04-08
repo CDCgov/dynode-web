@@ -22,6 +22,9 @@
     background-color: var(--main-bg);
     color: var(--main-text);
     flex-grow: 1;
+
+    padding: var(--spacing-3);
+    padding-top: var(--spacing-2);
 }
 .tab-wrapper.dark {
     background-color: var(--black);
@@ -32,6 +35,9 @@
     display: none;
 }
 @media screen and (max-width: 992px) {
+    .tab-wrapper {
+        padding: var(--spacing-1);
+    }
     .mobile-only {
         display: block;
     }

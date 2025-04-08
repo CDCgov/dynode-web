@@ -43,6 +43,7 @@ export function MitigationPlot<F extends ValidGroupKey<Point> = never>({
                 );
             }}
             extraConfig={{
+                marginTop: showAnnotations ? 35 : undefined,
                 marginBottom: showAnnotations ? 100 : undefined,
             }}
             renderMarks={(dataByGroup, _, { xScale, yScale }) => {
