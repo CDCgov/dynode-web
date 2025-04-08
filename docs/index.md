@@ -145,3 +145,22 @@ The number of outcomes is:
 \dot{D}^\mathrm{cum}_i &= \dot{H}^\mathrm{pre} \times \frac{1}{T_D^\mathrm{pre}}
 \end{align*}
 ```
+
+## Interventions
+
+### Surveillance and detection
+
+#### Definitions and parameters
+
+- $r_\mathrm{test}$: maximum testing rate (number of tests per unit time)
+- $r_\mathrm{bg}$: background test demand rate (tests per unit time per person), so that $r_\mathrm{bg} N$ is the background number of demanded tests per unit time
+- $r_I = \sum_i [f(\mathrm{EU}_i, \mathrm{IU}_i) + f(\mathrm{EV}_i, \mathrm{IV}_i)]$: number of newly infectious people per unit time
+- $p_{\mathrm{demand}|I}$: proportion of newly infectious people who demand tests (i.e., are eligible for and would receive a test if it were available)
+
+#### Description
+
+Tests are allotted proportionally to newly infectious and background individuals so that the proportion of newly infectious who receive a test is:
+
+$$
+\min \left\{ 1, r_\mathrm{test} \frac{p_{\text{demand}|I}}{r_\mathrm{bg} + p_{\text{demand}|I} r_I} \right\}
+$$
