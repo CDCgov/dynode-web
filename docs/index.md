@@ -61,6 +61,7 @@ These compartments currently represent the proportion of the total population $N
   - $A_\mathrm{ip}$: proportion of hospitalized ("ip" is for "inpatient") people who receive antivirals, conditioned on not having received outpatient antivirals.
 - Outcomes
   - $\mathrm{FS}_i$: fraction symptomatic, i.e., proportion of infections that are symptomatic
+    - Symptomatic and asymptomatic cases are assumed otherwise equal (e.g., equally infectious) so that this fraction does not affect transmission (except via mitigations that depend on symptoms)
   - $\mathrm{IHR}_i$: proportion of infections that result in hospitalization
   - $\mathrm{IFR}_i$: proportion of infections that result in death ("F" is for "fatality"; this is the standard nomenclature)
 - proportion of the population initially infected, assumed identical across groups
