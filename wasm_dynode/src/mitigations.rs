@@ -83,12 +83,30 @@ impl<const N: usize> TryFrom<CommunityMitigationParamsExport> for CommunityMitig
     }
 }
 
+#[derive(Tsify, Debug, Clone, Serialize, Deserialize)]
+#[tsify(into_wasm_abi, from_wasm_abi)]
+pub struct TTIQParams {
+    pub enabled: bool,
+    pub editable: bool,
+    // prob. an infectious person will be identified
+    pub p_id_infectious: f64,
+    // prob. an identified infectious person will isolate
+    pub p_infectious_isolates: f64,
+    // proportional reduction in infectious period due to isolation
+    pub isolation_reduction: f64,
+    // prob. contact tracing identifies an exposed person
+    pub p_contact_trace: f64,
+    // prob. a traced person quarantines
+    pub p_traced_quarantines: f64,
+}
+
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, tsify::Tsify)]
 #[tsify(into_wasm_abi, from_wasm_abi)]
 pub struct MitigationParamsExport {
     pub vaccine: VaccineParams,
     pub antivirals: AntiviralsParams,
     pub community: CommunityMitigationParamsExport,
+    pub ttiq: TTIQParams,
 }
 
 #[derive(Debug, Clone)]
@@ -96,6 +114,7 @@ pub struct MitigationParams<const N: usize> {
     pub vaccine: VaccineParams,
     pub antivirals: AntiviralsParams,
     pub community: CommunityMitigationParams<N>,
+    pub ttiq: TTIQParams,
 }
 
 impl<const N: usize> Default for MitigationParams<N> {
@@ -129,6 +148,15 @@ impl<const N: usize> Default for MitigationParams<N> {
                 duration: 20.0,
                 effectiveness: SMatrix::from_element(0.25),
             },
+            ttiq: TTIQParams {
+                enabled: false,
+                editable: true,
+                p_id_infectious: 0.15,
+                p_infectious_isolates: 0.75,
+                isolation_reduction: 0.50,
+                p_contact_trace: 0.25,
+                p_traced_quarantines: 0.75,
+            },
         }
     }
 }
@@ -139,6 +167,7 @@ impl<const N: usize> From<MitigationParams<N>> for MitigationParamsExport {
             vaccine: value.vaccine,
             antivirals: value.antivirals,
             community: CommunityMitigationParamsExport::from(value.community),
+            ttiq: value.ttiq,
         }
     }
 }
@@ -151,6 +180,7 @@ impl<const N: usize> TryFrom<MitigationParamsExport> for MitigationParams<N> {
             vaccine: value.vaccine,
             antivirals: value.antivirals,
             community: CommunityMitigationParams::try_from(value.community)?,
+            ttiq: value.ttiq,
         })
     }
 }

@@ -165,8 +165,6 @@ Define the parameters:
 
 During the period from $t_\mathrm{start}$ to $t_\mathrm{start} + \Delta t_\mathrm{duration}$, adjust the contact matrix entries from $C_{ij}$ to $(1 - \mathrm{Eff}) \times C_{ij}$.
 
-## Interventions
-
 ### Surveillance and detection
 
 Define the parameters:
@@ -186,3 +184,22 @@ Then:
 ```
 
 We report the times at which the cumulative detection probability reaches certain thresholds (e.g., 25%, 50%, and 75%).
+
+### Vaccination and antivirals
+
+See the base model description above.
+
+### Test, trace, isolation, and quarantine (TTIQ)
+
+Infectious individuals (who are identified via some type of surveillance or testing) may *isolate*, effectively averting part (or all) of their remaining infectious period. *Contact tracing* can then identify exposed individuals, who may *quarantine*, averting part of all of their infectious period.
+
+This model approximates the different impacts from these policies as a reduction in the mean duration of the infectious period:
+
+$$
+\begin{equation*}
+\begin{split}
+T_I^\mathrm{int} = T_I &\times (1 - \mathbb{P}[\text{infectious is identified}] \times \mathbb{P}[\text{identified infectious isolates}] \times [\text{prop. reduction in $T_I$ due to isolation}]) \\
+&\times (1 - \mathbb{P}[\text{contact tracing identifies exposed}] \times \mathbb{P}[\text{identified exposed quarantines}] )
+\end{split}
+\end{equation*}
+$$
