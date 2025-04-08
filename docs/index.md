@@ -145,3 +145,24 @@ The number of outcomes is:
 \dot{D}^\mathrm{cum}_i &= \dot{H}^\mathrm{pre} \times \frac{1}{T_D^\mathrm{pre}}
 \end{align*}
 ```
+
+## Interventions
+
+### Vaccination and antivirals
+
+See the base model description above.
+
+### Contact tracing, quarantine, and isolation
+
+Infectious individuals (who are identified via some type of surveillance or testing) may *isolate*, effectively averting part (or all) of their remaining infectious period. *Contact tracing* can then identify exposed individuals, who may *quarantine*, averting part of all of their infectious period.
+
+This model approximates the different impacts from these policies as a reduction in the mean duration of the infectious period:
+
+$$
+\begin{equation*}
+\begin{split}
+T_I^\mathrm{int} = T_I \times (1 - &\mathbb{P}[\text{infectious is identified}] \times \mathbb{P}[\text{identified infectious isolates}] \times [\text{prop. reduction in $T_I$ due to isolation}]) \\
+&\times (1 - \mathbb{P}[\text{contact tracing identifies exposed}] \times \mathbb{P}[\text{identified exposed quarantines}] )
+\end{split}
+\end{equation*}
+$$
