@@ -154,6 +154,6 @@ Define the parameters:
 
 - $t_\mathrm{start}$: time that the mitigation starts
 - $\Delta t_\mathrm{duration}$: duration of the mitigation
-- $\mathrm{ContactMult}$: proportional change in contact rate, assumed constant over the duration and equal for all age groups
+- $\mathrm{Eff}$: effectivness  of the mitigation (i.e., risk ratio in contact rate), assumed constant over the duration and equal for all age groups
 
-During the period from $t_\mathrm{start}$ to $t_\mathrm{start} + \Delta t_\mathrm{duration}$, adjust the contact matrix entries from $C_{ij}$ to $\mathrm{ContactMult} \times C_{ij}$.
+During the period from $t_\mathrm{start}$ to $t_\mathrm{start} + \Delta t_\mathrm{duration}$, adjust the contact matrix entries from $C_{ij}$ to $(1 - \mathrm{Eff}) \times C_{ij}$.
