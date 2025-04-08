@@ -160,13 +160,13 @@ Define the parameters:
 
 Derive the values:
 
-- $r_I(t) = \sum_i [f(\mathrm{EU}_i, \mathrm{IU}_i) + f(\mathrm{EV}_i, \mathrm{IV}_i)]$: number of newly infectious people per unit time, time-varying
-- Recall the number of new infectious and symptomatic per unit time $\dot{Y}^\mathrm{cum}(t)$ from above
+- $r_I(t) = N \sum_i [f(\mathrm{EU}_i, \mathrm{IU}_i) + f(\mathrm{EV}_i, \mathrm{IV}_i)]$: number of newly infectious people per unit time, time-varying
+- Recall the number of new infectious and symptomatic per unit time $\dot{Y}^\mathrm{cum}(t) N$ from above
 
 Tests are allotted proportionally to newly infectious and background individuals so that the time-varying number of newly infectious per unit time who receive a test is:
 
 ```math
-\mathrm{TestRate}(t) = p_{\text{demand}|Y} \dot{Y}^\mathrm{cum} \times \min \left\{1,  \frac{r_\mathrm{test}}{r_\mathrm{bg}N + p_{\text{demand}|I} \dot{Y}^\mathrm{cum}} \right\}
+\mathrm{TestRate}(t) = p_{\text{demand}|Y} \dot{Y}^\mathrm{cum} \times \min \left\{1,  \frac{r_\mathrm{test}}{r_\mathrm{bg}N + p_{\text{demand}|I} \dot{Y}^\mathrm{cum} N} \right\}
 ```
 
 Define also:
