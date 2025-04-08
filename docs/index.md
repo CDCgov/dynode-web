@@ -138,10 +138,10 @@ The number of outcomes is:
 
 ```math
 \begin{align*}
-\dot{Y}^\mathrm{cum}_i &= \mathrm{IYR}_i \times \dot{X}_i \\
-\dot{H}^\mathrm{pre}_i &= \mathrm{IHR}_i \times (1 - \mathrm{IYR}_i A_\mathrm{op} \mathrm{AVE}_P) \times \dot{X}_i \\
+\dot{Y}^\mathrm{cum}_i &= \mathrm{FS}_i \times \dot{X}_i \\
+\dot{H}^\mathrm{pre}_i &= \mathrm{IHR}_i \times (1 - \mathrm{FS}_i A_\mathrm{op} \mathrm{AVE}_P) \times \dot{X}_i \\
 \dot{H}^\mathrm{cum}_i &= \dot{H}^\mathrm{pre} \times \frac{1}{T_H^\mathrm{pre}} \\
-\dot{D}^\mathrm{pre}_i &= \mathrm{IFR}_i \times (1 - A_\mathrm{ip} \mathrm{AVE}_P) \times (1 - \mathrm{IYR}_i A_\mathrm{op} \mathrm{AVE}_P) \times \dot{X}_i \\
+\dot{D}^\mathrm{pre}_i &= \mathrm{IFR}_i \times (1 - A_\mathrm{ip} \mathrm{AVE}_P) \times (1 - \mathrm{FS}_i A_\mathrm{op} \mathrm{AVE}_P) \times \dot{X}_i \\
 \dot{D}^\mathrm{cum}_i &= \dot{H}^\mathrm{pre} \times \frac{1}{T_D^\mathrm{pre}}
 \end{align*}
 ```
@@ -154,25 +154,26 @@ Define the parameters:
 
 - $r_\mathrm{test}$: maximum testing rate (number of tests per unit time), assumed constant
 - $r_\mathrm{bg}$: background test demand rate (tests per unit time per person), so that $r_\mathrm{bg} N$ is the background number of demanded tests per unit time, assumed constant
-- $p_{\mathrm{demand}|I}$: proportion of newly infectious people who demand tests (i.e., are eligible for and would receive a test if it were available), assumed constant
+- $p_{\mathrm{demand}|Y}$: proportion of newly infectious, symptomatic people who demand tests (e.g., who have symptoms, are eligible for and would receive a test if it were available), assumed constant
 - test sensitivity
 - probability a positive test is forwarded to public health
 
 Derive the values:
 
 - $r_I(t) = \sum_i [f(\mathrm{EU}_i, \mathrm{IU}_i) + f(\mathrm{EV}_i, \mathrm{IV}_i)]$: number of newly infectious people per unit time, time-varying
+- Recall the number of new infectious and symptomatic per unit time $\dot{Y}^\mathrm{cum}(t)$ from above
 
 Tests are allotted proportionally to newly infectious and background individuals so that the time-varying number of newly infectious per unit time who receive a test is:
 
 ```math
-\mathrm{NewlyTested}(t) = p_{\text{demand}|I} r_I(t) \times \min \left\{1,  \frac{r_\mathrm{test}}{r_\mathrm{bg}N + p_{\text{demand}|I} r_I(t)} \right\}
+\mathrm{TestRate}(t) = p_{\text{demand}|Y} \dot{Y}^\mathrm{cum} \times \min \left\{1,  \frac{r_\mathrm{test}}{r_\mathrm{bg}N + p_{\text{demand}|I} \dot{Y}^\mathrm{cum}} \right\}
 ```
 
 Define also:
 
 ```math
 \begin{align*}
-\mathrm{CumTested}(t) &= \int_0^t \mathrm{NewlyTested}(t') \, \mathrm{d}t' \\
+\mathrm{CumTested}(t) &= \int_0^t \mathrm{TestRate}(t') \, \mathrm{d}t' \\
 \mathrm{CumProbDetect1}(t) &= 1 - (1 - [\text{test sensitivity}] \times \mathbb{P}[\text{forwarded} | \text{positive}])^{\mathrm{CumTested(t)}} \\
 \mathbb{E}[\mathrm{CumFracInfectionsIdentified(t)}] &= \frac{[\text{test sensitivity}] \times \mathbb{P}[\text{forwarded} | \text{positive}] \times \mathrm{CumTested}(t)}{\int_0^t r_I(t') \, \mathrm{d}t'}
 \end{align*}
