@@ -145,3 +145,15 @@ The number of outcomes is:
 \dot{D}^\mathrm{cum}_i &= \dot{H}^\mathrm{pre} \times \frac{1}{T_D^\mathrm{pre}}
 \end{align*}
 ```
+
+## Mitigations
+
+### Community mitigation
+
+Define the parameters:
+
+- $t_\mathrm{start}$: time that the mitigation starts
+- $\Delta t_\mathrm{duration}$: duration of the mitigation
+- $\mathrm{ContactMult}$: proportional change in contact rate, assumed constant over the duration and equal for all age groups
+
+During the period from $t_\mathrm{start}$ to $t_\mathrm{start} + \Delta t_\mathrm{duration}$, adjust the contact matrix entries from $C_{ij}$ to $\mathrm{ContactMult} \times C_{ij}$.
