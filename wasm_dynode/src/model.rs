@@ -1,5 +1,5 @@
 use crate::{DynodeModel, ModelOutput, Parameters};
-use nalgebra::{Const, Matrix, MatrixView, SVector, Storage, StorageMut};
+use nalgebra::{Const, Matrix, MatrixView, SMatrix, SVector, Storage, StorageMut};
 use ode_solvers::{Dopri5, System};
 use paste::paste;
 
@@ -210,10 +210,9 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
             && x >= community_params.start
             && x < (community_params.start + community_params.duration)
         {
-            self.parameters
-                .contact_matrix
-                .component_mul(&community_params.contact_multiplier)
-                / self.contact_matrix_normalization
+            self.parameters.contact_matrix.component_mul(
+                &(SMatrix::<f64, N, N>::from_element(1.0) - community_params.effectiveness),
+            ) / self.contact_matrix_normalization
         } else {
             self.parameters.contact_matrix / self.contact_matrix_normalization
         };

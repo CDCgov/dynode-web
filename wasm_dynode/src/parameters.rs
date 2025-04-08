@@ -57,8 +57,8 @@ impl Default for Parameters<2> {
             death_delay: 10.0,
             mitigations: {
                 let mut default = MitigationParams::default();
-                default.community.contact_multiplier = matrix![0.5, 1.10;
-                                                               1.10, 1.0];
+                default.community.effectiveness = matrix![0.5, -0.10;
+                                                               -0.10, 0.0];
                 default
             },
         }

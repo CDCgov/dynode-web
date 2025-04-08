@@ -45,7 +45,7 @@ pub struct CommunityMitigationParamsExport {
     pub editable: bool,
     pub start: f64,
     pub duration: f64,
-    pub contact_multiplier: Vec<f64>,
+    pub effectiveness: Vec<f64>,
 }
 
 #[derive(Debug, Clone)]
@@ -54,7 +54,7 @@ pub struct CommunityMitigationParams<const N: usize> {
     pub editable: bool,
     pub start: f64,
     pub duration: f64,
-    pub contact_multiplier: SMatrix<f64, N, N>,
+    pub effectiveness: SMatrix<f64, N, N>,
 }
 
 impl<const N: usize> From<CommunityMitigationParams<N>> for CommunityMitigationParamsExport {
@@ -64,7 +64,7 @@ impl<const N: usize> From<CommunityMitigationParams<N>> for CommunityMitigationP
             editable: value.editable,
             start: value.start,
             duration: value.duration,
-            contact_multiplier: value.contact_multiplier.data.as_slice().into(),
+            effectiveness: value.effectiveness.data.as_slice().into(),
         }
     }
 }
@@ -78,7 +78,7 @@ impl<const N: usize> TryFrom<CommunityMitigationParamsExport> for CommunityMitig
             editable: value.editable,
             start: value.start,
             duration: value.duration,
-            contact_multiplier: SMatrix::from_iterator(value.contact_multiplier.into_iter()),
+            effectiveness: SMatrix::from_iterator(value.effectiveness.into_iter()),
         })
     }
 }
@@ -127,7 +127,7 @@ impl<const N: usize> Default for MitigationParams<N> {
                 editable: true,
                 start: 60.0,
                 duration: 20.0,
-                contact_multiplier: SMatrix::from_element(1.0),
+                effectiveness: SMatrix::from_element(0.25),
             },
         }
     }

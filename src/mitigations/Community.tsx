@@ -6,7 +6,7 @@ import { useDays, useMitigation, useParams } from "../ModelState";
 import { CommunityMitigationParamsExport } from "@wasm/wasm_dynode";
 
 export function CommunityEditor() {
-    let [{ start, duration, contact_multiplier }, updateParams] =
+    let [{ start, duration, effectiveness }, updateParams] =
         useMitigation<CommunityMitigationParamsExport>("community");
     let [params] = useParams();
     let [days] = useDays();
@@ -35,17 +35,17 @@ export function CommunityEditor() {
             </FormGroup>
             <FormGroup>
                 <MiniExpandable
-                    title="Community mitigation rate"
+                    title="Community mitigation effectiveness"
                     initialState={true}
                 >
                     <MatrixInput
-                        value={contact_multiplier}
+                        value={effectiveness}
                         step={0.1}
-                        min={0.5}
-                        max={1.5}
+                        min={0.0}
+                        max={1.0}
                         symmetric={params.population_fraction_labels}
                         onChange={(newVal) => {
-                            updateParams({ contact_multiplier: newVal });
+                            updateParams({ effectiveness: newVal });
                         }}
                     />
                 </MiniExpandable>

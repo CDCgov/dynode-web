@@ -148,7 +148,7 @@ The number of outcomes is:
 
 ## Mitigations
 
-### Community mitigation
+### Community mitigations
 
 Define the parameters:
 
