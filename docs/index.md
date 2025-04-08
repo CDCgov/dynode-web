@@ -8,65 +8,65 @@ The population is divided into (age) groups $i$.
 
 The key dynamical compartments are:
 
-- $\mathrm{SU}_i$: unvaccinated susceptible individuals
-- $\mathrm{EU}_i$: exposed (i.e., latent) individuals who were not vaccinated or had not completed the ramp up period at the time of exposure
-- $\mathrm{IU}_i$: infectious individuals who were not vaccinated, etc.
-- $\mathrm{RU}_i$: removed individuals who were not vaccinated, etc.
-- $\mathrm{SV}_i$: vaccinated susceptible individuals
-- $\mathrm{EV}_i$: exposed individuals who were vaccinated and had completed their ramp up period at the time of exposure
-- $\mathrm{IV}_i$: infectious exposed individuals who were vaccinated, etc.
-- $\mathrm{RV}_i$: removed exposed individuals who were vaccinated, etc.
+-   $\mathrm{SU}_i$: unvaccinated susceptible individuals
+-   $\mathrm{EU}_i$: exposed (i.e., latent) individuals who were not vaccinated or had not completed the ramp up period at the time of exposure
+-   $\mathrm{IU}_i$: infectious individuals who were not vaccinated, etc.
+-   $\mathrm{RU}_i$: removed individuals who were not vaccinated, etc.
+-   $\mathrm{SV}_i$: vaccinated susceptible individuals
+-   $\mathrm{EV}_i$: exposed individuals who were vaccinated and had completed their ramp up period at the time of exposure
+-   $\mathrm{IV}_i$: infectious exposed individuals who were vaccinated, etc.
+-   $\mathrm{RV}_i$: removed exposed individuals who were vaccinated, etc.
 
 There are other compartments, that reflect real epidemiological processes, that do not affect transmission:
 
-- $Y^\mathrm{cum}$: cumulative number of symptomatic infections
-- $H^\mathrm{pre}$: current number of infected individuals who will become hospitalized
-- $H^\mathrm{cum}$: cumulative number of hospitalizations (i.e., admissions)
-- $D^\mathrm{pre}$: current number of infected individuals who will die
-- $D^\mathrm{cum}$: cumulative number of deaths
+-   $Y^\mathrm{cum}$: cumulative number of symptomatic infections
+-   $H^\mathrm{pre}$: current number of infected individuals who will become hospitalized
+-   $H^\mathrm{cum}$: cumulative number of hospitalizations (i.e., admissions)
+-   $D^\mathrm{pre}$: current number of infected individuals who will die
+-   $D^\mathrm{cum}$: cumulative number of deaths
 
 These compartments currently represent the proportion of the total population $N$ that is in each group and disease state.
 
 ### Parameters
 
-- Transmission
-  - $R_0$: basic reproduction number
-  - Derive: $\beta = R_0 / T_I$ (note that this is a population-wide, average scalar)
-  - $C_{ij}$: contact matrix, normalized so that dominant eigenvector is 1
-- Times & delays
-  - $T_E$: mean duration of latent period
-  - $T_I$: mean duration of infectious period
-  - $T_H^\mathrm{pre}$: mean delay between infection (i.e., exposure) and hospitalization, among those who are hospitalized
-  - $T_D^\mathrm{pre}$: mean delay between infection (i.e., exposure) and death, among those who die
-- Vaccination
-  - $\dot{V}(t)$: time-varying vaccine administration rate (number of people per time)
-  - $t_V$: start of vaccination
-  - $\dot{V}_\mathrm{max}$: maximum vaccination rate
-  - $V_\mathrm{tot}$: total number of vaccines available
-- Vaccine efficacy
-  - $\mathrm{VE}_S$: efficacy against infection (i.e., being infected)
-  - $\mathrm{VE}_I$: efficacy against transmission given infection
-  - $\mathrm{VE}_{P,Y|I}$: efficacy against symptoms given infection.
-    - At this time, vaccines are assumed to have no *additional* protection against downstream outcomes. In future iterations, vaccines might provide further protection against hospitalization given symptomatic $\mathrm{VE}_{P,H|Y}$, or protection against death given hospitalization $\mathrm{VE}_{P,D|H}$.
-- Antiviral efficacy
-  - $\mathrm{AVE}_I$: antiviral effectiveness against transmission given
-  infected.
-    - Note that this is the *effectiveness* and incorporates the interaction between the delay from exposure to receiving antivirals and the generation time distribution.
-  - $\mathrm{AVE}_P$: antiviral efficacy against progression.
-    - At this time, efficacy against hospitalization given symptoms $\mathrm{AVE}_{P,H|Y}$ is assumed equal to efficacy against death given hospitalization $\mathrm{AVE}_{P,D|H}$.
-    - However, outpatient and inpatient antivirals are considered sufficiently different that individuals can receive both and they have independent effects.
-  - In the model, antivirals are not given before exposure, so $\mathrm{AVE}_S$ is undefined.
-- Antiviral usage
-  - $A_\mathrm{op}$: proportion of symptomatic but not (yet) hospitalized people who receive antivirals. This probability is a combination of seeking care, being diagnosed, getting an antiviral prescribed, and adhering to the regimen. ("op" is for "outpatient.)
-  - $A_\mathrm{ip}$: proportion of hospitalized ("ip" is for "inpatient") people who receive antivirals, conditioned on not having received outpatient antivirals.
-- Outcomes
-  - $\mathrm{FS}_i$: fraction symptomatic, i.e., proportion of infections that are symptomatic
-    - Symptomatic and asymptomatic cases are assumed otherwise equal (e.g., equally infectious) so that this fraction does not affect transmission (except via mitigations that depend on symptoms)
-  - $\mathrm{IHR}_i$: proportion of infections that result in hospitalization
-  - $\mathrm{IFR}_i$: proportion of infections that result in death ("F" is for "fatality"; this is the standard nomenclature)
-- proportion of the population initially infected, assumed identical across groups
-- $N$: total population size
-- $N_i$: size of group $i$
+-   Transmission
+    -   $R_0$: basic reproduction number
+    -   Derive: $\beta = R_0 / T_I$ (note that this is a population-wide, average scalar)
+    -   $C_{ij}$: contact matrix, normalized so that dominant eigenvector is 1
+-   Times & delays
+    -   $T_E$: mean duration of latent period
+    -   $T_I$: mean duration of infectious period
+    -   $T_H^\mathrm{pre}$: mean delay between infection (i.e., exposure) and hospitalization, among those who are hospitalized
+    -   $T_D^\mathrm{pre}$: mean delay between infection (i.e., exposure) and death, among those who die
+-   Vaccination
+    -   $\dot{V}(t)$: time-varying vaccine administration rate (number of people per time)
+    -   $t_V$: start of vaccination
+    -   $\dot{V}_\mathrm{max}$: maximum vaccination rate
+    -   $V_\mathrm{tot}$: total number of vaccines available
+-   Vaccine efficacy
+    -   $\mathrm{VE}_S$: efficacy against infection (i.e., being infected)
+    -   $\mathrm{VE}_I$: efficacy against transmission given infection
+    -   $\mathrm{VE}_{P,Y|I}$: efficacy against symptoms given infection.
+        -   At this time, vaccines are assumed to have no _additional_ protection against downstream outcomes. In future iterations, vaccines might provide further protection against hospitalization given symptomatic $\mathrm{VE}_{P,H|Y}$, or protection against death given hospitalization $\mathrm{VE}_{P,D|H}$.
+-   Antiviral efficacy
+    -   $\mathrm{AVE}_I$: antiviral effectiveness against transmission given
+        infected.
+        -   Note that this is the _effectiveness_ and incorporates the interaction between the delay from exposure to receiving antivirals and the generation time distribution.
+    -   $\mathrm{AVE}_P$: antiviral efficacy against progression.
+        -   At this time, efficacy against hospitalization given symptoms $\mathrm{AVE}_{P,H|Y}$ is assumed equal to efficacy against death given hospitalization $\mathrm{AVE}_{P,D|H}$.
+        -   However, outpatient and inpatient antivirals are considered sufficiently different that individuals can receive both and they have independent effects.
+    -   In the model, antivirals are not given before exposure, so $\mathrm{AVE}_S$ is undefined.
+-   Antiviral usage
+    -   $A_\mathrm{op}$: proportion of symptomatic but not (yet) hospitalized people who receive antivirals. This probability is a combination of seeking care, being diagnosed, getting an antiviral prescribed, and adhering to the regimen. ("op" is for "outpatient.)
+    -   $A_\mathrm{ip}$: proportion of hospitalized ("ip" is for "inpatient") people who receive antivirals, conditioned on not having received outpatient antivirals.
+-   Outcomes
+    -   $\mathrm{FS}_i$: fraction symptomatic, i.e., proportion of infections that are symptomatic
+        -   Symptomatic and asymptomatic cases are assumed otherwise equal (e.g., equally infectious) so that this fraction does not affect transmission (except via mitigations that depend on symptoms)
+    -   $\mathrm{IHR}_i$: proportion of infections that result in hospitalization
+    -   $\mathrm{IFR}_i$: proportion of infections that result in death ("F" is for "fatality"; this is the standard nomenclature)
+-   proportion of the population initially infected, assumed identical across groups
+-   $N$: total population size
+-   $N_i$: size of group $i$
 
 ### Equations
 
@@ -129,20 +129,26 @@ and similarly for the vaccinated compartments.
 
 #### Severity
 
+The rate of new infections is:
+
+```math
+\dot{I}^\mathrm{cum}_i = f(\mathrm{EU}_i, \mathrm{IU}_i) + f(\mathrm{EV}_i, \mathrm{IV}_i)
+```
+
 The rate of new infections that are not protected by vaccination against progression to symptoms is:
 
 ```math
-\dot{X}_i = f(\mathrm{EU}_i, \mathrm{EI}_i) + (1 - \mathrm{VE}_P) f(\mathrm{EV}_i, \mathrm{EI}_i)
+\dot{X}_i = f(\mathrm{EU}_i, \mathrm{IU}_i) + (1 - \mathrm{VE}_P) f(\mathrm{EV}_i, \mathrm{IV}_i)
 ```
 
 The number of outcomes is:
 
 ```math
 \begin{align*}
-\dot{Y}^\mathrm{cum}_i &= \mathrm{IYR}_i \times \dot{X}_i \\
-\dot{H}^\mathrm{pre}_i &= \mathrm{IHR}_i \times (1 - \mathrm{IYR}_i A_\mathrm{op} \mathrm{AVE}_P) \times \dot{X}_i \\
+\dot{Y}^\mathrm{cum}_i &= \mathrm{FS}_i \times \dot{X}_i \\
+\dot{H}^\mathrm{pre}_i &= \mathrm{IHR}_i \times (1 - \mathrm{FS}_i A_\mathrm{op} \mathrm{AVE}_P) \times \dot{X}_i \\
 \dot{H}^\mathrm{cum}_i &= \dot{H}^\mathrm{pre} \times \frac{1}{T_H^\mathrm{pre}} \\
-\dot{D}^\mathrm{pre}_i &= \mathrm{IFR}_i \times (1 - A_\mathrm{ip} \mathrm{AVE}_P) \times (1 - \mathrm{IYR}_i A_\mathrm{op} \mathrm{AVE}_P) \times \dot{X}_i \\
+\dot{D}^\mathrm{pre}_i &= \mathrm{IFR}_i \times (1 - A_\mathrm{ip} \mathrm{AVE}_P) \times (1 - \mathrm{FS}_i A_\mathrm{op} \mathrm{AVE}_P) \times \dot{X}_i \\
 \dot{D}^\mathrm{cum}_i &= \dot{H}^\mathrm{pre} \times \frac{1}{T_D^\mathrm{pre}}
 \end{align*}
 ```
@@ -153,8 +159,30 @@ The number of outcomes is:
 
 Define the parameters:
 
-- $t_\mathrm{start}$: time that the mitigation starts
-- $\Delta t_\mathrm{duration}$: duration of the mitigation
-- $\mathrm{Eff}$: effectivness  of the mitigation (i.e., risk ratio in contact rate), assumed constant over the duration and equal for all age groups
+-   $t_\mathrm{start}$: time that the mitigation starts
+-   $\Delta t_\mathrm{duration}$: duration of the mitigation
+-   $\mathrm{Eff}$: effectivness of the mitigation (i.e., risk ratio in contact rate), assumed constant over the duration and equal for all age groups
 
 During the period from $t_\mathrm{start}$ to $t_\mathrm{start} + \Delta t_\mathrm{duration}$, adjust the contact matrix entries from $C_{ij}$ to $(1 - \mathrm{Eff}) \times C_{ij}$.
+
+## Interventions
+
+### Surveillance and detection
+
+Define the parameters:
+
+-   $p_{\mathrm{test}|Y}$: proportion of newly infectious, symptomatic people who are tested (e.g., who seek and receive a test), assumed constant
+-   test sensitivity
+-   probability a positive test is forwarded to public health
+
+Then:
+
+```math
+\begin{align*}
+\mathrm{CumTested}(t) &= p_{\mathrm{demand}|Y} \sum_i Y^\mathrm{cum}_i \\
+\mathrm{CumProbDetect1}(t) &= 1 - (1 - [\text{test sensitivity}] \times \mathbb{P}[\text{forwarded} | \text{positive}])^{\mathrm{CumTested(t)}} \\
+\mathbb{E}[\mathrm{CumFracInfectionsIdentified(t)}] &= [\text{test sensitivity}] \times \mathbb{P}[\text{forwarded} | \text{positive}] \times \frac{\mathrm{CumTested}(t)}{\sum_i I_i^\mathrm{cum}(t)}
+\end{align*}
+```
+
+We report the times at which the cumulative detection probability reaches certain thresholds (e.g., 25%, 50%, and 75%).
