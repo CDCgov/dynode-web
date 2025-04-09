@@ -115,7 +115,7 @@ macro_rules! make_state {
     }
 }
 
-make_state!(s, e, i, r, sv, ev, iv, rv, pre_h, h_cum, pre_d, d_cum);
+make_state!(s, e, i, r, sv, ev, iv, rv, y_cum, pre_h, h_cum, pre_d, d_cum);
 
 impl<const N: usize> SEIRModel<N> {
     pub fn new(parameters: Parameters<N>) -> Self {
@@ -132,7 +132,7 @@ impl<const N: usize> SEIRModel<N> {
 
 impl<const N: usize> DynodeModel for SEIRModel<N>
 where
-    [(); 12 * N]: Sized,
+    [(); 13 * N]: Sized,
 {
     fn integrate(&self, days: usize) -> ModelOutput {
         let population_fractions = self.parameters.population_fractions;
@@ -256,9 +256,13 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
             .component_mul(&self.parameters.population_fractions)
             * administration_rate;
 
-        // Hospitalizations
+        // Symptomatic
+        // at risk of progression to symptoms
         let dat_risk = de_to_i + dev_to_iv * (1.0 - ve_p);
+        // progression to symptoms
+        let dsymp = dat_risk.component_mul(&self.parameters.fraction_symptomatic);
 
+        // Hospitalizations
         let dto_pre_h = dat_risk
             .component_mul(&self.parameters.fraction_hospitalized)
             .component_mul(&self.ave.rr_p_hosp);
@@ -280,6 +284,7 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
         dy.set_ev(&(dsv_to_ev - dev_to_iv));
         dy.set_iv(&(dev_to_iv - div_to_rv));
         dy.set_rv(&div_to_rv);
+        dy.set_y_cum(&dsymp);
         dy.set_pre_h(&(dto_pre_h - dpre_h_to_h_cum));
         dy.set_h_cum(&dpre_h_to_h_cum);
         dy.set_pre_d(&(dto_pre_d - dpre_d_to_d_cum));
@@ -387,6 +392,9 @@ mod test {
             hospitalization_delay: 1.0,
             fraction_dead: Vector1::new(0.0),
             death_delay: 1.0,
+            p_test_sympto: 0.0,
+            test_sensitivity: 0.90,
+            p_test_forward: 0.90,
         });
         let results = TestResults::new(&model.parameters, &model.integrate(300));
         assert_float_eq!(results.attack_rate, 0.796814, abs <= 1e-5);
@@ -440,6 +448,9 @@ mod test {
             hospitalization_delay: 1.0,
             fraction_dead: Vector1::new(0.0),
             death_delay: 1.0,
+            p_test_sympto: 0.0,
+            test_sensitivity: 0.90,
+            p_test_forward: 0.90,
         });
         let results = TestResults::new(&model.parameters, &model.integrate(300));
         let expected = 0.7583813;
@@ -542,6 +553,9 @@ mod test {
             hospitalization_delay: 1.0,
             fraction_dead: Vector1::new(0.01),
             death_delay: 1.0,
+            p_test_sympto: 0.0,
+            test_sensitivity: 0.90,
+            p_test_forward: 0.90,
         };
         params.mitigations.antivirals = AntiviralsParams {
             enabled: true,

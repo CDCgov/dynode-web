@@ -21,6 +21,13 @@ pub struct Parameters<const N: usize> {
     pub fraction_dead: SVector<f64, N>,
     pub death_delay: f64,
     pub mitigations: MitigationParams<N>,
+    // Detection parameters
+    // prob. of test given symptomatic infection
+    pub p_test_sympto: f64,
+    // test sensitivity
+    pub test_sensitivity: f64,
+    // prob. of forwarding a positive test
+    pub p_test_forward: f64,
 }
 
 impl<const N: usize> Parameters<N> {
@@ -61,6 +68,9 @@ impl Default for Parameters<2> {
                                                                1.10, 1.0];
                 default
             },
+            p_test_sympto: 0.0,
+            test_sensitivity: 0.90,
+            p_test_forward: 0.90,
         }
     }
 }
@@ -83,6 +93,9 @@ pub struct ParametersExport {
     pub fraction_dead: Vec<f64>,
     pub death_delay: f64,
     pub mitigations: MitigationParamsExport,
+    pub p_test_sympto: f64,
+    pub test_sensitivity: f64,
+    pub p_test_forward: f64,
 }
 
 impl<const N: usize> TryFrom<ParametersExport> for Parameters<N> {
@@ -113,6 +126,9 @@ impl<const N: usize> TryFrom<ParametersExport> for Parameters<N> {
             fraction_dead: SVector::from_iterator(params.fraction_dead),
             death_delay: params.death_delay,
             mitigations: MitigationParams::try_from(params.mitigations)?,
+            p_test_sympto: params.p_test_sympto,
+            test_sensitivity: params.test_sensitivity,
+            p_test_forward: params.p_test_forward,
         })
     }
 }
@@ -135,6 +151,9 @@ impl<const N: usize> From<Parameters<N>> for ParametersExport {
             fraction_dead: params.fraction_dead.iter().copied().collect(),
             death_delay: params.hospitalization_delay,
             mitigations: params.mitigations.into(),
+            p_test_sympto: params.p_test_sympto,
+            test_sensitivity: params.test_sensitivity,
+            p_test_forward: params.p_test_forward,
         }
     }
 }
