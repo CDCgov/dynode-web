@@ -9717,7 +9717,7 @@ function UI(t15, e) {
 }
 async function M5(t15) {
   if (Me !== void 0) return Me;
-  typeof t15 < "u" && (Object.getPrototypeOf(t15) === Object.prototype ? { module_or_path: t15 } = t15 : console.warn("using deprecated parameters for the initialization function; pass a single object instead")), typeof t15 > "u" && (t15 = new URL("/dynode-web/assets/wasm_dynode_bg-D2AJ2hlS.wasm", import.meta.url));
+  typeof t15 < "u" && (Object.getPrototypeOf(t15) === Object.prototype ? { module_or_path: t15 } = t15 : console.warn("using deprecated parameters for the initialization function; pass a single object instead")), typeof t15 > "u" && (t15 = new URL("/dynode-web/assets/wasm_dynode_bg-CyhtfFkv.wasm", import.meta.url));
   const e = VI();
   (typeof t15 == "string" || typeof Request == "function" && t15 instanceof Request || typeof URL == "function" && t15 instanceof URL) && (t15 = fetch(t15));
   const { instance: n, module: i } = await II(await t15, e);
@@ -16357,9 +16357,9 @@ function rq({ title: t15, initialState: e, children: n }) {
   return $.jsxs("div", { children: [$.jsxs("div", { className: "mini-expandable-header", onClick: () => r(!i), children: [$.jsx(iq, { dir: i ? "down" : "left" }), " ", t15] }), $.jsx("div", { className: "mini-expandable-content", style: { display: i ? "" : "none" }, children: n })] });
 }
 function aq() {
-  let [{ start: t15, duration: e, contact_multiplier: n }, i] = zb("community"), [r] = hr(), [u] = Bb();
-  return $.jsxs("div", { children: [$.jsxs(pe, { children: [$.jsx("label", { children: "Day to begin community mitigation" }), $.jsx(ge, { range: true, min: 0, max: u, step: 1, value: t15, onValue: (o) => i({ start: o }) })] }), $.jsxs(pe, { children: [$.jsx("label", { children: "Duration of community mitigation" }), $.jsx(ge, { range: true, min: 1, max: u - t15, value: e, onValue: (o) => i({ duration: o }) })] }), $.jsx(pe, { children: $.jsx(rq, { title: "Community mitigation rate", initialState: true, children: $.jsx(eq, { value: n, step: 0.1, min: 0.5, max: 1.5, symmetric: r.population_fraction_labels, onChange: (o) => {
-    i({ contact_multiplier: o });
+  let [{ start: t15, duration: e, effectiveness: n }, i] = zb("community"), [r] = hr(), [u] = Bb();
+  return $.jsxs("div", { children: [$.jsxs(pe, { children: [$.jsx("label", { children: "Day to begin community mitigation" }), $.jsx(ge, { range: true, min: 0, max: u, step: 1, value: t15, onValue: (o) => i({ start: o }) })] }), $.jsxs(pe, { children: [$.jsx("label", { children: "Duration of community mitigation" }), $.jsx(ge, { range: true, min: 1, max: u - t15, value: e, onValue: (o) => i({ duration: o }) })] }), $.jsx(pe, { children: $.jsx(rq, { title: "Community mitigation effectiveness", initialState: true, children: $.jsx(eq, { value: n, step: 0.1, min: 0, max: 1, symmetric: r.population_fraction_labels, onChange: (o) => {
+    i({ effectiveness: o });
   } }) }) })] });
 }
 function sq() {
