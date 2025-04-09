@@ -115,7 +115,9 @@ macro_rules! make_state {
     }
 }
 
-make_state!(s, e, i, r, sv, ev, iv, rv, y_cum, pre_h, h_cum, pre_d, d_cum);
+make_state!(
+    s, e, i, r, sv, ev, iv, rv, y_cum, pre_h, h_cum, pre_d, d_cum
+);
 
 impl<const N: usize> SEIRModel<N> {
     pub fn new(parameters: Parameters<N>) -> Self {
@@ -128,6 +130,11 @@ impl<const N: usize> SEIRModel<N> {
             ave,
         }
     }
+}
+
+/// Probability of detecting at least 1 of N items with probability p
+pub fn p_detect1(n: usize, p: f64) -> f64 {
+    1.0 - (1.0 - p).powi(n as i32)
 }
 
 impl<const N: usize> DynodeModel for SEIRModel<N>
@@ -176,6 +183,15 @@ where
                 output.add_symptomatic_incidence(*time, new_symptomatic.data.as_slice().into());
                 output.add_hospital_incidence(*time, new_hospitalizations.data.as_slice().into());
                 output.add_death_incidence(*time, new_deaths.data.as_slice().into());
+                output.add_p_detect(
+                    *time,
+                    p_detect1(
+                        state.get_y_cum().sum() as usize,
+                        self.parameters.p_test_sympto
+                            * self.parameters.test_sensitivity
+                            * self.parameters.p_test_forward,
+                    ),
+                );
                 prev_i_plus_r = i_plus_r;
                 prev_iv_plus_rv = iv_plus_rv;
                 prev_h_cum = state.get_h_cum().into();
