@@ -39,15 +39,16 @@ These compartments currently represent the proportion of the total population $N
   - $T_H^\mathrm{pre}$: mean delay between infection (i.e., exposure) and hospitalization, among those who are hospitalized
   - $T_D^\mathrm{pre}$: mean delay between infection (i.e., exposure) and death, among those who die
 - Vaccination
-  - $\dot{V}(t)$: time-varying vaccine administration rate (number of people per time)
-  - $t_V$: start of vaccination
-  - $\dot{V}_\mathrm{max}$: maximum vaccination rate
-  - $V_\mathrm{tot}$: total number of vaccines available
+  - $t_V$: start of vaccine administration
+  - $\dot{V}_\mathrm{max}$: maximum vaccine administration rate
+  - $V_\mathrm{tot}$: total number of vaccine doses available
+  - Derive: $\dot{V}(t)$: time-varying vaccine administration rate (number of people per time)
 - Vaccine efficacy
-  - $\mathrm{VE}_S$: efficacy against infection (i.e., being infected)
-  - $\mathrm{VE}_I$: efficacy against transmission given infection
-  - $\mathrm{VE}_{P,Y|I}$: efficacy against symptoms given infection.
+  - $\mathrm{VE}_S$: efficacy of 1 dose against infection (i.e., being infected)
+  - $\mathrm{VE}_I$: efficacy of 1 dose against transmission given infection
+  - $\mathrm{VE}_{P,Y|I}$: efficacy of 1 dose against symptoms given infection
     - At this time, vaccines are assumed to have no *additional* protection against downstream outcomes. In future iterations, vaccines might provide further protection against hospitalization given symptomatic $\mathrm{VE}_{P,H|Y}$, or protection against death given hospitalization $\mathrm{VE}_{P,D|H}$.
+  - $\mathrm{VE}_{2S}$, $\mathrm{VE}_{2I}$, $\mathrm{VE}_{2P,Y|I}$: efficacy of 2 doses (i.e., the effect of both doses, not the incremental effect of the second dose)
 - Antiviral efficacy
   - $\mathrm{AVE}_I$: antiviral effectiveness against transmission given
   infected.
@@ -77,7 +78,7 @@ Let $f(A, B)$ be the flux from compartment $A$ to $B$.
 All individuals, in any disease state, are eligible for vaccination. Vaccines are distributed equally across groups and states. The model tracks the total number of vaccine doses administered but the effect on the dynamical compartments is only to move susceptible individuals into the vaccinated track of compartments:
 
 ```math
-f(\mathrm{SU}_i, \mathrm{SV}_i) = \frac{\mathrm{SU}}{\mathrm{SU} + \mathrm{EU} + \mathrm{IU} + \mathrm{RU}} \frac{N_i}{N} \dot{V}
+f(\mathrm{SU}_i, \mathrm{SV}_i) = \frac{\mathrm{SU}_i}{\mathrm{SU}_i + \mathrm{EU}_i + \mathrm{IU}_i + \mathrm{RU}_i} \frac{N_i}{N} \dot{V}
 ```
 
 where the time-varying vaccination rate is:
@@ -86,7 +87,7 @@ where the time-varying vaccination rate is:
 \dot{V}(t) = \begin{cases}
 0 & t < t_V \\
 \dot{V}_\mathrm{max} & (t - t_V) \dot{V}_\mathrm{max} < V_\mathrm{tot} \\
-0 & \text{afterward}
+0 & \text{otherwise}
 \end{cases}
 ```
 
