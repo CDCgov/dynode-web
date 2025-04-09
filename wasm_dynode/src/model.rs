@@ -218,6 +218,19 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
             self.parameters.contact_matrix / self.contact_matrix_normalization
         };
 
+        // TTIQ adjusts the effective infectious period
+        let eff_infectious_period = self.parameters.infectious_period
+            * (if params.mitigations.ttiq.enabled {
+                (1.0 - params.mitigations.ttiq.p_id_infectious
+                    * params.mitigations.ttiq.p_infectious_isolates
+                    * (1.0 - params.mitigations.ttiq.isolation_reduction))
+                    * (1.0
+                        - params.mitigations.ttiq.p_contact_trace
+                            * params.mitigations.ttiq.p_traced_quarantines)
+            } else {
+                1.0
+            });
+
         // Transmission
         let beta = self.parameters.r0 / self.parameters.infectious_period;
         let ones = SVector::<f64, N>::from_element(1.0);
@@ -229,11 +242,11 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
 
         let ds_to_e = s.component_mul(&infection_rate);
         let de_to_i = e / self.parameters.latent_period;
-        let di_to_r = i / self.parameters.infectious_period;
+        let di_to_r = i / eff_infectious_period;
 
         let dsv_to_ev = sv.component_mul(&((1.0 - ve_s) * infection_rate));
         let dev_to_iv = ev / self.parameters.latent_period;
-        let div_to_rv = iv / self.parameters.infectious_period;
+        let div_to_rv = iv / eff_infectious_period;
 
         // Vaccine
         let administration_rate = if self.parameters.mitigations.vaccine.enabled {
@@ -313,7 +326,7 @@ mod test {
     use super::SEIRModel;
     use crate::{
         AntiviralsParams, DynodeModel, MitigationParams, ModelOutput, OutputType, Parameters,
-        VaccineParams, model::get_dominant_eigendata,
+        TTIQParams, VaccineParams, model::get_dominant_eigendata,
     };
 
     #[derive(Debug)]
@@ -421,6 +434,16 @@ mod test {
             ve_p: 0.5,
         };
 
+        let ttiq_params = TTIQParams {
+            enabled: false,
+            editable: true,
+            p_id_infectious: 0.15,
+            p_infectious_isolates: 0.75,
+            isolation_reduction: 0.50,
+            p_contact_trace: 0.25,
+            p_traced_quarantines: 0.75,
+        };
+
         let model = SEIRModel::new(Parameters {
             population: 330_000_000.0,
             population_fractions: Vector1::new(1.0),
@@ -434,6 +457,7 @@ mod test {
                 vaccine: vaccine_params,
                 antivirals: MitigationParams::<1>::default().antivirals,
                 community: MitigationParams::<1>::default().community,
+                ttiq: ttiq_params,
             },
             fraction_symptomatic: Vector1::new(0.5),
             fraction_hospitalized: Vector1::new(0.0),
