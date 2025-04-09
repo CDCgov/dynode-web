@@ -128,10 +128,16 @@ and similarly for the vaccinated compartments.
 
 #### Severity
 
+The rate of new infections is:
+
+```math
+\dot{I}^\mathrm{cum}_i = f(\mathrm{EU}_i, \mathrm{IU}_i) + f(\mathrm{EV}_i, \mathrm{IV}_i)
+```
+
 The rate of new infections that are not protected by vaccination against progression to symptoms is:
 
 ```math
-\dot{X}_i = f(\mathrm{EU}_i, \mathrm{EI}_i) + (1 - \mathrm{VE}_P) f(\mathrm{EV}_i, \mathrm{EI}_i)
+\dot{X}_i = f(\mathrm{EU}_i, \mathrm{IU}_i) + (1 - \mathrm{VE}_P) f(\mathrm{EV}_i, \mathrm{IV}_i)
 ```
 
 The number of outcomes is:
@@ -152,29 +158,18 @@ The number of outcomes is:
 
 Define the parameters:
 
-- $r_\mathrm{test}$: maximum testing rate (number of tests per unit time), assumed constant
-- $r_\mathrm{bg}$: background test demand rate (tests per unit time per person), so that $r_\mathrm{bg} N$ is the background number of demanded tests per unit time, assumed constant
-- $p_{\mathrm{demand}|Y}$: proportion of newly infectious, symptomatic people who demand tests (e.g., who have symptoms, are eligible for and would receive a test if it were available), assumed constant
+- $p_{\mathrm{test}|Y}$: proportion of newly infectious, symptomatic people who are tested (e.g., who seek and receive a test), assumed constant
 - test sensitivity
 - probability a positive test is forwarded to public health
 
-Derive the values:
-
-- $r_I(t) = N \sum_i [f(\mathrm{EU}_i, \mathrm{IU}_i) + f(\mathrm{EV}_i, \mathrm{IV}_i)]$: number of newly infectious people per unit time, time-varying
-- Recall the number of new infectious and symptomatic per unit time $\dot{Y}^\mathrm{cum}(t) N$ from above
-
-Tests are allotted proportionally to newly infectious and background individuals so that the time-varying number of newly infectious per unit time who receive a test is:
-
-```math
-\mathrm{TestRate}(t) = p_{\text{demand}|Y} \dot{Y}^\mathrm{cum} \times \min \left\{1,  \frac{r_\mathrm{test}}{r_\mathrm{bg}N + p_{\text{demand}|I} \dot{Y}^\mathrm{cum} N} \right\}
-```
-
-Define also:
+Then:
 
 ```math
 \begin{align*}
-\mathrm{CumTested}(t) &= \int_0^t \mathrm{TestRate}(t') \, \mathrm{d}t' \\
+\mathrm{CumTested}(t) &= p_{\mathrm{demand}|Y} \sum_i Y^\mathrm{cum}_i \\
 \mathrm{CumProbDetect1}(t) &= 1 - (1 - [\text{test sensitivity}] \times \mathbb{P}[\text{forwarded} | \text{positive}])^{\mathrm{CumTested(t)}} \\
-\mathbb{E}[\mathrm{CumFracInfectionsIdentified(t)}] &= \frac{[\text{test sensitivity}] \times \mathbb{P}[\text{forwarded} | \text{positive}] \times \mathrm{CumTested}(t)}{\int_0^t r_I(t') \, \mathrm{d}t'}
+\mathbb{E}[\mathrm{CumFracInfectionsIdentified(t)}] &= [\text{test sensitivity}] \times \mathbb{P}[\text{forwarded} | \text{positive}] \times \frac{\mathrm{CumTested}(t)}{\sum_i I_i^\mathrm{cum}(t)}
 \end{align*}
 ```
+
+We report the times at which the cumulative detection probability reaches certain thresholds (e.g., 25%, 50%, and 75%).
