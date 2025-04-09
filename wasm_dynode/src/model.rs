@@ -132,8 +132,8 @@ impl<const N: usize> SEIRModel<N> {
     }
 }
 
-/// Probability of detecting at least 1 of N items with probability p
-pub fn p_detect1(n: usize, p: f64) -> f64 {
+/// Probability of at least 1 success among N trials each with probability p
+pub fn p_detect1(n: f64, p: f64) -> f64 {
     1.0 - (1.0 - p).powi(n as i32)
 }
 
@@ -186,10 +186,8 @@ where
                 output.add_p_detect(
                     *time,
                     p_detect1(
-                        state.get_y_cum().sum() as usize,
-                        self.parameters.p_test_sympto
-                            * self.parameters.test_sensitivity
-                            * self.parameters.p_test_forward,
+                        state.get_y_cum().sum() * self.parameters.p_test_sympto,
+                        self.parameters.test_sensitivity * self.parameters.p_test_forward,
                     ),
                 );
                 prev_i_plus_r = i_plus_r;
