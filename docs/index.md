@@ -30,41 +30,41 @@ These compartments currently represent the proportion of the total population $N
 ### Parameters
 
 - Transmission
-  - $R_0$: basic reproduction number
-  - Derive: $\beta = R_0 / T_I$ (note that this is a population-wide, average scalar)
-  - $C_{ij}$: contact matrix, normalized so that dominant eigenvector is 1
+    - $R_0$: basic reproduction number
+    - Derive: $\beta = R_0 / T_I$ (note that this is a population-wide, average scalar)
+    - $C_{ij}$: contact matrix, normalized so that dominant eigenvector is 1
 - Times & delays
-  - $T_E$: mean duration of latent period
-  - $T_I$: mean duration of infectious period
-  - $T_H^\mathrm{pre}$: mean delay between infection (i.e., exposure) and hospitalization, among those who are hospitalized
-  - $T_D^\mathrm{pre}$: mean delay between infection (i.e., exposure) and death, among those who die
+    - $T_E$: mean duration of latent period
+    - $T_I$: mean duration of infectious period
+    - $T_H^\mathrm{pre}$: mean delay between infection (i.e., exposure) and hospitalization, among those who are hospitalized
+    - $T_D^\mathrm{pre}$: mean delay between infection (i.e., exposure) and death, among those who die
 - Vaccination
-  - $t_V$: start of vaccine administration
-  - $\dot{V}_\mathrm{max}$: maximum vaccine administration rate
-  - $V_\mathrm{tot}$: total number of vaccine doses available
-  - Derive: $\dot{V}(t)$: time-varying vaccine administration rate (number of people per time)
+    - $t_V$: start of vaccine administration
+    - $\dot{V}_\mathrm{max}$: maximum vaccine administration rate
+    - $V_\mathrm{tot}$: total number of vaccine doses available
+    - Derive: $\dot{V}(t)$: time-varying vaccine administration rate (number of people per time)
 - Vaccine efficacy
-  - $\mathrm{VE}_S$: efficacy of 1 dose against infection (i.e., being infected)
-  - $\mathrm{VE}_I$: efficacy of 1 dose against transmission given infection
-  - $\mathrm{VE}_{P,Y|I}$: efficacy of 1 dose against symptoms given infection
-    - At this time, vaccines are assumed to have no *additional* protection against downstream outcomes. In future iterations, vaccines might provide further protection against hospitalization given symptomatic $\mathrm{VE}_{P,H|Y}$, or protection against death given hospitalization $\mathrm{VE}_{P,D|H}$.
-  - $\mathrm{VE}_{2S}$, $\mathrm{VE}_{2I}$, $\mathrm{VE}_{2P,Y|I}$: efficacy of 2 doses (i.e., the effect of both doses, not the incremental effect of the second dose)
+    - $\mathrm{VE}_S$: efficacy of 1 dose against infection (i.e., being infected)
+    - $\mathrm{VE}_I$: efficacy of 1 dose against transmission given infection
+    - $\mathrm{VE}_{P,Y|I}$: efficacy of 1 dose against symptoms given infection
+        - At this time, vaccines are assumed to have no _additional_ protection against downstream outcomes. In future iterations, vaccines might provide further protection against hospitalization given symptomatic $\mathrm{VE}_{P,H|Y}$, or protection against death given hospitalization $\mathrm{VE}_{P,D|H}$.
+    - $\mathrm{VE}_{2S}$, $\mathrm{VE}_{2I}$, $\mathrm{VE}_{2P,Y|I}$: efficacy of 2 doses (i.e., the effect of both doses, not the incremental effect of the second dose)
 - Antiviral efficacy
-  - $\mathrm{AVE}_I$: antiviral effectiveness against transmission given
-  infected.
-    - Note that this is the *effectiveness* and incorporates the interaction between the delay from exposure to receiving antivirals and the generation time distribution.
-  - $\mathrm{AVE}_P$: antiviral efficacy against progression.
-    - At this time, efficacy against hospitalization given symptoms $\mathrm{AVE}_{P,H|Y}$ is assumed equal to efficacy against death given hospitalization $\mathrm{AVE}_{P,D|H}$.
-    - However, outpatient and inpatient antivirals are considered sufficiently different that individuals can receive both and they have independent effects.
-  - In the model, antivirals are not given before exposure, so $\mathrm{AVE}_S$ is undefined.
+    - $\mathrm{AVE}_I$: antiviral effectiveness against transmission given
+      infected.
+        - Note that this is the _effectiveness_ and incorporates the interaction between the delay from exposure to receiving antivirals and the generation time distribution.
+    - $\mathrm{AVE}_P$: antiviral efficacy against progression.
+        - At this time, efficacy against hospitalization given symptoms $\mathrm{AVE}_{P,H|Y}$ is assumed equal to efficacy against death given hospitalization $\mathrm{AVE}_{P,D|H}$.
+        - However, outpatient and inpatient antivirals are considered sufficiently different that individuals can receive both and they have independent effects.
+    - In the model, antivirals are not given before exposure, so $\mathrm{AVE}_S$ is undefined.
 - Antiviral usage
-  - $A_\mathrm{op}$: proportion of symptomatic but not (yet) hospitalized people who receive antivirals. This probability is a combination of seeking care, being diagnosed, getting an antiviral prescribed, and adhering to the regimen. ("op" is for "outpatient.)
-  - $A_\mathrm{ip}$: proportion of hospitalized ("ip" is for "inpatient") people who receive antivirals, conditioned on not having received outpatient antivirals.
+    - $A_\mathrm{op}$: proportion of symptomatic but not (yet) hospitalized people who receive antivirals. This probability is a combination of seeking care, being diagnosed, getting an antiviral prescribed, and adhering to the regimen. ("op" is for "outpatient.)
+    - $A_\mathrm{ip}$: proportion of hospitalized ("ip" is for "inpatient") people who receive antivirals, conditioned on not having received outpatient antivirals.
 - Outcomes
-  - $\mathrm{FS}_i$: fraction symptomatic, i.e., proportion of infections that are symptomatic
-    - Symptomatic and asymptomatic cases are assumed otherwise equal (e.g., equally infectious) so that this fraction does not affect transmission (except via mitigations that depend on symptoms)
-  - $\mathrm{IHR}_i$: proportion of infections that result in hospitalization
-  - $\mathrm{IFR}_i$: proportion of infections that result in death ("F" is for "fatality"; this is the standard nomenclature)
+    - $\mathrm{FS}_i$: fraction symptomatic, i.e., proportion of infections that are symptomatic
+        - Symptomatic and asymptomatic cases are assumed otherwise equal (e.g., equally infectious) so that this fraction does not affect transmission (except via mitigations that depend on symptoms)
+    - $\mathrm{IHR}_i$: proportion of infections that result in hospitalization
+    - $\mathrm{IFR}_i$: proportion of infections that result in death ("F" is for "fatality"; this is the standard nomenclature)
 - proportion of the population initially infected, assumed identical across groups
 - $N$: total population size
 - $N_i$: size of group $i$
@@ -75,35 +75,28 @@ Let $f(A, B)$ be the flux from compartment $A$ to $B$.
 
 #### Vaccination
 
-Vaccination is actually three processes:
+Vaccination is actually two processes:
 
-- Supply: Assume there is a fixed number of doses. Administration will cease when the supply is exhausted.
-- Demand: All individuals, in any disease state, are eligible for a first dose. Some proportion of individuals who receive a first dose will receive a second, and that second dose is set aside (i.e., removed from the supply) at the time of first dose administration.
-- Immunity: At some fixed delay after first dose administration, transition individuals from $\mathrm{SU}$ to $\mathrm{SV}$. At some fixed delay after second dose administration, transition individuals from $\mathrm{SV}$ to $\mathrm{SV2}$. Vaccination is assumed to have no postexposure prophylactic benefit.
+- Administration:
+    - Assume there is some maximum rate of vaccine administration, available over some time window. (The total number of doses administered will be at most that rate times that window.)
+    - Divide the supply proportionally among age groups.
+    - Set aside a proportion of doses for second doses, assuming ahead of time that those doses will all actually be used.
+    - Administer vaccines without regard to disease state.
+- Immunity:
+    - At some fixed delay after first dose administration, transition individuals from $\mathrm{SU}$ to $\mathrm{SV}$. At some fixed delay after second dose administration, transition individuals from $\mathrm{SV}$ to $\mathrm{SV2}$.
+    - Vaccination is assumed to have no postexposure prophylactic benefit: the model tracks only the immunity status that individuals had when they transition $S \to E$.
 
- and a maximum number of doses per unit time $\dot{V}_\mathrm{max}$
-
-#### Single-dose vaccination
-
-All individuals, in any disease state, are eligible for vaccination. Vaccines are distributed equally across groups and states. The model tracks the total number of vaccine doses administered but the effect on the dynamical compartments is only to move susceptible individuals into the vaccinated track of compartments:
-
-```math
-f(\mathrm{SU}_i, \mathrm{SV}_i) = \frac{\mathrm{SU}_i}{\mathrm{SU}_i + \mathrm{EU}_i + \mathrm{IU}_i + \mathrm{RU}_i} \frac{N_i}{N} \dot{V}
-```
-
-where the time-varying vaccination rate is:
+The first-dose immunity window is the administration window pushed forward in time by the ramp-up period. During this time:
 
 ```math
-\dot{V}(t) = \begin{cases}
-0 & t < t_V \\
-\dot{V}_\mathrm{max} & (t - t_V) \dot{V}_\mathrm{max} < V_\mathrm{tot} \\
-0 & \text{otherwise}
-\end{cases}
+f(\mathrm{SU}_i, \mathrm{SV}_i) = \frac{\mathrm{SU}_i}{\mathrm{SU}_i + \mathrm{EU}_i + \mathrm{IU}_i + \mathrm{RU}_i} \frac{N_i}{N} \times (1- \mathrm{Frac2Dose}) \times \mathrm{MaxAdminRate}
 ```
 
-#### Two-dose vaccination
+The second-dose immunity window is the first-dose window pushed forward by the delay between dose administration plus the second ramp-up period. During this time:
 
-Some proportion $\mathrm{Dose2Frac}$ of people who received a first dose will go on to receive a second dose at some delay $\mathrm{Dose2Delay}$
+```math
+f(\mathrm{SV}_i, \mathrm{SV2}_i) = \frac{\mathrm{SV}_i}{\mathrm{SV}_i + \mathrm{EV}_i + \mathrm{IV}_i + \mathrm{RV}_i} \frac{N_i}{N} \times (1- \mathrm{Frac2Dose}) \times \mathrm{MaxAdminRate}
+```
 
 #### Transmission
 
