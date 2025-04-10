@@ -75,6 +75,16 @@ Let $f(A, B)$ be the flux from compartment $A$ to $B$.
 
 #### Vaccination
 
+Vaccination is actually three processes:
+
+- Supply: Assume there is a fixed number of doses. Administration will cease when the supply is exhausted.
+- Demand: All individuals, in any disease state, are eligible for a first dose. Some proportion of individuals who receive a first dose will receive a second, and that second dose is set aside (i.e., removed from the supply) at the time of first dose administration.
+- Immunity: At some fixed delay after first dose administration, transition individuals from $\mathrm{SU}$ to $\mathrm{SV}$. At some fixed delay after second dose administration, transition individuals from $\mathrm{SV}$ to $\mathrm{SV2}$. Vaccination is assumed to have no postexposure prophylactic benefit.
+
+ and a maximum number of doses per unit time $\dot{V}_\mathrm{max}$
+
+#### Single-dose vaccination
+
 All individuals, in any disease state, are eligible for vaccination. Vaccines are distributed equally across groups and states. The model tracks the total number of vaccine doses administered but the effect on the dynamical compartments is only to move susceptible individuals into the vaccinated track of compartments:
 
 ```math
@@ -90,6 +100,10 @@ where the time-varying vaccination rate is:
 0 & \text{otherwise}
 \end{cases}
 ```
+
+#### Two-dose vaccination
+
+Some proportion $\mathrm{Dose2Frac}$ of people who received a first dose will go on to receive a second dose at some delay $\mathrm{Dose2Delay}$
 
 #### Transmission
 
