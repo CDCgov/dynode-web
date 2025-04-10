@@ -298,7 +298,7 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
         let beta = self.parameters.r0 / self.parameters.infectious_period;
         let ones = SVector::<f64, N>::from_element(1.0);
         let i_effective = i.component_mul(&self.ave.rr_i)
-            + (iv * (1.0 - vax_params.ve_i))
+            + (iv * (1.0 - vax_params.ve_i) + i2v * (1.0 - vax_params.ve_2i))
                 .component_mul(&(ones + (1.0 - vax_params.ve_p) * (ones - self.ave.rr_i)));
 
         let infection_rate = (beta / self.parameters.population)
@@ -342,7 +342,7 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
             .component_div(&(s + e + i + r))
             .component_mul(&self.parameters.population_fractions)
             * administration_rate;
-        let dsv_to_s2v = s
+        let dsv_to_s2v = sv
             .component_div(&(sv + ev + iv + rv))
             .component_mul(&self.parameters.population_fractions)
             * administration_rate2;
