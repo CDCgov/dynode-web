@@ -18,5 +18,6 @@ repos:
     hooks:
       - id: prettier
         name: prettier
-        files: markdown
+        files: "\\.md$"
         entry: ./node_modules/.bin/prettier --ignore-unknown --write
+        language: system
