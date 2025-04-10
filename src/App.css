@@ -66,3 +66,11 @@ main h4 {
 .mobile-editor input {
     width: 100%;
 }
+
+.editor-section-header {
+    text-transform: uppercase;
+    padding: 4px var(--spacing-1);
+    border-bottom: 1px solid var(--grey);
+    border-top: 1px solid var(--grey);
+    font-size: 10px;
+}

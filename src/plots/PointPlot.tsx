@@ -1,5 +1,5 @@
 import "./PointPlot.css";
-import { ColumnTable, escape, op } from "arquero";
+import { from, ColumnTable, escape, op } from "arquero";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as Plot from "@observablehq/plot";
 import { useResize } from "./useResize";
@@ -25,17 +25,16 @@ export interface PointPlotProps<
     G extends ValidGroupKey<P>,
     F extends ValidGroupKey<P> = never
 > {
-    // Pass a raw data table with groupBy/ facetBy...
-    dataTable: ColumnTable;
-    groupBy: G;
+    // Pass a data table with groupBy/ facetBy...
+    dataTable?: ColumnTable;
+    groupBy?: G;
     groupLabel?: (groupValue: P[G]) => string;
     facetBy?: F;
     facetLabel?: (facetValue: P[F]) => string;
     filter?: (d: P) => boolean;
 
-    // Or, compute the raw data yourself and pass it in
-    dataByGroup?: DataByGroupMap<P, G>;
-    dataByX?: DataByXMap<P>;
+    // Or, compute the points yourself
+    data?: P[];
     maxX?: number;
     maxY?: number;
 
@@ -53,10 +52,13 @@ export interface PointPlotProps<
     yLabel: string;
     extraConfig?: Partial<Plot.PlotOptions>;
     renderMarks: (
-        data: DataByGroupMap<P, G>,
+        data: P[] | DataByGroupMap<P, G>,
         colorMap: Map<P[G], string>,
         extra: ExtraRenderMarksData
     ) => Plot.Markish[];
+    tickFormat?: (d: number) => string;
+    formatTooltipNumber?: (num: number) => string;
+    grid?: boolean;
 }
 
 export function PointPlot<
@@ -75,9 +77,11 @@ export function PointPlot<
     let innerProps = { ...props };
 
     let facetByResults = useMemo(() => {
-        if (!facetBy) return null;
+        if (!facetBy || !dataTable) return null;
         const filtered = filter ? dataTable.filter(escape(filter)) : dataTable;
-        const facetedDt = filtered.groupby(facetBy, groupBy);
+        const facetedDt = filtered.groupby(
+            ...[facetBy, groupBy].filter((v) => v !== undefined)
+        );
 
         let facetedData = facetedDt.objects({
             grouped: true,
@@ -136,7 +140,11 @@ export function PointPlot<
     return (
         <PointPlotInner
             {...innerProps}
-            dataTable={filter ? dataTable.filter(escape(filter)) : dataTable}
+            dataTable={
+                dataTable && filter
+                    ? dataTable.filter(escape(filter))
+                    : dataTable
+            }
         />
     );
 }
@@ -151,12 +159,16 @@ export function PointPlotInner<
     ticks,
     renderMarks,
     dataTable,
+    data: userData,
     yLabel,
     colors,
     maxX: userMaxX,
     maxY: userMaxY,
     groupBy,
     groupLabel,
+    tickFormat: userTickFormat,
+    formatTooltipNumber,
+    grid = true,
 }: PointPlotProps<P, G, F>) {
     const plotRef = useRef<HTMLDivElement>(null);
     const [plot, setPlot] = useState<{
@@ -166,23 +178,40 @@ export function PointPlotInner<
 
     let widthHeight = useResize(plotRef);
 
-    let [dataByGroup, dataByX, maxX, maxY] = useMemo(() => {
-        let dt = dataTable.groupby(groupBy, "x").rollup({
-            y: op.sum("y"),
-        });
+    let [data, dataByGroup, dataByX, maxX, maxY] = useMemo(() => {
+        let dt: ColumnTable;
+        if (dataTable) {
+            dt = dataTable;
+        } else if (userData) {
+            dt = from(userData);
+        } else {
+            throw new Error("No data or dataTable provided");
+        }
+
+        dt = dt
+            .groupby(...[groupBy, "x"].filter((v) => v !== undefined))
+            .rollup({
+                y: op.sum("y"),
+            });
 
         let [maxX, maxY] = calcMaxXY(userMaxX, userMaxY, dt);
 
-        let dataByGroup = dt.groupby(groupBy).objects({
-            grouped: true,
-        }) as unknown as DataByGroupMap<P, G>;
+        let dataByGroup = groupBy
+            ? (dt.groupby(groupBy).objects({
+                  grouped: true,
+              }) as unknown as DataByGroupMap<P, G>)
+            : null;
+
+        let data = groupBy
+            ? null
+            : userData || (dt.objects() as unknown as P[]);
 
         let dataByX = dt.groupby("x").objects({
             grouped: true,
         }) as unknown as DataByXMap<P>;
 
-        return [dataByGroup, dataByX, maxX, maxY];
-    }, [dataTable, userMaxX, userMaxY, groupBy]);
+        return [data, dataByGroup, dataByX, maxX, maxY];
+    }, [userData, dataTable, userMaxX, userMaxY, groupBy]);
 
     // Render plot
     useEffect(() => {
@@ -222,7 +251,9 @@ export function PointPlotInner<
         };
 
         let colorMap: Map<P[G], string>;
-        if (typeof colors === "function") {
+        if (!dataByGroup) {
+            colorMap = new Map<P[G], string>();
+        } else if (typeof colors === "function") {
             colorMap = colors(dataByGroup, extra);
         } else if (colors) {
             colorMap = colors;
@@ -258,17 +289,23 @@ export function PointPlotInner<
                 Plot.axisY({
                     fontSize: isSmall ? 10 : 12,
                     label: yLabelExtended,
-                    tickFormat,
+                    tickFormat: userTickFormat || tickFormat,
                     ticks: isSmall ? 5 : ticks,
                     color: "#333",
                 }),
-                Plot.gridY({
-                    stroke: "#ddd",
-                    opacity: 1,
-                    ticks,
-                    strokeDasharray: "2,2",
-                }),
-                ...renderMarks(dataByGroup, colorMap, extra),
+                grid
+                    ? Plot.gridY({
+                          stroke: "#ddd",
+                          opacity: 1,
+                          ticks,
+                          strokeDasharray: "2,2",
+                      })
+                    : undefined,
+                ...renderMarks(
+                    (data || dataByGroup) as P[] | DataByGroupMap<P, G>,
+                    colorMap,
+                    extra
+                ),
             ],
             ...(extraConfig || {}),
             marginTop,
@@ -284,6 +321,7 @@ export function PointPlotInner<
             setPlot(null);
         };
     }, [
+        data,
         maxX,
         maxY,
         dataByGroup,
@@ -295,6 +333,8 @@ export function PointPlotInner<
         yLabel,
         aspectRatio,
         colors,
+        grid,
+        userTickFormat,
     ]);
 
     return (
@@ -308,6 +348,7 @@ export function PointPlotInner<
                     groupBy={groupBy}
                     groupLabel={groupLabel}
                     colors={plot.colors}
+                    formatTooltipNumber={formatTooltipNumber}
                 />
             )}
         </>

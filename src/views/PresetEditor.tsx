@@ -39,7 +39,7 @@ export function PresetEditor(): JSX.Element {
     };
     return (
         <div>
-            <h4 className="preset-header">Presets</h4>
+            <h4 className="editor-section-header">Presets</h4>
             <ul className="preset-list">
                 {Object.entries(PRESETS).map(([key, { label }]) => {
                     let preset = key as PresetOption;

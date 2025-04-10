@@ -48,6 +48,9 @@ export function MitigationPlot<F extends ValidGroupKey<Point> = never>({
                 marginBottom: showAnnotations ? 100 : undefined,
             }}
             renderMarks={(dataByGroup, _, { xScale, yScale }) => {
+                if (!(dataByGroup instanceof Map)) {
+                    throw new Error("Must provide grouped data");
+                }
                 let mitigated = dataByGroup.get("Mitigated");
                 let unmitigated = dataByGroup.get("Unmitigated");
                 let marks: Plot.Markish[] = [];
