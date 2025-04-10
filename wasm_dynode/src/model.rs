@@ -317,10 +317,10 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
 
         // Vaccine administration rates for first and second doses
         let (administration_rate, administration_rate2) = if vax_params.enabled {
-            let t_end =
-                vax_params.start + vax_params.doses_available / vax_params.administration_rate;
+            let duration = vax_params.doses_available / vax_params.administration_rate;
             let t_start2 = vax_params.start + vax_params.start2_delay;
-            let rate_frac = vax_params.fraction_2 / (1.0 - vax_params.start2_delay / t_end);
+            let t_end = vax_params.start + duration;
+            let rate_frac = vax_params.fraction_2 / (1.0 - vax_params.start2_delay / duration);
             if x < vax_params.start {
                 (0.0, 0.0)
             } else if x < t_start2 {
