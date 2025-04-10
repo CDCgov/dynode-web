@@ -13,6 +13,7 @@ export type ModelRunTable = {
     rows: Rows<Point>;
     mitigation_types: MitigationType[];
     output_types: OutputType[];
+    p_detect: Map<MitigationType, BasePoint[]>;
 };
 
 export type Point = {
@@ -48,7 +49,20 @@ export function buildModelRunTable(exported: ModelOutputExport): ModelRunTable {
         },
         mitigation_types: exported.mitigation_types,
         output_types: exported.output_types,
+        p_detect: new Map<MitigationType, BasePoint[]>(),
     };
+    entries(exported.p_detect)
+        .sort()
+        .forEach(([mitigation_type, items]) => {
+            table.p_detect.set(
+                mitigation_type,
+                items.map((item) => ({
+                    x: item.time,
+                    y: item.value,
+                }))
+            );
+        });
+
     entries(exported.output)
         .sort()
         .forEach(([mitigation_type, output]) => {
@@ -79,5 +93,6 @@ export function useModelRunData() {
         dt,
         mitigation_types: modelRunTable?.mitigation_types || null,
         output_types: modelRunTable?.output_types || null,
+        p_detect: modelRunTable?.p_detect || null,
     };
 }
