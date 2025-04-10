@@ -16,13 +16,26 @@ pub trait Mitigation {
 pub struct VaccineParams {
     pub enabled: bool,
     pub editable: bool,
+    // number of doses that can be given (1 or 2)
     pub doses: usize,
+    // start time of vaccine rollout
     pub start: f64,
+    // delay between start of rollout (of first doses) and when second doses start
+    pub start2_delay: f64,
+    // fraction of doses that are second doses
+    pub fraction_2: f64,
+    // maximum vaccine administration rate
     pub administration_rate: f64,
+    // total number of vaccine doses available
     pub doses_available: f64,
+    // vaccine effectiveness: first dose
     pub ve_s: f64,
     pub ve_i: f64,
     pub ve_p: f64,
+    // vaccine effectiveness: second dose
+    pub ve_2s: f64,
+    pub ve_2i: f64,
+    pub ve_2p: f64,
 }
 
 #[derive(Tsify, Debug, Clone, Serialize, Deserialize)]
@@ -125,11 +138,16 @@ impl<const N: usize> Default for MitigationParams<N> {
                 editable: true,
                 doses: 1,
                 start: 0.0,
+                start2_delay: 30.0,
+                fraction_2: 0.33,
                 administration_rate: 1_500_000.0,
                 doses_available: 40_000_000.0,
                 ve_s: 0.5,
                 ve_i: 0.5,
                 ve_p: 0.5,
+                ve_2s: 0.75,
+                ve_2i: 0.75,
+                ve_2p: 0.75,
             },
             antivirals: AntiviralsParams {
                 enabled: false,

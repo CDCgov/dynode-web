@@ -116,7 +116,10 @@ macro_rules! make_state {
 }
 
 make_state!(
-    s, e, i, r, sv, ev, iv, rv, y_cum, pre_h, h_cum, pre_d, d_cum
+    s, e, i, r, // unprotected
+    sv, ev, iv, rv, // single-dose protected
+    s2v, e2v, i2v, r2v, // two-dose protected
+    y_cum, pre_h, h_cum, pre_d, d_cum // outcome counters
 );
 
 impl<const N: usize> SEIRModel<N> {
@@ -179,7 +182,7 @@ fn _distribute_initials1(n: f64, i0: f64, r0: f64) -> (f64, f64, f64) {
 
 impl<const N: usize> DynodeModel for SEIRModel<N>
 where
-    [(); 13 * N]: Sized,
+    [(); 17 * N]: Sized,
 {
     fn integrate(&self, days: usize) -> ModelOutput {
         let population_fractions = self.parameters.population_fractions;
@@ -255,15 +258,16 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
         let sv = y.get_sv();
         let ev = y.get_ev();
         let iv = y.get_iv();
+        let rv = y.get_rv();
+        let s2v = y.get_s2v();
+        let e2v = y.get_e2v();
+        let i2v = y.get_i2v();
         let pre_h = y.get_pre_h();
         let pre_d = y.get_pre_d();
 
         let params = &self.parameters;
         let community_params = &params.mitigations.community;
-
-        let ve_s = self.parameters.mitigations.vaccine.ve_s;
-        let ve_i = self.parameters.mitigations.vaccine.ve_i;
-        let ve_p = self.parameters.mitigations.vaccine.ve_p;
+        let vax_params = &params.mitigations.vaccine;
 
         // Community mitigation
         let contact_matrix = if community_params.enabled
@@ -294,7 +298,8 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
         let beta = self.parameters.r0 / self.parameters.infectious_period;
         let ones = SVector::<f64, N>::from_element(1.0);
         let i_effective = i.component_mul(&self.ave.rr_i)
-            + (iv * (1.0 - ve_i)).component_mul(&(ones + (1.0 - ve_p) * (ones - self.ave.rr_i)));
+            + (iv * (1.0 - vax_params.ve_i))
+                .component_mul(&(ones + (1.0 - vax_params.ve_p) * (ones - self.ave.rr_i)));
 
         let infection_rate = (beta / self.parameters.population)
             * (contact_matrix * i_effective).component_div(&self.parameters.population_fractions);
@@ -303,34 +308,49 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
         let de_to_i = e / self.parameters.latent_period;
         let di_to_r = i / eff_infectious_period;
 
-        let dsv_to_ev = sv.component_mul(&((1.0 - ve_s) * infection_rate));
+        let dsv_to_ev = sv.component_mul(&((1.0 - vax_params.ve_s) * infection_rate));
+        let ds2v_to_e2v = s2v.component_mul(&((1.0 - vax_params.ve_2s) * infection_rate));
         let dev_to_iv = ev / self.parameters.latent_period;
+        let de2v_to_i2v = e2v / self.parameters.latent_period;
         let div_to_rv = iv / eff_infectious_period;
+        let di2v_to_r2v = i2v / eff_infectious_period;
 
-        // Vaccine
-        let administration_rate = if self.parameters.mitigations.vaccine.enabled {
-            if x < self.parameters.mitigations.vaccine.start {
-                0.0
-            } else if (x - self.parameters.mitigations.vaccine.start)
-                * self.parameters.mitigations.vaccine.administration_rate
-                <= self.parameters.mitigations.vaccine.doses_available
-            {
-                self.parameters.mitigations.vaccine.administration_rate
+        // Vaccine administration rates for first and second doses
+        let (administration_rate, administration_rate2) = if vax_params.enabled {
+            let t_end =
+                vax_params.start + vax_params.doses_available / vax_params.administration_rate;
+            let t_start2 = vax_params.start + vax_params.start2_delay;
+            let rate_frac = vax_params.fraction_2 / (1.0 - vax_params.start2_delay / t_end);
+            if x < vax_params.start {
+                (0.0, 0.0)
+            } else if x < t_start2 {
+                (vax_params.administration_rate, 0.0)
+            } else if x < t_end {
+                (
+                    vax_params.administration_rate * (1.0 - rate_frac),
+                    vax_params.administration_rate * rate_frac,
+                )
             } else {
-                0.0
+                (0.0, 0.0)
             }
         } else {
-            0.0
+            (0.0, 0.0)
         };
-        // 0.5828430256204575
+
+        // Vaccine administration
         let ds_to_sv = s
             .component_div(&(s + e + i + r))
             .component_mul(&self.parameters.population_fractions)
             * administration_rate;
+        let dsv_to_s2v = s
+            .component_div(&(sv + ev + iv + rv))
+            .component_mul(&self.parameters.population_fractions)
+            * administration_rate2;
 
         // Symptomatic
         // at risk of progression to symptoms
-        let dat_risk = de_to_i + dev_to_iv * (1.0 - ve_p);
+        let dat_risk =
+            de_to_i + dev_to_iv * (1.0 - vax_params.ve_p) + de2v_to_i2v * (1.0 - vax_params.ve_2p);
         // progression to symptoms
         let dsymp = dat_risk.component_mul(&self.parameters.fraction_symptomatic);
 
@@ -352,10 +372,14 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
         dy.set_e(&(ds_to_e - de_to_i));
         dy.set_i(&(de_to_i - di_to_r));
         dy.set_r(&di_to_r);
-        dy.set_sv(&(-dsv_to_ev + ds_to_sv));
+        dy.set_sv(&(-dsv_to_ev + ds_to_sv - dsv_to_s2v));
         dy.set_ev(&(dsv_to_ev - dev_to_iv));
         dy.set_iv(&(dev_to_iv - div_to_rv));
         dy.set_rv(&div_to_rv);
+        dy.set_s2v(&(-ds2v_to_e2v + dsv_to_s2v));
+        dy.set_e2v(&(ds2v_to_e2v - de2v_to_i2v));
+        dy.set_i2v(&(-di2v_to_r2v + de2v_to_i2v));
+        dy.set_r2v(&di2v_to_r2v);
         dy.set_y_cum(&dsymp);
         dy.set_pre_h(&(dto_pre_h - dpre_h_to_h_cum));
         dy.set_h_cum(&dpre_h_to_h_cum);
@@ -566,6 +590,11 @@ mod test {
             ve_s: 0.5,
             ve_i: 0.5,
             ve_p: 0.5,
+            ve_2s: 0.0,
+            ve_2i: 0.0,
+            ve_2p: 0.0,
+            start2_delay: 0.0,
+            fraction_2: 0.0,
         };
 
         let ttiq_params = TTIQParams {
