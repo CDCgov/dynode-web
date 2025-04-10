@@ -5,11 +5,13 @@ import { AntiviralsEditor } from "./Antivirals";
 import { useParams } from "../ModelState";
 import { MitigationType } from "../ModelState";
 import { CheckIcon, PlusIcon } from "@heroicons/react/20/solid";
+import { TTIQEditor } from "./TTIQ";
 
 let mitigationComponents: Record<MitigationType, React.FC> = {
     vaccine: VaccineEditor,
     antivirals: AntiviralsEditor,
     community: CommunityEditor,
+    ttiq: TTIQEditor,
 };
 
 function MitigationOptionsContainer({
