@@ -85,14 +85,14 @@ export function buildModelRunTable(exported: ModelOutputExport): ModelRunTable {
 
 export function useModelRunData() {
     const { modelRunTable } = useParamsContext();
-    let dt = useMemo(() => {
+    let results = useMemo(() => {
         if (!modelRunTable) return null;
-        return new DataTable<Point>(modelRunTable.rows);
+        return {
+            dt: new DataTable<Point>(modelRunTable.rows),
+            p_detect: modelRunTable.p_detect,
+            mitigation_types: modelRunTable.mitigation_types,
+            output_types: modelRunTable.output_types,
+        }
     }, [modelRunTable]);
-    return {
-        dt,
-        mitigation_types: modelRunTable?.mitigation_types || null,
-        output_types: modelRunTable?.output_types || null,
-        p_detect: modelRunTable?.p_detect || null,
-    };
+    return results;
 }

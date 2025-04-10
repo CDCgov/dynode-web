@@ -2,10 +2,11 @@ import { useModelRunData } from "../state/modelRuns";
 import "./Detection.css";
 
 export function Detection() {
-    let { p_detect } = useModelRunData();
-    if (!p_detect) {
+    let modelRunData = useModelRunData();
+    if (!modelRunData) {
         return null;
     }
+    let { p_detect } = modelRunData;
     return (
         <div>
             <h3 className="mb-1">Detection</h3>

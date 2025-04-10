@@ -6,9 +6,13 @@ import { match } from "../utils";
 
 export function EpiCurve() {
     let [params] = useParams();
-    let { mitigation_types } = useModelRunData();
+    let modelRunData = useModelRunData();
+    if (!modelRunData) {
+        return null;
+    }
+    let { mitigation_types } = modelRunData;
 
-    let hasMitigations = mitigation_types?.includes("Mitigated");
+    let hasMitigations = mitigation_types.includes("Mitigated");
     return (
         <>
             <section className="mb-3">
