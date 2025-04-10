@@ -35,12 +35,14 @@ impl<const N: usize> Parameters<N> {
         self.mitigations.antivirals.enabled
             || self.mitigations.community.enabled
             || self.mitigations.vaccine.enabled
+            || self.mitigations.ttiq.enabled
     }
     pub fn without_mitigations(&self) -> Self {
         let mut params = self.clone();
         params.mitigations.antivirals.enabled = false;
         params.mitigations.community.enabled = false;
         params.mitigations.vaccine.enabled = false;
+        params.mitigations.ttiq.enabled = false;
         params
     }
 }
