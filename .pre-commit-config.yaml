@@ -6,6 +6,7 @@ repos:
       - id: check-yaml
       - id: check-toml
       - id: end-of-file-fixer
+        exclude: "\\.svg$"
       - id: mixed-line-ending
       - id: trailing-whitespace
   - repo: https://github.com/Yelp/detect-secrets
@@ -22,5 +23,6 @@ repos:
         entry: npm run prettier
         language: system
       - id: eslint
-        name: esline
+        name: eslint
         entry: npm run lint
+        language: system
