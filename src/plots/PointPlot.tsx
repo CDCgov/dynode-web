@@ -22,7 +22,7 @@ interface ExtraRenderMarksData {
 
 export interface PointPlotProps<
     P extends BasePoint,
-    G extends ValidGroupKey<P>,
+    G extends ValidGroupKey<P> = never,
     F extends ValidGroupKey<P> = never
 > {
     // Pass a data table with groupBy/ facetBy...
@@ -63,7 +63,7 @@ export interface PointPlotProps<
 
 export function PointPlot<
     P extends BasePoint,
-    G extends ValidGroupKey<P>,
+    G extends ValidGroupKey<P> = never,
     F extends ValidGroupKey<P> = never
 >(props: PointPlotProps<P, G, F>) {
     let {
@@ -151,7 +151,7 @@ export function PointPlot<
 
 export function PointPlotInner<
     P extends BasePoint,
-    G extends ValidGroupKey<P>,
+    G extends ValidGroupKey<P> = never,
     F extends ValidGroupKey<P> = never
 >({
     aspectRatio = 0.5,

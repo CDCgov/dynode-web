@@ -138,3 +138,21 @@ export function dodge<P extends BasePoint>({
     };
     return [a, movedB];
 }
+
+export function yDodge(
+    y1: number,
+    y2: number,
+    yScale: Plot.Scale,
+    threshold = 10
+): [number, number] {
+    let y1Scaled = yScale.apply(y1);
+    let y2Scaled = yScale.apply(y2);
+    let tooClose = Math.abs(y1Scaled - y2Scaled) < threshold;
+    if (!tooClose || !yScale.invert || !yScale.range) {
+        return [y1, y2];
+    }
+    return [
+        yScale.invert(y1Scaled - threshold / 2),
+        yScale.invert(y2Scaled + threshold / 2),
+    ];
+}
