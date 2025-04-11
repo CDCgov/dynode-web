@@ -17,7 +17,10 @@ repos:
   - repo: local
     hooks:
       - id: prettier
-        name: prettier via npm
+        name: prettier
         types_or: [markdown]
-        entry: npm run prettier --write
+        entry: npm run prettier
         language: system
+      - id: eslint
+        name: esline
+        entry: npm run lint
