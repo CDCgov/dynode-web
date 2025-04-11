@@ -30,6 +30,7 @@ repos:
         name: clippy
         description: Lint rust files
         entry: cargo clippy
+        args: ["--", "-D", "warnings"]
         language: system
         types: [rust]
       - id: cargo-check
@@ -42,5 +43,6 @@ repos:
         name: cargo fmt
         description: Format rust files
         entry: cargo fmt
+        args: ["--"]
         language: system
         types: [rust]
