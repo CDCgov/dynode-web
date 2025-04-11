@@ -5,6 +5,8 @@ import { Point, useModelRunData } from "../state/modelRuns";
 import "./Detection.css";
 import * as Plot from "@observablehq/plot";
 
+const PRIMARY_COLOR = "var(--orange)";
+
 export function Detection() {
     let modelRunData = useModelRunData();
     let [params] = useParams();
@@ -25,15 +27,25 @@ export function Detection() {
     let thresholds = [0.25, 0.75];
     let annotations: BasePoint[] = [];
     let maxX = p_detect[p_detect.length - 1].x;
-    for (let point of p_detect) {
-        if (point.y >= thresholds[0]) {
-            annotations.push({
-                x: point.x,
-                y: thresholds[0],
-            });
-            thresholds.shift();
-        }
+    for (let i = 0; i < p_detect.length; i++) {
+        let point = p_detect[i];
+        let previousPoint = p_detect[i - 1];
         maxX = Math.max(maxX, point.x);
+
+        if (point.y < thresholds[0]) {
+            continue;
+        }
+        let x: number;
+        if (point.y === thresholds[0] || !previousPoint) {
+            x = point.x;
+        } else {
+            x = previousPoint.x;
+        }
+        annotations.push({
+            x,
+            y: thresholds[0],
+        });
+        thresholds.shift();
     }
 
     return (
@@ -109,7 +121,7 @@ export function Detection() {
             <PointPlot<Point>
                 dataTable={dt.table}
                 filter={(d) => d.output_type === "SymptomaticIncidence"}
-                yLabel="Symptomatic Cases"
+                yLabel="Cases"
                 aspectRatio={0.2}
                 extraConfig={{
                     marginRight: 110,
@@ -135,7 +147,7 @@ export function Detection() {
                                     x: "x",
                                     stroke:
                                         group === "tested"
-                                            ? "var(--orange)"
+                                            ? PRIMARY_COLOR
                                             : "var(--grey)",
                                 }),
 
@@ -155,7 +167,7 @@ export function Detection() {
                                     },
                                     fill:
                                         group === "tested"
-                                            ? "var(--orange)"
+                                            ? PRIMARY_COLOR
                                             : "var(--grey)",
                                     fontWeight: "bold",
                                     textAnchor: "start",
