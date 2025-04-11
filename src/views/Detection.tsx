@@ -123,7 +123,7 @@ export function Detection() {
                 aspectRatio={0.4}
                 yLabel="Probability (%)"
                 grid={false}
-                tickFormat={(n) => `${formatPct(n)}%`}
+                tickFormat={(n) => `${formatPct(n)}`}
                 maxY={1.0}
                 extraConfig={{
                     marginTop: 30,
@@ -135,13 +135,13 @@ export function Detection() {
                         Plot.areaY(data, {
                             x: "x",
                             y: "y",
-                            fill: "var(--orange)",
+                            fill: PRIMARY_COLOR,
                             // fillOpacity: 0.2,
                         }),
                         Plot.lineX(data, {
                             x: "x",
                             y: "y",
-                            stroke: "var(--orange)",
+                            stroke: PRIMARY_COLOR,
                         }),
                         Plot.ruleY(annotations, {
                             y: "y",
