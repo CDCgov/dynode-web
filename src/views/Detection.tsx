@@ -5,10 +5,10 @@ import { Point, useModelRunData } from "../state/modelRuns";
 import "./Detection.css";
 import * as Plot from "@observablehq/plot";
 
-const PRIMARY_COLOR = "var(--orange)";
+const PRIMARY_COLOR = "var(--purple)";
 
-function formatPct(n: number): string {
-    return (n * 100).toFixed(0);
+function formatPct(n: number, d?: number = 0): string {
+    return (n * 100).toFixed(d);
 }
 
 export function Detection() {
@@ -53,7 +53,7 @@ export function Detection() {
         <div>
             <h3>Probability of Detecting at Least One Case</h3>
             <p className="subtitle mb-2">
-                Given {formatPct(params.p_test_sympto)}% of new symptomatic
+                Given {formatPct(params.p_test_sympto, 1)}% of new symptomatic
                 infections tested, {formatPct(params.p_test_forward)}% of tests
                 forwarded public health, and{" "}
                 {formatPct(params.test_sensitivity)}% test sensitivity.
@@ -140,16 +140,11 @@ export function Detection() {
                 formatTooltipNumber={(n) => `${formatPct(n)}% probability`}
                 renderMarks={(data) => {
                     return [
-                        Plot.areaY(data, {
-                            x: "x",
-                            y: "y",
-                            fill: PRIMARY_COLOR,
-                            // fillOpacity: 0.2,
-                        }),
-                        Plot.lineX(data, {
+                        Plot.line(data, {
                             x: "x",
                             y: "y",
                             stroke: PRIMARY_COLOR,
+                            strokeWidth: 2,
                         }),
                         Plot.ruleY(annotations, {
                             y: "y",
@@ -160,7 +155,9 @@ export function Detection() {
                         }),
                         Plot.textY(annotations, {
                             text: (d) =>
-                                `${d.y * 100}% probability\nto detect 1+ case`,
+                                `>=${
+                                    d.y * 100
+                                }% probability\nto detect 1+ case`,
                             x: maxX,
                             y: "y",
                             fill: "black",

@@ -201,8 +201,8 @@ function DetectionParamsEditor() {
                 <NumberInput
                     range
                     min={0}
-                    max={1.0}
-                    step={0.01}
+                    max={0.1}
+                    step={0.001}
                     value={params.p_test_sympto}
                     numberType="float"
                     onValue={(value) => updateParams({ p_test_sympto: value })}
