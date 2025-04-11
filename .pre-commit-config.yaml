@@ -29,8 +29,8 @@ repos:
       - id: clippy
         name: clippy
         description: Lint rust files
-        entry: cargo clippy
-        args: ["--", "-D", "warnings"]
+        entry: cargo +nightly clippy
+        args: ["--", "-D", "warnings", "--quiet"]
         language: system
         types: [rust]
         pass_filenames: false
