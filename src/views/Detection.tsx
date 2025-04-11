@@ -7,7 +7,7 @@ import * as Plot from "@observablehq/plot";
 
 const PRIMARY_COLOR = "var(--purple)";
 
-function formatPct(n: number, d?: number = 0): string {
+function formatPct(n: number, d: number = 0): string {
     return (n * 100).toFixed(d);
 }
 
