@@ -26,3 +26,21 @@ repos:
         name: eslint
         entry: npm run lint
         language: system
+      - id: clippy
+        name: clippy
+        description: Lint rust files
+        entry: cargo clippy
+        language: system
+        types: [rust]
+      - id: cargo-check
+        name: cargo check
+        description: Check the rust package
+        entry: cargo check
+        language: system
+        types: [rust]
+      - id: cargo-fmt
+        name: cargo fmt
+        description: Format rust files
+        entry: cargo fmt
+        language: system
+        types: [rust]
