@@ -11,6 +11,8 @@ function formatPct(n: number, d?: number = 0): string {
     return (n * 100).toFixed(d);
 }
 
+type AnnotationPoint = BasePoint & { threshold: number };
+
 export function Detection() {
     let modelRunData = useModelRunData();
     let [params] = useParams();
@@ -28,25 +30,21 @@ export function Detection() {
     let p_detect = p_detect_all.filter((d) => d.x <= maxX);
 
     let thresholds = [0.25, 0.75];
-    let annotations: BasePoint[] = [];
+    let annotations: AnnotationPoint[] = [];
     for (let i = 0; i < p_detect.length; i++) {
+        if (thresholds.length === 0) {
+            break;
+        }
         let point = p_detect[i];
-        let previousPoint = p_detect[i - 1];
 
-        if (point.y < thresholds[0]) {
-            continue;
+        while (thresholds.length > 0 && point.y >= thresholds[0]) {
+            annotations.push({
+                x: point.x,
+                y: point.y,
+                threshold: thresholds[0],
+            });
+            thresholds.shift();
         }
-        let x: number;
-        if (point.y === thresholds[0] || !previousPoint) {
-            x = point.x;
-        } else {
-            x = previousPoint.x;
-        }
-        annotations.push({
-            x,
-            y: thresholds[0],
-        });
-        thresholds.shift();
     }
 
     return (
@@ -147,7 +145,7 @@ export function Detection() {
                             strokeWidth: 2,
                         }),
                         Plot.ruleY(annotations, {
-                            y: "y",
+                            y: "threshold",
                             x1: "x",
                             x2: maxX,
                             stroke: "black",
@@ -156,10 +154,10 @@ export function Detection() {
                         Plot.textY(annotations, {
                             text: (d) =>
                                 `>=${
-                                    d.y * 100
+                                    d.threshold * 100
                                 }% probability\nto detect 1+ case`,
                             x: maxX,
-                            y: "y",
+                            y: "threshold",
                             fill: "black",
                             textAnchor: "start",
                             lineAnchor: "top",
@@ -169,7 +167,7 @@ export function Detection() {
                         Plot.textY(annotations, {
                             text: (d) => `Day ${d.x}`,
                             x: maxX,
-                            y: "y",
+                            y: "threshold",
                             fill: "black",
                             fontWeight: "bold",
                             textAnchor: "start",
@@ -178,7 +176,7 @@ export function Detection() {
                             dy: -2,
                         }),
                         Plot.dot(annotations, {
-                            y: "y",
+                            y: "threshold",
                             x: "x",
                             fill: "black",
                             r: 3,
