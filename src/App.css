@@ -57,6 +57,13 @@ main h4 {
     font-size: 16px;
 }
 
+.subtitle {
+    font-family: var(--header-font);
+    font-size: 15px;
+    font-weight: 400;
+    color: #777;
+}
+
 @media screen and (max-width: 992px) {
     aside {
         display: none;

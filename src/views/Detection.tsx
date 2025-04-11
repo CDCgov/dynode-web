@@ -7,6 +7,10 @@ import * as Plot from "@observablehq/plot";
 
 const PRIMARY_COLOR = "var(--orange)";
 
+function formatPct(n: number): string {
+    return (n * 100).toFixed(0);
+}
+
 export function Detection() {
     let modelRunData = useModelRunData();
     let [params] = useParams();
@@ -14,15 +18,6 @@ export function Detection() {
         return null;
     }
     let { p_detect, dt } = modelRunData;
-
-    if (!params.p_test_sympto) {
-        return (
-            <div>
-                <h3 className="mb-1">Probability to Detect 1+ Cases</h3>
-                <p>No cases detected.</p>
-            </div>
-        );
-    }
 
     let thresholds = [0.25, 0.75];
     let annotations: BasePoint[] = [];
@@ -50,74 +45,15 @@ export function Detection() {
 
     return (
         <div>
-            <h3 className="mb-1">Probability to Detect 1+ Cases</h3>
+            <h3>Probability of Detecting at Least One Case</h3>
+            <p className="subtitle mb-2">
+                Given {formatPct(params.p_test_sympto)}% of new symptomatic
+                infections tested, {formatPct(params.p_test_forward)}% of tests
+                forwarded public health, and{" "}
+                {formatPct(params.test_sensitivity)}% test sensitivity.
+            </p>
 
-            <PointPlot
-                data={p_detect}
-                aspectRatio={0.4}
-                yLabel="Probability (%)"
-                grid={false}
-                tickFormat={(n) => `${(n * 100).toFixed(0)}`}
-                maxY={1.0}
-                extraConfig={{
-                    marginTop: 30,
-                    marginRight: 110,
-                }}
-                formatTooltipNumber={(n) =>
-                    `${(n * 100).toFixed(0)}% probability`
-                }
-                renderMarks={(data) => {
-                    return [
-                        Plot.areaY(data, {
-                            x: "x",
-                            y: "y",
-                            fill: "var(--orange)",
-                            // fillOpacity: 0.2,
-                        }),
-                        Plot.lineX(data, {
-                            x: "x",
-                            y: "y",
-                            stroke: "var(--orange)",
-                        }),
-                        Plot.ruleY(annotations, {
-                            y: "y",
-                            x1: "x",
-                            x2: maxX,
-                            stroke: "black",
-                            strokeDasharray: "2,2",
-                        }),
-                        Plot.textY(annotations, {
-                            text: (d) =>
-                                `${d.y * 100}% probability\nto detect 1+ case`,
-                            x: maxX,
-                            y: "y",
-                            fill: "black",
-                            textAnchor: "start",
-                            lineAnchor: "top",
-                            dx: 5,
-                            dy: 10,
-                        }),
-                        Plot.textY(annotations, {
-                            text: (d) => `Day ${d.x}`,
-                            x: maxX,
-                            y: "y",
-                            fill: "black",
-                            fontWeight: "bold",
-                            textAnchor: "start",
-                            lineAnchor: "top",
-                            dx: 5,
-                            dy: -2,
-                        }),
-                        Plot.dot(annotations, {
-                            y: "y",
-                            x: "x",
-                            fill: "black",
-                            r: 3,
-                        }),
-                    ];
-                }}
-            />
-            <h4 className="mb-1 mt-2">Symptomatic Cases Tested</h4>
+            <h4 className="mb-1">Symptomatic Cases Tested</h4>
             <PointPlot<Point>
                 dataTable={dt.table}
                 filter={(d) => d.output_type === "SymptomaticIncidence"}
@@ -176,6 +112,71 @@ export function Detection() {
                                     dy: -2,
                                 }),
                             ];
+                        }),
+                    ];
+                }}
+            />
+
+            <h4 className="mb-1 mt-1">Cumulative Probability of Detection</h4>
+            <PointPlot
+                data={p_detect}
+                aspectRatio={0.4}
+                yLabel="Probability (%)"
+                grid={false}
+                tickFormat={(n) => `${formatPct(n)}%`}
+                maxY={1.0}
+                extraConfig={{
+                    marginTop: 30,
+                    marginRight: 110,
+                }}
+                formatTooltipNumber={(n) => `${formatPct(n)}% probability`}
+                renderMarks={(data) => {
+                    return [
+                        Plot.areaY(data, {
+                            x: "x",
+                            y: "y",
+                            fill: "var(--orange)",
+                            // fillOpacity: 0.2,
+                        }),
+                        Plot.lineX(data, {
+                            x: "x",
+                            y: "y",
+                            stroke: "var(--orange)",
+                        }),
+                        Plot.ruleY(annotations, {
+                            y: "y",
+                            x1: "x",
+                            x2: maxX,
+                            stroke: "black",
+                            strokeDasharray: "2,2",
+                        }),
+                        Plot.textY(annotations, {
+                            text: (d) =>
+                                `${d.y * 100}% probability\nto detect 1+ case`,
+                            x: maxX,
+                            y: "y",
+                            fill: "black",
+                            textAnchor: "start",
+                            lineAnchor: "top",
+                            dx: 5,
+                            dy: 10,
+                        }),
+                        Plot.textY(annotations, {
+                            text: (d) => `Day ${d.x}`,
+                            x: maxX,
+                            y: "y",
+                            fill: "black",
+                            fontWeight: "bold",
+                            textAnchor: "start",
+                            lineAnchor: "top",
+                            dx: 5,
+                            dy: -2,
+                        }),
+                        Plot.dot(annotations, {
+                            y: "y",
+                            x: "x",
+                            fill: "black",
+                            r: 3,
                         }),
                     ];
                 }}
