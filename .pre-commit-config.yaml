@@ -30,12 +30,12 @@ repos:
         name: clippy
         description: Lint rust files
         entry: cargo +nightly clippy
-        args: ["--", "-D", "warnings", "--quiet"]
+        args: ["--", "-D", "warnings"]
         language: system
         types: [rust]
         pass_filenames: false
       - id: cargo-check
-        name: cargo check
+        name: cargo +nightly check
         description: Check the rust package
         entry: cargo check
         language: system
