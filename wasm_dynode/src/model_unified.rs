@@ -84,6 +84,12 @@ impl ModelOutput {
     }
 }
 
+impl Default for ModelOutput {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[derive(Tsify, Debug, Clone, Serialize, Deserialize)]
 #[tsify(into_wasm_abi, from_wasm_abi)]
 pub struct ModelOutputExport {
@@ -148,19 +154,18 @@ impl SEIRModelUnified {
 
     #[wasm_bindgen]
     pub fn run(&self, days: usize) -> ModelOutputExport {
-        let base_label: MitigationType;
         let mut runs: Vec<(MitigationType, ModelOutput)> = Vec::new();
 
         // Run an unmitigated version if necessary
-        if self.parameters.has_mitigations() {
+        let base_label: MitigationType = if self.parameters.has_mitigations() {
             runs.push((
                 MitigationType::Unmitigated,
                 select_model(self.parameters.without_mitigations()).integrate(days),
             ));
-            base_label = MitigationType::Mitigated;
+            MitigationType::Mitigated
         } else {
-            base_label = MitigationType::Unmitigated;
-        }
+            MitigationType::Unmitigated
+        };
 
         // Run the base version
         runs.push((

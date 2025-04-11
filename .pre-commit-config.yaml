@@ -26,6 +26,7 @@ repos:
         name: eslint
         entry: npm run lint
         language: system
+        types: [javascript]
       - id: clippy
         name: clippy
         description: Lint rust files

@@ -113,11 +113,9 @@ impl<const N: usize> TryFrom<ParametersExport> for Parameters<N> {
 
         Ok(Parameters {
             population: params.population,
-            population_fractions: SVector::from_iterator(params.population_fractions.into_iter()),
-            population_fraction_labels: SVector::from_iterator(
-                params.population_fraction_labels.into_iter(),
-            ),
-            contact_matrix: SMatrix::from_iterator(params.contact_matrix.into_iter()),
+            population_fractions: SVector::from_iterator(params.population_fractions),
+            population_fraction_labels: SVector::from_iterator(params.population_fraction_labels),
+            contact_matrix: SMatrix::from_iterator(params.contact_matrix),
             initial_infections: params.initial_infections,
             r0: params.r0,
             latent_period: params.latent_period,

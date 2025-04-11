@@ -78,7 +78,7 @@ impl<const N: usize> TryFrom<CommunityMitigationParamsExport> for CommunityMitig
             editable: value.editable,
             start: value.start,
             duration: value.duration,
-            effectiveness: SMatrix::from_iterator(value.effectiveness.into_iter()),
+            effectiveness: SMatrix::from_iterator(value.effectiveness),
         })
     }
 }
