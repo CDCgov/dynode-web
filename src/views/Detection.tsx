@@ -17,15 +17,21 @@ export function Detection() {
     if (!modelRunData) {
         return null;
     }
-    let { p_detect, dt } = modelRunData;
+    let { p_detect: p_detect_all, dt } = modelRunData;
+
+    let day_100_pct = p_detect_all.find((d) => d.y === 1.0)?.x || 0;
+    let maxX = Math.min(
+        day_100_pct + 14,
+        p_detect_all[p_detect_all.length - 1].x
+    );
+
+    let p_detect = p_detect_all.filter((d) => d.x <= maxX);
 
     let thresholds = [0.25, 0.75];
     let annotations: BasePoint[] = [];
-    let maxX = p_detect[p_detect.length - 1].x;
     for (let i = 0; i < p_detect.length; i++) {
         let point = p_detect[i];
         let previousPoint = p_detect[i - 1];
-        maxX = Math.max(maxX, point.x);
 
         if (point.y < thresholds[0]) {
             continue;
@@ -56,7 +62,9 @@ export function Detection() {
             <h4 className="mb-1">Symptomatic Cases Tested</h4>
             <PointPlot<Point>
                 dataTable={dt.table}
-                filter={(d) => d.output_type === "SymptomaticIncidence"}
+                filter={(d) =>
+                    d.output_type === "SymptomaticIncidence" && d.x <= maxX
+                }
                 yLabel="Cases"
                 aspectRatio={0.2}
                 extraConfig={{

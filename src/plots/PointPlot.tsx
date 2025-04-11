@@ -234,7 +234,7 @@ export function PointPlotInner<
 
         let xScale = Plot.scale({
             x: {
-                domain: [0, maxX],
+                domain: [1, maxX],
                 range: [marginLeft, width - marginRight],
             },
         });
@@ -275,7 +275,7 @@ export function PointPlotInner<
                 range: [...colorMap.values()],
             },
             x: {
-                domain: [0, maxX],
+                domain: [1, maxX],
             },
             y: {
                 domain: [0, maxY],
