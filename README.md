@@ -1,8 +1,24 @@
 # Dynode-Web
 
-** This project is currently in the early stages of development and not ready for use in production.**
+**This project is currently in the early stages of development and not ready for use in production.**
 
-**General disclaimer** This repository was created for use by CDC programs to collaborate on public health related projects in support of the [CDC mission](https://www.cdc.gov/about/organization/mission.htm). GitHub is not hosted by the CDC, but is a third party website used by CDC and its partners to share information and collaborate on software. CDC use of GitHub does not imply an endorsement of any one particular service, product, or enterprise.
+## Getting started
+
+-   Install system dependencies:
+    -   rust
+    -   node
+-   Run backend tests: `cargo +nightly test`
+    -   This should also install rust package dependencies
+-   Install frontend: `npm install`
+    -   Because of platform differences, you may need to delete `npm_modules` and `package-lock.json` and run `npm install` again.
+-   Run frontend tests: `npm test`
+-   Run the frontend: `npm run wasm`
+
+---
+
+## General disclaimer
+
+This repository was created for use by CDC programs to collaborate on public health related projects in support of the [CDC mission](https://www.cdc.gov/about/organization/mission.htm). GitHub is not hosted by the CDC, but is a third party website used by CDC and its partners to share information and collaborate on software. CDC use of GitHub does not imply an endorsement of any one particular service, product, or enterprise.
 
 ## Public Domain Standard Notice
 
@@ -28,7 +44,7 @@ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE. See the Apache Software License for more details.
 
 You should have received a copy of the Apache Software License along with this
-program. If not, see http://www.apache.org/licenses/LICENSE-2.0.html
+program. If not, see <http://www.apache.org/licenses/LICENSE-2.0.html>
 
 The source code forked from other open source projects will inherit its license.
 
