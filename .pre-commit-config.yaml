@@ -14,17 +14,10 @@ repos:
       - id: detect-secrets
         args: ["--baseline", ".secrets.baseline"]
         exclude: package-lock.json
-  - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: f62a70a3a7114896b062de517d72829ea1c884b6 # pragma: allowlist secret
-    hooks:
-      - id: prettier
-        additional_dependencies:
-          - prettier@3.5.3
-          - "@prettier/plugin-xml@0.12.0"
-        types_or: [markdown]
   - repo: local
     hooks:
       - id: prettier
+        name: prettier via npm
         types_or: [markdown]
-        entry: npm run prettier
+        entry: npm run prettier --write
         language: system
