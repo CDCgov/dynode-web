@@ -20,11 +20,12 @@ export function MitigationPlot<F extends ValidGroupKey<Point> = never>({
 }: Partial<PointPlotProps<Point, "mitigation_type", F>> & {
     annotations?: boolean;
 }) {
-    let { dt } = useModelRunData();
+    let modelRunData = useModelRunData();
     let [params] = useParams();
-    if (!dt) {
+    if (!modelRunData) {
         return null;
     }
+    let { dt } = modelRunData;
     return (
         <PointPlot
             {...restProps}
@@ -47,6 +48,9 @@ export function MitigationPlot<F extends ValidGroupKey<Point> = never>({
                 marginBottom: showAnnotations ? 100 : undefined,
             }}
             renderMarks={(dataByGroup, _, { xScale, yScale }) => {
+                if (!(dataByGroup instanceof Map)) {
+                    throw new Error("Must provide grouped data");
+                }
                 let mitigated = dataByGroup.get("Mitigated");
                 let unmitigated = dataByGroup.get("Unmitigated");
                 let marks: Plot.Markish[] = [];

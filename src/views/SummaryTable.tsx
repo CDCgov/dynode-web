@@ -18,30 +18,31 @@ function SummaryTableInner({
 }) {
     let [params] = useParams();
     let groupLabels = params.population_fraction_labels;
-    let { dt, mitigation_types } = useModelRunData();
-
-    let addPrevented =
-        (mitigation_types?.includes("Unmitigated") &&
-            mitigation_types?.includes("Mitigated")) ||
-        false;
+    let modelRunData = useModelRunData();
 
     // Transpose data
-    let summaries = useMemo(() => {
-        if (!dt || !mitigation_types) {
+    let results = useMemo(() => {
+        if (!modelRunData) {
             return null;
         }
+        let { dt, mitigation_types } = modelRunData;
         let addPrevented =
             mitigation_types.includes("Unmitigated") &&
             mitigation_types.includes("Mitigated");
-        return computeSummaryRows(
-            dt.table,
-            outputType,
+        return {
             addPrevented,
-            groupLabels
-        );
-    }, [dt, outputType, mitigation_types, groupLabels]);
+            summaries: computeSummaryRows(
+                dt.table,
+                outputType,
+                addPrevented,
+                groupLabels
+            ),
+        };
+    }, [outputType, modelRunData, groupLabels]);
 
-    if (!summaries || !mitigation_types) return null;
+    if (!results || !modelRunData) return null;
+    let { addPrevented, summaries } = results;
+    let { mitigation_types } = modelRunData;
 
     return (
         <div className="summary-table-container mb-3">
@@ -100,8 +101,6 @@ function SummaryTableInner({
 }
 
 export function SummaryTable() {
-    let { dt } = useModelRunData();
-    if (!dt) return null;
     return (
         <div className="summaries">
             <SummaryTableInner
@@ -133,7 +132,7 @@ function computeSummaryRows(
     outputType: OutputType,
     addPrevented: boolean,
     groupLabels: string[]
-): SummaryRow[] | null {
+): SummaryRow[] {
     let grouped = dt
         .params({ outputType, groupLabels })
         // @ts-expect-error d and & are untyped

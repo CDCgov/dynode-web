@@ -11,14 +11,16 @@ export function PointTooltip<P extends BasePoint, G extends ValidGroupKey<P>>({
     groupBy,
     groupLabel,
     colors,
+    formatTooltipNumber,
 }: {
     plotRef: React.RefObject<HTMLElement | null>;
     plot: (HTMLElement | SVGElement) & Plot.Plot;
     dataByX: DataByXMap<P>;
-    groupBy: G;
+    groupBy?: G;
     groupLabel?: (groupValue: P[G]) => string;
     yRange?: [number, number];
     colors: Map<P[G], string>;
+    formatTooltipNumber?: (num: number) => string;
 }) {
     let [tooltip, setTooltip] = useState<Tooltip<P> | null>(null);
     let [current, setCurrent] = useState<P[] | null>(null);
@@ -36,7 +38,8 @@ export function PointTooltip<P extends BasePoint, G extends ValidGroupKey<P>>({
                     pointMap: dataByX,
                     xProperty: "x",
                     yProperty: "y",
-                    getColor: (d) => colors.get(d[groupBy]) || "black",
+                    getColor: (d) =>
+                        (groupBy && colors.get(d[groupBy])) || "black",
                     renderContent: (_, points) => {
                         setCurrent(points || null);
                     },
@@ -58,6 +61,7 @@ export function PointTooltip<P extends BasePoint, G extends ValidGroupKey<P>>({
             groupBy={groupBy}
             groupLabel={groupLabel}
             colors={colors}
+            formatTooltipNumber={formatTooltipNumber}
         />,
         tooltip.tooltipEl
     );
@@ -68,12 +72,16 @@ function PointTooltipInner<
     G extends ValidGroupKey<P>
 >(props: {
     data: P[] | null;
-    groupBy: G;
+    groupBy?: G;
     groupLabel?: (d: P[G]) => string;
     colors: Map<P[G], string>;
+    formatTooltipNumber?: (num: number) => string;
 }) {
     if (!props.data) return null;
     let day = props.data[0].x;
+
+    let formatTooltipNumber =
+        props.formatTooltipNumber || defaultNumberFormatter;
 
     return (
         <div className="plot-tooltip-content">
@@ -85,21 +93,33 @@ function PointTooltipInner<
                 </thead>
                 <tbody>
                     {props.data.map((d, i) => {
-                        let color = props.colors.get(d[props.groupBy]);
-                        let group = props.groupLabel
-                            ? props.groupLabel(d[props.groupBy])
-                            : `${d[props.groupBy]}`;
-                        return (
-                            <tr key={i}>
-                                <td>
-                                    {color && <Swatch color={color} />}
-                                    {group}
-                                </td>
-                                <td style={{ textAlign: "right" }}>
-                                    <strong>{formatTooltipNumber(d.y)}</strong>
-                                </td>
-                            </tr>
-                        );
+                        if (props.groupBy) {
+                            let color = props.colors.get(d[props.groupBy]);
+                            let group = props.groupLabel
+                                ? props.groupLabel(d[props.groupBy])
+                                : `${d[props.groupBy]}`;
+                            return (
+                                <tr key={i}>
+                                    <td>
+                                        {color && <Swatch color={color} />}
+                                        {group}
+                                    </td>
+                                    <td style={{ textAlign: "right" }}>
+                                        <strong>
+                                            {formatTooltipNumber(d.y)}
+                                        </strong>
+                                    </td>
+                                </tr>
+                            );
+                        } else {
+                            return (
+                                <tr key={i}>
+                                    <td colSpan={2}>
+                                        {formatTooltipNumber(d.y)}
+                                    </td>
+                                </tr>
+                            );
+                        }
                     })}
                 </tbody>
             </table>
@@ -120,6 +140,6 @@ function Swatch({ color }: { color: string }) {
         />
     );
 }
-function formatTooltipNumber(num: number): string {
+function defaultNumberFormatter(num: number): string {
     return (Math.round(num / 1000) * 1000).toLocaleString("en-US");
 }

@@ -39,7 +39,7 @@ export function PresetEditor(): JSX.Element {
     };
     return (
         <div>
-            <h4 className="preset-header">Presets</h4>
+            <h4 className="editor-section-header">Presets</h4>
             <ul className="preset-list">
                 {Object.entries(PRESETS).map(([key, { label }]) => {
                     let preset = key as PresetOption;
@@ -68,12 +68,12 @@ export function PresetEditor(): JSX.Element {
 
 function ModelRunStats() {
     let [count, setCount] = useState(0);
-    let { dt } = useModelRunData();
+    let modelRunData = useModelRunData();
     useEffect(() => {
-        if (dt) {
+        if (modelRunData) {
             setCount((c) => c + 1);
         }
-    }, [dt]);
+    }, [modelRunData]);
 
     return <div className="model-run-stats">Model run: {count || 0}</div>;
 }

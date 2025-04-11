@@ -8,8 +8,15 @@ interface TabData {
     devOnly?: boolean;
     content: () => JSX.Element;
 }
-export function Tabs({ tabs }: { tabs: TabData[] }) {
-    const [active, setActive] = useState(0);
+export function Tabs({
+    tabs,
+    active,
+    setActive,
+}: {
+    active: number;
+    setActive: React.Dispatch<React.SetStateAction<number>>;
+    tabs: TabData[];
+}) {
     const [tabContent, setTabContent] = useState(Array<JSX.Element>);
 
     // TODO<ryl8@cdc.gov> handle tabs props changing
@@ -20,7 +27,7 @@ export function Tabs({ tabs }: { tabs: TabData[] }) {
             newTabContent[active] = tabs[active].content();
             setTabContent(newTabContent);
         }
-    }, [active]);
+    }, [active, tabs, tabContent]);
 
     return (
         <>

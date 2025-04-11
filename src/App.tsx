@@ -9,8 +9,27 @@ import "./App.css";
 import { MobileEditor } from "./views/MobileEditor";
 import { Turbo } from "./layout/Turbo";
 import { Detection } from "./views/Detection";
+import { useState } from "react";
+
+export const TABS = [
+    { title: "Mitigation", content: () => <EpiCurve /> },
+
+    {
+        title: "Detection",
+        content: () => <Detection />,
+    },
+    { title: "Summary", content: () => <SummaryTable /> },
+
+    {
+        title: "Editor",
+        isDark: true,
+        mobileOnly: true,
+        content: () => <MobileEditor />,
+    },
+];
 
 function App() {
+    const [activeTab, setActiveTab] = useState(0);
     const resizeLeft = useResizable({
         axis: "x",
         initial: 250,
@@ -32,32 +51,14 @@ function App() {
                 {...resizeLeft.separatorProps}
             />
             <main>
-                <Tabs
-                    tabs={[
-                        { title: "Mitigation", content: () => <EpiCurve /> },
-
-                        {
-                            title: "Detection",
-                            devOnly: true,
-                            content: () => <Detection />,
-                        },
-                        { title: "Summary", content: () => <SummaryTable /> },
-
-                        {
-                            title: "Editor",
-                            isDark: true,
-                            mobileOnly: true,
-                            content: () => <MobileEditor />,
-                        },
-                    ]}
-                />
+                <Tabs active={activeTab} setActive={setActiveTab} tabs={TABS} />
             </main>
             <DragBar
                 isDragging={resizeRight.isDragging}
                 {...resizeRight.separatorProps}
             />
             <aside style={{ width: resizeRight.position }}>
-                <ParamsEditor />
+                <ParamsEditor activeTab={TABS[activeTab]} />
                 <Turbo />
             </aside>
         </div>

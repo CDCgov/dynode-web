@@ -3,22 +3,60 @@ import { Mitigations } from "../mitigations/Mitigations";
 import { FormGroup } from "../forms/FormGroup";
 import { useDays, useParams } from "../ModelState";
 import { GroupEditor } from "./GroupEditor";
+import React from "react";
+import { TABS } from "../App";
 
-// let ag = () => [
-//     { value: "0-19", label: "0-19" },
-//     { value: "20-39", label: "20-39" },
-//     { value: "40-59", label: "40-59" },
-//     { value: "60-79", label: "60-79" },
-//     { value: "80+", label: "80+" },
-// ];
+function EditorSection({
+    title,
+    children,
+}: {
+    title: string;
+    children: React.ReactNode;
+}) {
+    return (
+        <div>
+            <h4 className="editor-section-header">{title}</h4>
+            <section className="p-1 pb-0 mb-2">{children}</section>
+        </div>
+    );
+}
 
-export function ParamsEditor() {
+export function ParamsEditor({
+    activeTab,
+}: {
+    activeTab?: (typeof TABS)[number];
+}) {
+    const editors = [
+        { editor: ScenarioParams, title: "Scenario" },
+        { editor: Mitigations, title: "Mitigations" },
+    ];
+    const detectionEditor = {
+        editor: DetectionParamsEditor,
+        title: "Detection",
+    };
+    if (activeTab?.title === "Detection") {
+        editors.unshift(detectionEditor);
+    } else {
+        editors.push(detectionEditor);
+    }
+
+    return (
+        <div>
+            {editors.map(({ editor: Editor, title }) => (
+                <EditorSection key={title} title={title}>
+                    <Editor />
+                </EditorSection>
+            ))}
+        </div>
+    );
+}
+
+function ScenarioParams() {
     let [days, setDays] = useDays();
-
     let [params, updateParams] = useParams();
 
     return (
-        <div className="p-1">
+        <>
             <FormGroup>
                 <label>Days</label>
                 <NumberInput
@@ -92,8 +130,6 @@ export function ParamsEditor() {
                 />
             </FormGroup>
 
-            <Mitigations />
-
             <FormGroup>
                 <GroupEditor
                     label="Percent symptomatic"
@@ -103,6 +139,7 @@ export function ParamsEditor() {
                     }
                     renderInput={(value, onValue) => (
                         <NumberInput
+                            range
                             min={0.3}
                             max={0.8}
                             step={0.01}
@@ -151,6 +188,54 @@ export function ParamsEditor() {
                     )}
                 />
             </FormGroup>
-        </div>
+        </>
+    );
+}
+
+function DetectionParamsEditor() {
+    let [params, updateParams] = useParams();
+    return (
+        <>
+            <FormGroup>
+                <label>Proportion of new symptomatic infections tested</label>
+                <NumberInput
+                    range
+                    min={0}
+                    max={0.1}
+                    step={0.001}
+                    value={params.p_test_sympto}
+                    numberType="float"
+                    onValue={(value) => updateParams({ p_test_sympto: value })}
+                />
+            </FormGroup>
+            <FormGroup>
+                <label>Test sensitivity</label>
+                <NumberInput
+                    range
+                    min={0}
+                    max={1.0}
+                    step={0.01}
+                    value={params.test_sensitivity}
+                    numberType="float"
+                    onValue={(value) =>
+                        updateParams({ test_sensitivity: value })
+                    }
+                />
+            </FormGroup>
+            <FormGroup>
+                <label>
+                    Probability a positive test is forwarded to public health
+                </label>
+                <NumberInput
+                    range
+                    min={0}
+                    max={1.0}
+                    step={0.01}
+                    value={params.p_test_forward}
+                    numberType="float"
+                    onValue={(value) => updateParams({ p_test_forward: value })}
+                />
+            </FormGroup>
+        </>
     );
 }
