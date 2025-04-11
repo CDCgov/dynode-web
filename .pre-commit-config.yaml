@@ -33,12 +33,14 @@ repos:
         args: ["--", "-D", "warnings"]
         language: system
         types: [rust]
+        pass_filenames: false
       - id: cargo-check
         name: cargo check
         description: Check the rust package
         entry: cargo check
         language: system
         types: [rust]
+        pass_filenames: false
       - id: cargo-fmt
         name: cargo fmt
         description: Format rust files
