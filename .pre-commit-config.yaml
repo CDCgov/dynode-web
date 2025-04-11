@@ -35,9 +35,9 @@ repos:
         types: [rust]
         pass_filenames: false
       - id: cargo-check
-        name: cargo +nightly check
+        name: cargo check
         description: Check the rust package
-        entry: cargo check
+        entry: cargo +nightly check
         language: system
         types: [rust]
         pass_filenames: false
