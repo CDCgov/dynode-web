@@ -13,6 +13,15 @@ export function Detection() {
     }
     let { p_detect, dt } = modelRunData;
 
+    if (!params.p_test_sympto) {
+        return (
+            <div>
+                <h3 className="mb-1">Probability to Detect 1+ Cases</h3>
+                <p>No cases detected.</p>
+            </div>
+        );
+    }
+
     let thresholds = [0.25, 0.75];
     let annotations: BasePoint[] = [];
     let maxX = p_detect[p_detect.length - 1].x;
@@ -96,7 +105,7 @@ export function Detection() {
                     ];
                 }}
             />
-            <h4>Symptomatic Cases v.s. Cases Tested</h4>
+            <h4 className="mb-1 mt-2">Symptomatic Cases Tested</h4>
             <PointPlot<Point>
                 dataTable={dt.table}
                 filter={(d) => d.output_type === "SymptomaticIncidence"}
@@ -132,9 +141,7 @@ export function Detection() {
 
                                 Plot.textY([data[data.length - 1]], {
                                     text: () =>
-                                        group === "tested"
-                                            ? "Tested"
-                                            : "All symptomatic",
+                                        group === "tested" ? "Tested" : "All",
                                     x: maxX,
                                     y: (d) => {
                                         let [yAll, yTested] = yDodge(
