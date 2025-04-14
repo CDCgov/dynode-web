@@ -792,6 +792,59 @@ mod test {
         assert_float_eq!(results.attack_rate, 0.77889514, abs <= 1e-5);
     }
 
+    // population <- 3.3e8
+    // SEIR2VModel(
+    //     simulationLength = 300,
+    //     population = population,
+    //     R0 = 2.0,
+    //     latentPeriod = 1.0,
+    //     infectiousPeriod = 3.0,
+    //     seedInfections = 1000.0 / population,
+    //     tolerance = 1e-6,
+    // )
+    #[test]
+    fn test_2dose_vaccine() {
+        let mut params = Parameters {
+            population: 330_000_000.0,
+            population_fractions: Vector1::new(1.0),
+            population_fraction_labels: Vector1::new("All".to_string()),
+            contact_matrix: Matrix1::new(1.0),
+            initial_infections: 1_000.0,
+            r0: 2.0,
+            latent_period: 1.0,
+            infectious_period: 3.0,
+            mitigations: MitigationParams::default(),
+            fraction_symptomatic: Vector1::new(0.5),
+            fraction_hospitalized: Vector1::new(0.1),
+            hospitalization_delay: 1.0,
+            fraction_dead: Vector1::new(0.01),
+            death_delay: 1.0,
+            p_test_sympto: 0.0,
+            test_sensitivity: 0.90,
+            p_test_forward: 0.90,
+        };
+        params.mitigations.vaccine = VaccineParams {
+            enabled: true,
+            editable: true,
+            doses: 2,
+            start: 0.0,
+            start2_delay: 0.0,
+            fraction_2: ??,
+            administration_rate: ??,
+            doses_available: 20_000_000.0,
+            ve_s: 0.50,
+            ve_i: 0.50,
+            ve_p: 0.50,
+            ve_2s: 0.75,
+            ve_2i: 0.75,
+            ve_2p: 0.75,
+        };
+
+        let model = SEIRModel::new(params);
+        let results = TestResults::new(&model.parameters, &model.integrate(300));
+        assert_float_eq!(results.attack_rate, 0.7672022, abs <= 1e-5);
+    }
+
     #[test]
     fn test_eigen() {
         let x = matrix![1.0, 3.0; 2.0, 4.0];
