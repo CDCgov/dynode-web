@@ -7,7 +7,6 @@ import { PresetEditor } from "./views/PresetEditor";
 import { SummaryTable } from "./views/SummaryTable";
 import "./App.css";
 import { MobileEditor } from "./views/MobileEditor";
-import { Turbo } from "./layout/Turbo";
 import { Detection } from "./views/Detection";
 import { useState } from "react";
 import { DevInfo } from "./views/DevInfo";
@@ -77,7 +76,6 @@ function App() {
             />
             <aside style={{ width: resizeRight.position }}>
                 <ParamsEditor activeTab={TABS[activeTab]} />
-                <Turbo />
             </aside>
         </div>
     );

@@ -48,7 +48,7 @@ export const ParamsProvider = ({
     let [runningState, setRunningState] = useState<RunningState>(
         RunningState.Idle
     );
-    let [isTurbo, setIsTurbo] = useState(false);
+    let [isTurbo, setIsTurbo] = useState(true);
 
     const updateParams = (newParams: Partial<Parameters>) =>
         setParams((current) => ({
