@@ -82,11 +82,17 @@ textarea,
 select {
     font: inherit;
     font-size: inherit;
-    color: var(--input-color);
-    background-color: var(--input-bg);
     border: none;
     padding: 8px 10px;
     border-radius: var(--border-radius);
+}
+
+aside input,
+aside button,
+aside textarea,
+aside select {
+    color: var(--input-color);
+    background-color: var(--input-bg);
 }
 
 label {

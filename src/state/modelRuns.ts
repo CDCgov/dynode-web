@@ -8,6 +8,7 @@ import { useParamsContext } from "../ModelState";
 import { useMemo } from "react";
 import { ColumnTable, table } from "arquero";
 import { BasePoint } from "../plots/plotUtils";
+import { Perf } from "../utils/Perf";
 
 export type ModelRunTable = {
     rows: Rows<Point>;
@@ -39,6 +40,7 @@ export class DataTable<P extends BasePoint> {
 }
 
 export function buildModelRunTable(exported: ModelOutputExport): ModelRunTable {
+    Perf.query.build_table.start();
     let table: ModelRunTable = {
         rows: {
             x: [],
@@ -75,6 +77,7 @@ export function buildModelRunTable(exported: ModelOutputExport): ModelRunTable {
                     });
                 });
         });
+    Perf.query.build_table.stop();
     return table;
 }
 
