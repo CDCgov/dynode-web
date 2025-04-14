@@ -448,11 +448,16 @@ mod test {
             editable: true,
             doses: 1,
             start: 0.0,
+            start2_delay: 0.0,
+            fraction2: 0.0,
             administration_rate: 1_000_000.0,
             doses_available: 20_000_000.0,
             ve_s: 0.5,
             ve_i: 0.5,
             ve_p: 0.5,
+            ve_2s: 0.75,
+            ve_2i: 0.75,
+            ve_2p: 0.75,
         };
 
         let ttiq_params = TTIQParams {
