@@ -21,7 +21,6 @@ export function match<T, R>(
 }
 
 export function getUrlParam(param: string): string | null {
-    // Adding ?turbo=true to the URL will disable debouncing
     let queryParams = new URLSearchParams(window.location.search);
     return queryParams.get(param);
 }
