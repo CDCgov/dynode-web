@@ -3,9 +3,14 @@ import Select, { Props as OriginalSelectProps, components } from "react-select";
 
 interface SelectInputProps<T> extends OriginalSelectProps {
     valueMap?: Record<string, T> | null;
+    colorTheme?: "light" | "dark";
 }
 
-export function SelectInput<T>({ valueMap, ...props }: SelectInputProps<T>) {
+export function SelectInput<T>({
+    valueMap,
+    colorTheme = "dark",
+    ...props
+}: SelectInputProps<T>) {
     // If you don't wait until the component is attached to the dom
     // (mounted), you will get a console error: Warning: Prop `id` did not match
     // Only rendering after mount ensures that Selects aren't rendered server-side.
@@ -20,103 +25,106 @@ export function SelectInput<T>({ valueMap, ...props }: SelectInputProps<T>) {
 
     // const value = props.value ? valueMap?.[props.value as string] : null;
 
-    const colors = {
-        /*
-         * multiValue(remove)/color:hover
-         */
-        danger: "var(--red)", // light purple
+    const colors =
+        colorTheme === "dark"
+            ? {
+                  /*
+                   * multiValue(remove)/color:hover
+                   */
+                  danger: "var(--red)", // light purple
 
-        /*
-         * multiValue(remove)/backgroundColor(focused)
-         * multiValue(remove)/backgroundColor:hover
-         */
-        dangerLight: "var(--lighter-black)", // Lighter Red
+                  /*
+                   * multiValue(remove)/backgroundColor(focused)
+                   * multiValue(remove)/backgroundColor:hover
+                   */
+                  dangerLight: "var(--lighter-black)", // Lighter Red
 
-        /*
-         * control/backgroundColor
-         * menu/backgroundColor
-         * option/color(selected)
-         */
-        neutral0: "var(--input-bg)",
+                  /*
+                   * control/backgroundColor
+                   * menu/backgroundColor
+                   * option/color(selected)
+                   */
+                  neutral0: "var(--input-bg)",
 
-        /*
-         * control/backgroundColor(disabled)
-         */
-        neutral5: "#44475a", // Current Line (Dracula)
+                  /*
+                   * control/backgroundColor(disabled)
+                   */
+                  neutral5: "#44475a", // Current Line (Dracula)
 
-        /*
-         * control/borderColor(disabled)
-         * multiValue/backgroundColor
-         * indicators(separator)/backgroundColor(disabled)
-         */
-        neutral10: "rgb(38, 39, 52)", // Slightly lighter bg
+                  /*
+                   * control/borderColor(disabled)
+                   * multiValue/backgroundColor
+                   * indicators(separator)/backgroundColor(disabled)
+                   */
+                  neutral10: "rgb(38, 39, 52)", // Slightly lighter bg
 
-        /*
-         * control/borderColor
-         * option/color(disabled)
-         * indicators/color
-         * indicators(separator)/backgroundColor
-         * indicators(loading)/color
-         */
-        neutral20: "rgba(0, 0, 0, 0.4)", // Comment Color (Dracula)
+                  /*
+                   * control/borderColor
+                   * option/color(disabled)
+                   * indicators/color
+                   * indicators(separator)/backgroundColor
+                   * indicators(loading)/color
+                   */
+                  neutral20: "rgba(0, 0, 0, 0.4)", // Comment Color (Dracula)
 
-        /*
-         * control/borderColor(focused)
-         * control/borderColor:hover
-         */
-        neutral30: "var(--purple)",
+                  /*
+                   * control/borderColor(focused)
+                   * control/borderColor:hover
+                   */
+                  neutral30: "var(--purple)",
 
-        /*
-         * menu(notice)/color
-         * singleValue/color(disabled)
-         * indicators/color:hover
-         */
-        neutral40: "#ffb86c", // Orange (Dracula)
+                  /*
+                   * menu(notice)/color
+                   * singleValue/color(disabled)
+                   * indicators/color:hover
+                   */
+                  neutral40: "#ffb86c", // Orange (Dracula)
 
-        /*
-         * placeholder/color
-         */
-        neutral50: "#f8f8f2", // Foreground (Dracula)
+                  /*
+                   * placeholder/color
+                   */
+                  neutral50: "#f8f8f2", // Foreground (Dracula)
 
-        /*
-         * indicators/color(focused)
-         * indicators(loading)/color(focused)
-         */
-        neutral60: "var(--purple)",
+                  /*
+                   * indicators/color(focused)
+                   * indicators(loading)/color(focused)
+                   */
+                  neutral60: "var(--purple)",
 
-        neutral70: "var(--purple)",
+                  neutral70: "var(--purple)",
 
-        /*
-         * input/color
-         * multiValue(label)/color
-         * singleValue/color
-         * indicators/color(focused)
-         * indicators/color:hover(focused)
-         */
-        neutral80: "#FFF",
+                  /*
+                   * input/color
+                   * multiValue(label)/color
+                   * singleValue/color
+                   * indicators/color(focused)
+                   * indicators/color:hover(focused)
+                   */
+                  neutral80: "#FFF",
 
-        neutral90: "#FFF",
+                  neutral90: "#FFF",
 
-        /*
-         * control/boxShadow(focused)
-         * control/borderColor(focused)
-         * control/borderColor:hover(focused)
-         * option/backgroundColor(selected)
-         * option/backgroundColor:active(selected)
-         */
-        primary: "var(--purple)",
-        /*
-         * option/backgroundColor(focused)
-         */
-        primary25: "var(--purple)",
+                  /*
+                   * control/boxShadow(focused)
+                   * control/borderColor(focused)
+                   * control/borderColor:hover(focused)
+                   * option/backgroundColor(selected)
+                   * option/backgroundColor:active(selected)
+                   */
+                  primary: "var(--purple)",
+                  /*
+                   * option/backgroundColor(focused)
+                   */
+                  primary25: "var(--purple)",
 
-        /*
-         * option/backgroundColor:active
-         */
-        primary50: "var(--purple)",
+                  /*
+                   * option/backgroundColor:active
+                   */
+                  primary50: "var(--purple)",
 
-        primary75: "#ff79c6", // Pink (Dracula)
-    };
+                  primary75: "#ff79c6", // Pink (Dracula)
+              }
+            : null;
 
     return (
         isMounted && (
@@ -127,9 +135,11 @@ export function SelectInput<T>({ valueMap, ...props }: SelectInputProps<T>) {
                 components={components}
                 theme={(theme) => ({
                     ...theme,
-                    colors: {
-                        ...colors,
-                    },
+                    colors: colors
+                        ? {
+                              ...colors,
+                          }
+                        : theme.colors,
                 })}
             />
         )

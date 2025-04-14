@@ -10,6 +10,7 @@ import { MobileEditor } from "./views/MobileEditor";
 import { Turbo } from "./layout/Turbo";
 import { Detection } from "./views/Detection";
 import { useState } from "react";
+import { DevInfo } from "./views/DevInfo";
 
 export const TABS = [
     { title: "Mitigation", content: () => <EpiCurve /> },
@@ -25,6 +26,11 @@ export const TABS = [
         isDark: true,
         mobileOnly: true,
         content: () => <MobileEditor />,
+    },
+    {
+        title: "Dev Info",
+        devOnly: true,
+        content: () => <DevInfo />,
     },
 ];
 

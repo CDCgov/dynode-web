@@ -15,6 +15,7 @@ import {
     useMemo,
 } from "react";
 import { ModelRunTable, buildModelRunTable } from "./state/modelRuns";
+import { Perf } from "./utils/Perf";
 
 type ParamsContextType = {
     params: Parameters;
@@ -83,7 +84,9 @@ export const ParamsProvider = ({
         modelUpdateDebounceRef.current = setTimeout(
             () => {
                 console.debug("Running model");
+                Perf.model.run.start();
                 let result = buildModelRunTable(model.run(days));
+                Perf.model.run.stop();
                 setModelRuns(result);
                 setRunningState(RunningState.Idle);
             },

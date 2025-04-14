@@ -12,6 +12,7 @@ import {
     DEFAULT_COLORS,
 } from "./plotUtils";
 import { PointTooltip } from "./PointTooltip";
+import { Perf } from "../utils/Perf";
 
 type ObservablePlotType = (HTMLElement | SVGElement) & Plot.Plot;
 
@@ -179,6 +180,7 @@ export function PointPlotInner<
     let widthHeight = useResize(plotRef);
 
     let [data, dataByGroup, dataByX, maxX, maxY] = useMemo(() => {
+        Perf.query.run_query.start();
         let dt: ColumnTable;
         if (dataTable) {
             dt = dataTable;
@@ -209,7 +211,7 @@ export function PointPlotInner<
         let dataByX = dt.groupby("x").objects({
             grouped: true,
         }) as unknown as DataByXMap<P>;
-
+        Perf.query.run_query.stop();
         return [data, dataByGroup, dataByX, maxX, maxY];
     }, [userData, dataTable, userMaxX, userMaxY, groupBy]);
 
@@ -265,7 +267,7 @@ export function PointPlotInner<
                 ])
             );
         }
-
+        Perf.plot.render.start();
         const plot = Plot.plot({
             width,
             height,
@@ -315,6 +317,7 @@ export function PointPlotInner<
         });
 
         plotRef.current.replaceChildren(plot);
+        Perf.plot.render.stop();
         setPlot({ plot, colors: colorMap });
         return () => {
             plot.remove();
