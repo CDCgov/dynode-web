@@ -207,24 +207,30 @@ where
         let mut first_loop = true;
         let mut prev_i_plus_r = SVector::zeros();
         let mut prev_iv_plus_rv = SVector::zeros();
+        let mut prev_iv2_plus_rv2 = SVector::zeros();
         let mut prev_h_cum = SVector::zeros();
         let mut prev_d_cum = SVector::zeros();
 
         for (time, state) in stepper.x_out().iter().zip(stepper.y_out().iter()) {
             let i_plus_r = state.get_i() + state.get_r();
             let iv_plus_rv = state.get_iv() + state.get_rv();
+            let iv2_plus_rv2 = state.get_i2v() + state.get_r2v();
             if first_loop {
                 prev_i_plus_r = i_plus_r;
                 prev_iv_plus_rv = iv_plus_rv;
+                prev_iv2_plus_rv2 = iv2_plus_rv2;
                 prev_h_cum = state.get_h_cum().into();
                 prev_d_cum = state.get_d_cum().into();
                 first_loop = false;
             } else {
                 let new_infections_unvac = i_plus_r - prev_i_plus_r;
                 let new_infections_vac = iv_plus_rv - prev_iv_plus_rv;
-                let new_infections = new_infections_unvac + new_infections_vac;
+                let new_infections_vac2 = iv2_plus_rv2 - prev_iv2_plus_rv2;
+                let new_infections =
+                    new_infections_unvac + new_infections_vac + new_infections_vac2;
                 let new_symptomatic = (new_infections_unvac
-                    + (1.0 - self.parameters.mitigations.vaccine.ve_p) * new_infections_vac)
+                    + (1.0 - self.parameters.mitigations.vaccine.ve_p) * new_infections_vac
+                    + (1.0 - self.parameters.mitigations.vaccine.ve_2p) * new_infections_vac2)
                     .component_mul(&self.parameters.fraction_symptomatic);
                 let new_hospitalizations = state.get_h_cum() - prev_h_cum;
                 let new_deaths = state.get_d_cum() - prev_d_cum;
@@ -241,6 +247,7 @@ where
                 );
                 prev_i_plus_r = i_plus_r;
                 prev_iv_plus_rv = iv_plus_rv;
+                prev_iv2_plus_rv2 = iv2_plus_rv2;
                 prev_h_cum = state.get_h_cum().into();
                 prev_d_cum = state.get_d_cum().into();
             }
@@ -387,7 +394,7 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
         let dto_pre_d = dat_risk
             .component_mul(&self.parameters.fraction_dead)
             // death implicitly includes symptoms
-            .component_mul(&self.ave.pop_eff_p_death_given_symp);
+            .component_mul(&(ones - self.ave.pop_eff_p_death_given_symp));
 
         let dpre_d_to_d_cum = pre_d / self.parameters.death_delay;
 
