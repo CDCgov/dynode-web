@@ -67,7 +67,6 @@ const PerfInternal: PerfObj = {
         let byTrack = performance
             .getEntriesByType("measure")
             .reduce((acc, entry) => {
-                console.log(entry);
                 if (!entry.name.startsWith(PREFIX)) {
                     return acc;
                 }

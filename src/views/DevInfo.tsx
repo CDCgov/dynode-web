@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { getStats, PerfStats, MEASURES, clear } from "../utils/Perf";
 import { SelectInput } from "../forms/SelectInput";
+import { MitigationPlot } from "../plots/MitigationPlot";
+import { Point, useModelRunData } from "../state/modelRuns";
 
 const FILTER_OPTIONS = Object.keys(MEASURES).map((track) => ({
     value: track,
@@ -19,14 +21,16 @@ function getDesc(stat: PerfStats): string {
 }
 
 export function DevInfo() {
+    let modelRunData = useModelRunData();
     let [perfStats, setPerfStats] = useState<PerfStats[]>([]);
     let [activeTracks, setActiveTracks] = useState<string[]>([]);
     useEffect(() => {
         setPerfStats(getStats());
-    }, []);
+    }, [modelRunData]);
 
     return (
         <div>
+            <TestPlot />
             <div
                 style={{
                     display: "flex",
@@ -106,4 +110,23 @@ export function DevInfo() {
             </table>
         </div>
     );
+}
+
+function TestPlot() {
+    return (
+        <div style={{ width: 500, height: 300 }}>
+            <h2>Test Plot</h2>
+            <MitigationPlot
+                yLabel="Incidence"
+                aspectRatio={0.5}
+                ticks={10}
+                filter={infectionIncidence}
+                annotations={false}
+            />
+        </div>
+    );
+}
+
+function infectionIncidence(d: Point): boolean {
+    return d.output_type === "InfectionIncidence";
 }

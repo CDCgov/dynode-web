@@ -20,6 +20,12 @@ export function match<T, R>(
     return defaultCase(value);
 }
 
+export function getUrlParam(param: string): string | null {
+    // Adding ?turbo=true to the URL will disable debouncing
+    let queryParams = new URLSearchParams(window.location.search);
+    return queryParams.get(param);
+}
+
 if (import.meta.vitest) {
     const { test, expect } = import.meta.vitest;
     test("entries", () => {

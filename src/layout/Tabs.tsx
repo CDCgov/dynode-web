@@ -1,12 +1,12 @@
-import { JSX, useEffect, useState } from "react";
 import "./Tabs.css";
 
 interface TabData {
+    id: string;
     title: string;
     isDark?: boolean;
     mobileOnly?: boolean;
     devOnly?: boolean;
-    content: () => JSX.Element;
+    content: () => React.ReactNode;
 }
 export function Tabs({
     tabs,
@@ -17,22 +17,11 @@ export function Tabs({
     setActive: React.Dispatch<React.SetStateAction<number>>;
     tabs: TabData[];
 }) {
-    const [tabContent, setTabContent] = useState(Array<JSX.Element>);
-
-    // TODO<ryl8@cdc.gov> handle tabs props changing
-    useEffect(() => {
-        if (!tabContent[active]) {
-            console.debug("Rendering tab " + active);
-            let newTabContent = [...tabContent];
-            newTabContent[active] = tabs[active].content();
-            setTabContent(newTabContent);
-        }
-    }, [active, tabs, tabContent]);
-
+    const activeTab = tabs[active];
     return (
         <>
             <div className="tabs">
-                {tabs.map(({ title, devOnly }, index) => {
+                {tabs.map(({ id, title, devOnly }, index) => {
                     if (
                         devOnly === true &&
                         import.meta.env.MODE !== "development"
@@ -41,7 +30,7 @@ export function Tabs({
                     }
                     return (
                         <div
-                            key={title}
+                            key={id}
                             className={
                                 "tab" +
                                 (index === active ? " active" : "") +
@@ -55,15 +44,9 @@ export function Tabs({
                 })}
             </div>
 
-            {tabContent.map((content, i) => (
-                <div
-                    className={`tab-wrapper ${tabs[i].isDark ? " dark" : ""}`}
-                    key={i}
-                    style={{ display: i === active ? "" : "none" }}
-                >
-                    {content}
-                </div>
-            ))}
+            <div className={`tab-wrapper ${activeTab.isDark ? " dark" : ""}`}>
+                {activeTab.content()}
+            </div>
         </>
     );
 }

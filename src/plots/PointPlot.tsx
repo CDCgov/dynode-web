@@ -14,7 +14,7 @@ import {
 import { PointTooltip } from "./PointTooltip";
 import { Perf } from "../utils/Perf";
 
-type ObservablePlotType = (HTMLElement | SVGElement) & Plot.Plot;
+export type ObservablePlotType = (HTMLElement | SVGElement) & Plot.Plot;
 
 interface ExtraRenderMarksData {
     xScale: Plot.Scale;
@@ -32,6 +32,8 @@ export interface PointPlotProps<
     groupLabel?: (groupValue: P[G]) => string;
     facetBy?: F;
     facetLabel?: (facetValue: P[F]) => string;
+
+    // Pass a filter function OR filterBy
     filter?: (d: P) => boolean;
 
     // Or, compute the points yourself
@@ -75,12 +77,25 @@ export function PointPlot<
         singleYAxis,
         facetLabel: renderFacet,
     } = props;
+
     let innerProps = { ...props };
 
-    let facetByResults = useMemo(() => {
-        if (!facetBy || !dataTable) return null;
-        const filtered = filter ? dataTable.filter(escape(filter)) : dataTable;
-        const facetedDt = filtered.groupby(
+    let results = useMemo(() => {
+        if (!dataTable) return null;
+
+        let filteredTable: ColumnTable;
+        if (filter) {
+            filteredTable = dataTable.filter(escape(filter));
+        } else {
+            filteredTable = dataTable;
+        }
+
+        if (!facetBy) {
+            return {
+                singleDt: filteredTable,
+            };
+        }
+        const facetedDt = filteredTable.groupby(
             ...[facetBy, groupBy].filter((v) => v !== undefined)
         );
 
@@ -90,7 +105,7 @@ export function PointPlot<
 
         let maxX, maxY;
         if (singleYAxis) {
-            let stats = filtered
+            let stats = filteredTable
                 .groupby(facetBy, "x")
                 .rollup({ y: op.sum("y") })
                 .rollup({
@@ -109,8 +124,8 @@ export function PointPlot<
         };
     }, [dataTable, groupBy, facetBy, singleYAxis, filter]);
 
-    if (facetBy && facetByResults) {
-        let { facetedDt, facetedData, maxX, maxY } = facetByResults;
+    if (facetBy && results && results.facetedData) {
+        let { facetedDt, facetedData, maxX, maxY } = results;
 
         if (typeof maxX === "number") {
             innerProps.maxX = maxX;
@@ -137,20 +152,10 @@ export function PointPlot<
             </div>
         );
     }
-
-    return (
-        <PointPlotInner
-            {...innerProps}
-            dataTable={
-                dataTable && filter
-                    ? dataTable.filter(escape(filter))
-                    : dataTable
-            }
-        />
-    );
+    return <PointPlotInner {...innerProps} dataTable={results?.singleDt} />;
 }
 
-export function PointPlotInner<
+function PointPlotInner<
     P extends BasePoint,
     G extends ValidGroupKey<P> = never,
     F extends ValidGroupKey<P> = never
@@ -343,17 +348,15 @@ export function PointPlotInner<
     return (
         <>
             <div ref={plotRef} />
-            {plot && (
-                <PointTooltip
-                    dataByX={dataByX}
-                    plotRef={plotRef}
-                    plot={plot.plot}
-                    groupBy={groupBy}
-                    groupLabel={groupLabel}
-                    colors={plot.colors}
-                    formatTooltipNumber={formatTooltipNumber}
-                />
-            )}
+            <PointTooltip
+                dataByX={dataByX}
+                plotRef={plotRef}
+                plot={plot?.plot}
+                colors={plot?.colors}
+                groupBy={groupBy}
+                groupLabel={groupLabel}
+                formatTooltipNumber={formatTooltipNumber}
+            />
         </>
     );
 }
