@@ -303,6 +303,13 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
                     .parameters
                     .fraction_symptomatic
                     .component_mul(&self.ave.pop_eff_i_given_symp)),
+        ) + (iv * (1.0 - vax_params.ve_i)).component_mul(
+            &(ones
+                - vax_params.ve_p
+                    * self
+                        .parameters
+                        .fraction_symptomatic
+                        .component_mul(&self.ave.pop_eff_i_given_symp)),
         );
         // + (iv * (1.0 - vax_params.ve_i)).component_mul(&(ones + (1.0 - vax_params.ve_p)))
         // + (i2v * (1.0 - vax_params.ve_2i)).component_mul(&(ones + (1.0 - vax_params.ve_2p)))
@@ -346,12 +353,14 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
         };
 
         // Vaccine administration
+        let u = (s + e + i + r).map(|x| if x == 0.0 { 1.0 } else { x });
+        let v = (sv + ev + iv + rv).map(|x| if x == 0.0 { 1.0 } else { x });
         let ds_to_sv = s
-            .component_div(&(s + e + i + r))
+            .component_div(&u)
             .component_mul(&self.parameters.population_fractions)
             * administration_rate;
         let dsv_to_s2v = sv
-            .component_div(&(sv + ev + iv + rv))
+            .component_div(&v)
             .component_mul(&self.parameters.population_fractions)
             * administration_rate2;
 
@@ -600,9 +609,9 @@ mod test {
             ve_s: 0.5,
             ve_i: 0.5,
             ve_p: 0.5,
-            ve_2s: 0.0,
-            ve_2i: 0.0,
-            ve_2p: 0.0,
+            ve_2s: 0.7,
+            ve_2i: 0.7,
+            ve_2p: 0.7,
             start2_delay: 0.0,
             fraction_2: 0.0,
         };
