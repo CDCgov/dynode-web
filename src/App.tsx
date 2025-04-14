@@ -11,31 +11,43 @@ import { Turbo } from "./layout/Turbo";
 import { Detection } from "./views/Detection";
 import { useState } from "react";
 import { DevInfo } from "./views/DevInfo";
+import { getUrlParam } from "./utils";
 
 export const TABS = [
-    { title: "Mitigation", content: () => <EpiCurve /> },
+    { id: "mitigation", title: "Mitigation", content: () => <EpiCurve /> },
 
     {
+        id: "detection",
         title: "Detection",
         content: () => <Detection />,
     },
-    { title: "Summary", content: () => <SummaryTable /> },
+    { id: "summary", title: "Summary", content: () => <SummaryTable /> },
 
     {
+        id: "editor",
         title: "Editor",
         isDark: true,
         mobileOnly: true,
         content: () => <MobileEditor />,
     },
     {
+        id: "dev",
         title: "Dev Info",
         devOnly: true,
         content: () => <DevInfo />,
     },
 ];
 
+let urlTabId = getUrlParam("tab");
+let initialTabIndex = urlTabId
+    ? TABS.findIndex((tab) => tab.id === urlTabId)
+    : -1;
+if (initialTabIndex === -1) {
+    initialTabIndex = 0;
+}
+
 function App() {
-    const [activeTab, setActiveTab] = useState(0);
+    const [activeTab, setActiveTab] = useState(initialTabIndex);
     const resizeLeft = useResizable({
         axis: "x",
         initial: 250,

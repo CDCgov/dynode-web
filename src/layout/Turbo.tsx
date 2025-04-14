@@ -1,19 +1,14 @@
 import "./Turbo.css";
 import { useParamsContext } from "../ModelState";
 import { useEffect } from "react";
+import { getUrlParam } from "../utils";
 
 const URL_PARAM = "turbo";
-
-function checkUrl() {
-    // Adding ?turbo=true to the URL will disable debouncing
-    let queryParams = new URLSearchParams(window.location.search);
-    return queryParams.get(URL_PARAM) === "true";
-}
 
 export function Turbo() {
     let { setIsTurbo } = useParamsContext();
     useEffect(() => {
-        setIsTurbo(checkUrl());
+        setIsTurbo(getUrlParam(URL_PARAM) === "true");
     }, []);
     return (
         <div className="turbo-hover">

@@ -92,7 +92,7 @@ export const ParamsProvider = ({
             },
             isTurbo ? 0 : 300
         );
-    }, [model, days]);
+    }, [model, days, isTurbo]);
 
     return (
         <ParamsContext.Provider

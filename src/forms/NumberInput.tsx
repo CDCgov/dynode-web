@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import "./NumberInput.css";
+import { RangeInput, RangeInputProps } from "./RangeInput";
 type NumberType = "float" | "int";
 
 function inputToNumber(input: string, numberType: NumberType): number | Error {
@@ -41,7 +42,7 @@ interface NumberInputProps {
     showSaveButton?: boolean;
 }
 
-export const NumberInput: React.FC<NumberInputProps> = ({
+export function NumberInput({
     value,
     onValue,
     range,
@@ -52,7 +53,7 @@ export const NumberInput: React.FC<NumberInputProps> = ({
     numberType = "float",
     showSaveButton = true,
     ...otherProps
-}) => {
+}: NumberInputProps) {
     const [parsedInternal, setParsedInternal] = useState<number | null>(null);
     const [formattedVal, setFormattedVal] = useState<string>("");
     const [errorMessage, setErrorMessage] = useState<string>("");
@@ -67,7 +68,10 @@ export const NumberInput: React.FC<NumberInputProps> = ({
     }, [value, numberType]);
 
     useEffect(() => {
-        if (inputRef.current) {
+        if (
+            inputRef.current &&
+            inputRef.current.validationMessage !== errorMessage
+        ) {
             inputRef.current.setCustomValidity(errorMessage);
         }
     }, [errorMessage]);
@@ -162,108 +166,14 @@ export const NumberInput: React.FC<NumberInputProps> = ({
                             </button>
                         </div>
                     )}
-                    <span className="input-error">{errorMessage}</span>
+                    {errorMessage && (
+                        <span className="input-error">{errorMessage}</span>
+                    )}
                 </>
             )}
         </div>
     );
-};
-
-const LABEL_COLLISION_THRESHOLD = 33;
-
-function formatNumberShort(n: number): string {
-    if (n >= 1_000_000) {
-        return `${(n / 1_000_000).toLocaleString("en-US")}M`;
-    } else if (n >= 10_000) {
-        return `${(n / 1000).toLocaleString("en-US")}k`;
-    }
-    return n.toLocaleString("en-US");
 }
-
-interface RangeInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-    ref?: React.Ref<HTMLInputElement>;
-    value: number;
-    onValue: (val: number) => void;
-    min: number;
-    max: number;
-    step?: number;
-    showMinMaxLabels: boolean;
-}
-
-export const RangeInput: React.FC<RangeInputProps> = ({
-    ref,
-    value,
-    min,
-    max,
-    step,
-    onValue,
-    showMinMaxLabels,
-    ...otherProps
-}) => {
-    let value_pct = ((value - min) / (max - min)) * 100;
-    // This is some nudging around to prevent collisions with the min/max labels
-    let value_pct_shift: string;
-    if (value_pct < LABEL_COLLISION_THRESHOLD) {
-        value_pct_shift = "-7px";
-    } else if (value_pct > 100 - LABEL_COLLISION_THRESHOLD) {
-        value_pct_shift = "calc(-100% + 7px)";
-    } else {
-        value_pct_shift = "-50%";
-    }
-    return (
-        <div className="range-input">
-            <div className="range-input-label">
-                {showMinMaxLabels && (
-                    <span
-                        style={{
-                            display:
-                                value_pct < LABEL_COLLISION_THRESHOLD
-                                    ? "none"
-                                    : "",
-                        }}
-                        className="min"
-                    >
-                        {formatNumberShort(min)}
-                    </span>
-                )}
-                <div className="current-wrapper">
-                    <span
-                        style={{
-                            left: `${value_pct}%`,
-                            transform: `translateX(${value_pct_shift})`,
-                        }}
-                        className="current"
-                    >
-                        {value.toLocaleString("en-US")}
-                    </span>
-                </div>
-                {showMinMaxLabels && (
-                    <span
-                        style={{
-                            display:
-                                value_pct > 100 - LABEL_COLLISION_THRESHOLD
-                                    ? "none"
-                                    : "",
-                        }}
-                        className="max"
-                    >
-                        {formatNumberShort(max)}
-                    </span>
-                )}
-            </div>
-            <input
-                ref={ref}
-                type="range"
-                value={value}
-                min={min}
-                max={max}
-                step={step}
-                onChange={(e) => onValue(parseFloat(e.target.value))}
-                {...otherProps}
-            />
-        </div>
-    );
-};
 
 function addFloat(a: number, b: number): number {
     return Math.round((a + b) * 10000) / 10000;

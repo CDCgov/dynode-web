@@ -5,6 +5,7 @@ import { MitigationType, Parameters } from "@wasm/wasm_dynode";
 import { DataByGroupMap, dodge, getPeakY, ValidGroupKey } from "./plotUtils";
 import { useParams } from "../ModelState";
 import { Point } from "../state/modelRuns";
+import { useCallback, useMemo } from "react";
 
 // These are constants for the lines that appear below the plot
 let ANNOTATION_VERTICAL_LINE_LENGTH = 30;
@@ -14,7 +15,21 @@ let ANNOTATION_LINE_HEIGHT = 14;
 const PRIMARY_COLOR = "#000";
 const SECONDARY_COLOR = "#999";
 
-export function MitigationPlot<F extends ValidGroupKey<Point> = never>({
+const COLORS = (dataByGroup: DataByGroupMap<Point, "mitigation_type">) => {
+    const hasMitigated = dataByGroup.has("Mitigated");
+    return new Map<MitigationType, string>(
+        hasMitigated
+            ? [
+                  ["Unmitigated", SECONDARY_COLOR],
+                  ["Mitigated", PRIMARY_COLOR],
+              ]
+            : [["Unmitigated", PRIMARY_COLOR]]
+    );
+};
+
+export const MitigationPlot = function MitigationPlot<
+    F extends ValidGroupKey<Point> = never
+>({
     annotations: showAnnotations = false,
     ...restProps
 }: Partial<PointPlotProps<Point, "mitigation_type", F>> & {
@@ -22,169 +37,168 @@ export function MitigationPlot<F extends ValidGroupKey<Point> = never>({
 }) {
     let modelRunData = useModelRunData();
     let [params] = useParams();
+    let extraConfig = useMemo(
+        () => ({
+            marginTop: showAnnotations ? 35 : undefined,
+            marginBottom: showAnnotations ? 100 : undefined,
+        }),
+        [showAnnotations]
+    );
+    let renderMarks = useCallback(
+        ((dataByGroup, _, { xScale, yScale }) => {
+            if (!(dataByGroup instanceof Map)) {
+                throw new Error("Must provide grouped data");
+            }
+            let mitigated = dataByGroup.get("Mitigated");
+            let unmitigated = dataByGroup.get("Unmitigated");
+            let marks: Plot.Markish[] = [];
+
+            if (!unmitigated && !unmitigated) return marks;
+
+            // Unmitigated only
+            if (!mitigated) {
+                marks.push(
+                    Plot.line(unmitigated, {
+                        x: "x",
+                        y: "y",
+                        stroke: "mitigation_type",
+                    })
+                );
+                return marks;
+            }
+
+            // Mitigated + Unmitigated
+            marks.push([
+                // Unmitigated, dotted light grey line
+                Plot.line(unmitigated, {
+                    x: "x",
+                    y: "y",
+                    stroke: "mitigation_type",
+                    strokeDasharray: "2, 4",
+                }),
+
+                // Mitigated, solid dark line
+                Plot.line(mitigated, {
+                    x: "x",
+                    y: "y",
+                    stroke: "mitigation_type",
+                }),
+            ]);
+
+            if (!showAnnotations) {
+                return marks;
+            }
+
+            let peakLabels = getPeakLabels(dataByGroup, xScale, yScale);
+            let { annotations, annotationSegments } = getAnnotations({
+                params,
+                dataByGroup,
+                xScale,
+            });
+
+            // Get the inverted length of the vertical line
+            let annotationRuleLength =
+                yScale.invert?.(0) -
+                yScale.invert?.(ANNOTATION_VERTICAL_LINE_LENGTH);
+
+            marks.push([
+                // Horizontal
+                Plot.ruleY(annotations, {
+                    y: -annotationRuleLength,
+                    x1: "startX",
+                    x2: "endX",
+                    stroke: "color",
+                }),
+
+                ...annotations.map((annotation) => [
+                    // Text annotations: Day start-end
+                    Plot.text([annotation], {
+                        text: (d: Annotation) => `Day ${d.startX}–${d.endX}`,
+                        fontFamily: "Public Sans",
+                        fontSize: ANNOTATION_TEXT_SIZE,
+                        fontWeight: "bold",
+                        x: "startX",
+                        y: 0,
+                        dy: annotation.dy,
+                        dx: -1,
+                        fill: "color",
+                        stroke: "white",
+                        textAnchor: "start",
+                        lineAnchor: "bottom",
+                    }),
+
+                    // Text annotations: Description
+                    Plot.text([annotation], {
+                        text: (d: Annotation) => d.description,
+                        fontFamily: "Public Sans",
+                        fontSize: ANNOTATION_TEXT_SIZE,
+                        x: "startX",
+                        y: 0,
+                        dy: annotation.dy + ANNOTATION_LINE_HEIGHT,
+                        dx: -1,
+                        fill: "rgba(0, 0, 0, 0.5)",
+                        stroke: "white",
+                        textAnchor: "start",
+                        lineAnchor: "bottom",
+                    }),
+                ]),
+
+                // Annotation highlighted colored lines
+                ...annotationSegments.map((points, i) => [
+                    Plot.area(points, {
+                        x1: "x",
+                        y1: "y",
+                        y2: -annotationRuleLength,
+                        fill: annotations[i].color,
+                        fillOpacity: 0.2,
+                    }),
+                    Plot.lineY(points, {
+                        x: "x",
+                        y: "y",
+                        stroke: annotations[i].color,
+                        strokeWidth: 3,
+                    }),
+                ]),
+
+                // Labels for each peak
+                Plot.text(peakLabels, {
+                    text: "mitigation_type",
+                    fontFamily: "Public Sans",
+                    // fontWeight: "bold",
+                    fontSize: 12,
+                    textAnchor: "middle",
+                    lineAnchor: "bottom",
+                    x: "x",
+                    y: "y",
+                    dy: -8,
+                    fill: "mitigation_type",
+                    stroke: "white",
+                    strokeWidth: 5,
+                }),
+            ]);
+
+            return marks;
+        }) as PointPlotProps<Point, "mitigation_type", F>["renderMarks"],
+        [showAnnotations, params]
+    );
+
     if (!modelRunData) {
         return null;
     }
     let { dt } = modelRunData;
+
     return (
         <PointPlot
             {...restProps}
             dataTable={dt.table}
             yLabel={restProps.yLabel || ""}
             groupBy="mitigation_type"
-            colors={(dataByGroup) => {
-                const hasMitigated = dataByGroup.has("Mitigated");
-                return new Map<MitigationType, string>(
-                    hasMitigated
-                        ? [
-                              ["Unmitigated", SECONDARY_COLOR],
-                              ["Mitigated", PRIMARY_COLOR],
-                          ]
-                        : [["Unmitigated", PRIMARY_COLOR]]
-                );
-            }}
-            extraConfig={{
-                marginTop: showAnnotations ? 35 : undefined,
-                marginBottom: showAnnotations ? 100 : undefined,
-            }}
-            renderMarks={(dataByGroup, _, { xScale, yScale }) => {
-                if (!(dataByGroup instanceof Map)) {
-                    throw new Error("Must provide grouped data");
-                }
-                let mitigated = dataByGroup.get("Mitigated");
-                let unmitigated = dataByGroup.get("Unmitigated");
-                let marks: Plot.Markish[] = [];
-
-                if (!unmitigated && !unmitigated) return marks;
-
-                // Unmitigated only
-                if (!mitigated) {
-                    marks.push(
-                        Plot.line(unmitigated, {
-                            x: "x",
-                            y: "y",
-                            stroke: "mitigation_type",
-                        })
-                    );
-                    return marks;
-                }
-
-                // Mitigated + Unmitigated
-                marks.push([
-                    // Unmitigated, dotted light grey line
-                    Plot.line(unmitigated, {
-                        x: "x",
-                        y: "y",
-                        stroke: "mitigation_type",
-                        strokeDasharray: "2, 4",
-                    }),
-
-                    // Mitigated, solid dark line
-                    Plot.line(mitigated, {
-                        x: "x",
-                        y: "y",
-                        stroke: "mitigation_type",
-                    }),
-                ]);
-
-                if (!showAnnotations) {
-                    return marks;
-                }
-
-                let peakLabels = getPeakLabels(dataByGroup, xScale, yScale);
-                let { annotations, annotationSegments } = getAnnotations({
-                    params,
-                    dataByGroup,
-                    xScale,
-                });
-
-                // Get the inverted length of the vertical line
-                let annotationRuleLength =
-                    yScale.invert?.(0) -
-                    yScale.invert?.(ANNOTATION_VERTICAL_LINE_LENGTH);
-
-                marks.push([
-                    // Horizontal
-                    Plot.ruleY(annotations, {
-                        y: -annotationRuleLength,
-                        x1: "startX",
-                        x2: "endX",
-                        stroke: "color",
-                    }),
-
-                    ...annotations.map((annotation) => [
-                        // Text annotations: Day start-end
-                        Plot.text([annotation], {
-                            text: (d: Annotation) =>
-                                `Day ${d.startX}–${d.endX}`,
-                            fontFamily: "Public Sans",
-                            fontSize: ANNOTATION_TEXT_SIZE,
-                            fontWeight: "bold",
-                            x: "startX",
-                            y: 0,
-                            dy: annotation.dy,
-                            dx: -1,
-                            fill: "color",
-                            stroke: "white",
-                            textAnchor: "start",
-                            lineAnchor: "bottom",
-                        }),
-
-                        // Text annotations: Description
-                        Plot.text([annotation], {
-                            text: (d: Annotation) => d.description,
-                            fontFamily: "Public Sans",
-                            fontSize: ANNOTATION_TEXT_SIZE,
-                            x: "startX",
-                            y: 0,
-                            dy: annotation.dy + ANNOTATION_LINE_HEIGHT,
-                            dx: -1,
-                            fill: "rgba(0, 0, 0, 0.5)",
-                            stroke: "white",
-                            textAnchor: "start",
-                            lineAnchor: "bottom",
-                        }),
-                    ]),
-
-                    // Annotation highlighted colored lines
-                    ...annotationSegments.map((points, i) => [
-                        Plot.area(points, {
-                            x1: "x",
-                            y1: "y",
-                            y2: -annotationRuleLength,
-                            fill: annotations[i].color,
-                            fillOpacity: 0.2,
-                        }),
-                        Plot.lineY(points, {
-                            x: "x",
-                            y: "y",
-                            stroke: annotations[i].color,
-                            strokeWidth: 3,
-                        }),
-                    ]),
-
-                    // Labels for each peak
-                    Plot.text(peakLabels, {
-                        text: "mitigation_type",
-                        fontFamily: "Public Sans",
-                        // fontWeight: "bold",
-                        fontSize: 12,
-                        textAnchor: "middle",
-                        lineAnchor: "bottom",
-                        x: "x",
-                        y: "y",
-                        dy: -8,
-                        fill: "mitigation_type",
-                        stroke: "white",
-                        strokeWidth: 5,
-                    }),
-                ]);
-
-                return marks;
-            }}
+            colors={COLORS}
+            extraConfig={extraConfig}
+            renderMarks={renderMarks}
         />
     );
-}
+};
 
 function getPeakLabels(
     dataByGroup: DataByGroupMap<Point, "mitigation_type">,

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Tooltip } from "./Tooltip";
-import * as Plot from "@observablehq/plot";
 import { createPortal } from "react-dom";
 import { BasePoint, DataByXMap, ValidGroupKey } from "./plotUtils";
+import { ObservablePlotType } from "./PointPlot";
 
 export function PointTooltip<P extends BasePoint, G extends ValidGroupKey<P>>({
     plotRef,
@@ -14,56 +14,65 @@ export function PointTooltip<P extends BasePoint, G extends ValidGroupKey<P>>({
     formatTooltipNumber,
 }: {
     plotRef: React.RefObject<HTMLElement | null>;
-    plot: (HTMLElement | SVGElement) & Plot.Plot;
+    plot?: ObservablePlotType;
+    colors?: Map<P[G], string>;
     dataByX: DataByXMap<P>;
     groupBy?: G;
     groupLabel?: (groupValue: P[G]) => string;
     yRange?: [number, number];
-    colors: Map<P[G], string>;
+
     formatTooltipNumber?: (num: number) => string;
 }) {
     let [tooltip, setTooltip] = useState<Tooltip<P> | null>(null);
-    let [current, setCurrent] = useState<P[] | null>(null);
+    let [current, setCurrentPoints] = useState<P[] | null>(null);
 
     useEffect(() => {
-        let tooltip: Tooltip<P> | null = null;
-        if (plotRef.current) {
-            let figure = plotRef.current.querySelector("figure");
-            if (!figure) {
-                console.warn("No figure element found in plot");
-            } else {
-                tooltip = new Tooltip({
-                    containerEl: figure,
-                    plot,
-                    pointMap: dataByX,
-                    xProperty: "x",
-                    yProperty: "y",
-                    getColor: (d) =>
-                        (groupBy && colors.get(d[groupBy])) || "black",
-                    renderContent: (_, points) => {
-                        setCurrent(points || null);
-                    },
-                });
-                setTooltip(tooltip);
-            }
-        }
+        const figure = plotRef.current?.querySelector("figure");
+
+        const newTooltip =
+            figure && plot && colors
+                ? new Tooltip({
+                      containerEl: figure,
+                      plot,
+                      pointMap: dataByX,
+                      xProperty: "x",
+                      yProperty: "y",
+                      getColor: (d) =>
+                          groupBy ? colors.get(d[groupBy]) ?? "black" : "black",
+                      renderContent: (_, points) => {
+                          setCurrentPoints(points || null);
+                      },
+                  })
+                : null;
+
+        setTooltip((prev) => {
+            prev?.cleanup();
+            return newTooltip;
+        });
+
         return () => {
-            tooltip?.cleanup();
+            newTooltip?.cleanup();
             setTooltip(null);
         };
     }, [plotRef, plot, dataByX, colors, groupBy]);
 
-    if (!tooltip) return null;
-
-    return createPortal(
-        <PointTooltipInner
-            data={current}
-            groupBy={groupBy}
-            groupLabel={groupLabel}
-            colors={colors}
-            formatTooltipNumber={formatTooltipNumber}
-        />,
-        tooltip.tooltipEl
+    return (
+        <>
+            {tooltip &&
+                colors &&
+                createPortal(
+                    tooltip && (
+                        <PointTooltipInner
+                            data={current}
+                            groupBy={groupBy}
+                            groupLabel={groupLabel}
+                            colors={colors}
+                            formatTooltipNumber={formatTooltipNumber}
+                        />
+                    ),
+                    tooltip.tooltipEl
+                )}
+        </>
     );
 }
 
