@@ -11,7 +11,7 @@
 -   Install node
 -   Run backend tests: `cargo test`
 -   Install frontend: `npm install`
-    -   Because of platform differences, you may need to delete `npm_modules` and `package-lock.json` and run `npm install` again.
+    -   Because of platform differences, you may need to delete `npm_modules` and `package-lock.json` and run `npm install` again: `rm -rf package-lock.json node_modules/ && npm i`
 -   Run frontend tests: `npm test`
 -   Run the frontend: `npm run wasm`
 
