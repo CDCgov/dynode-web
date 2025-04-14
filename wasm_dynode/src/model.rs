@@ -116,7 +116,10 @@ macro_rules! make_state {
 }
 
 make_state!(
-    s, e, i, r, sv, ev, iv, rv, y_cum, pre_h, h_cum, pre_d, d_cum
+    s, e, i, r, // not protected by vaccination
+    sv, ev, iv, rv, // protected by 1 dose
+    sv2, ev2, iv2, rv2, // protected by 2 doses
+    y_cum, pre_h, h_cum, pre_d, d_cum
 );
 
 impl<const N: usize> SEIRModel<N> {
@@ -139,7 +142,7 @@ pub fn p_detect1(n: f64, p: f64) -> f64 {
 
 impl<const N: usize> DynodeModel for SEIRModel<N>
 where
-    [(); 13 * N]: Sized,
+    [(); 17 * N]: Sized,
 {
     fn integrate(&self, days: usize) -> ModelOutput {
         let population_fractions = self.parameters.population_fractions;
