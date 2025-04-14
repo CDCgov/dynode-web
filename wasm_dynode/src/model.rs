@@ -310,11 +310,14 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
                         .parameters
                         .fraction_symptomatic
                         .component_mul(&self.ave.pop_eff_i_given_symp)),
+        ) + (i2v * (1.0 - vax_params.ve_2i)).component_mul(
+            &(ones
+                - vax_params.ve_2p
+                    * self
+                        .parameters
+                        .fraction_symptomatic
+                        .component_mul(&self.ave.pop_eff_i_given_symp)),
         );
-        // + (iv * (1.0 - vax_params.ve_i)).component_mul(&(ones + (1.0 - vax_params.ve_p)))
-        // + (i2v * (1.0 - vax_params.ve_2i)).component_mul(&(ones + (1.0 - vax_params.ve_2p)))
-        // + (iv * (1.0 - vax_params.ve_i) + i2v * (1.0 - vax_params.ve_2i))
-        //     .component_mul(&(ones + (1.0 - vax_params.ve_p) * (ones - self.ave.rr_i)));
 
         let infection_rate = (beta / self.parameters.population)
             * (contact_matrix * i_effective).component_div(&self.parameters.population_fractions);
@@ -353,7 +356,9 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
         };
 
         // Vaccine administration
+        // total number unvaccinated (or 1, if none are) by group
         let u = (s + e + i + r).map(|x| if x == 0.0 { 1.0 } else { x });
+        // total number singly vaccinated (or 1, if none are) by group
         let v = (sv + ev + iv + rv).map(|x| if x == 0.0 { 1.0 } else { x });
         let ds_to_sv = s
             .component_div(&u)
@@ -751,7 +756,12 @@ mod test {
         assert!((model.parameters.fraction_hospitalized[1] - ihr[1]).abs() < 1e-5);
 
         // Check deaths
-        assert!((model.parameters.fraction_dead[0] - ifr[0]).abs() < 1e-5);
+        assert!(
+            (model.parameters.fraction_dead[0] - ifr[0]).abs() < 1e-5,
+            "fraction_dead={:?} ifr={:?}",
+            model.parameters.fraction_dead,
+            ifr
+        );
         assert!((model.parameters.fraction_dead[1] - ifr[1]).abs() < 1e-5);
     }
 
