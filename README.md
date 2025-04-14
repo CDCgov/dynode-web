@@ -7,7 +7,6 @@
 -   Install rust
     -   The nightly channel is specified in the `rust-toolchain.toml`, but you may need to explicitly swith with `rustup override set nightly`
     -   Depending on your OS, you may need to explicitly specify your architecture, e.g., with `rustup target add x86_64-unknown-linux-gnu`
--   Install wasm: `rustup target add wasm`
 -   Install wasm-pack: `curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh`
 -   Install node
 -   Run backend tests: `cargo test`
