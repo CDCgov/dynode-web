@@ -21,6 +21,7 @@ repos:
         name: prettier
         types_or: [markdown]
         entry: npm run prettier
+        args: ["--check"]
         language: system
       - id: eslint
         name: eslint
