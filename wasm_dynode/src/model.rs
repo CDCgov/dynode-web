@@ -137,21 +137,62 @@ pub fn p_detect1(n: f64, p: f64) -> f64 {
     1.0 - (1.0 - p).powi(n as i32)
 }
 
+/// Distribute initial disease states for groups of size `n`, initial numbers
+/// of infections `i0`, and initial numbers of immune `r0`. Immunes take
+/// precedence over infections.
+fn distribute_initials<const N: usize>(
+    n: SVector<f64, N>,
+    i0: SVector<f64, N>,
+    r0: SVector<f64, N>,
+) -> (SVector<f64, N>, SVector<f64, N>, SVector<f64, N>) {
+    let mut s0_out = SVector::<f64, N>::zeros();
+    let mut i0_out = SVector::<f64, N>::zeros();
+    let mut r0_out = SVector::<f64, N>::zeros();
+
+    for j in 0..N {
+        let (ss, ii, rr) = _distribute_initials1(n[j], i0[j], r0[j]);
+        s0_out[j] = ss;
+        i0_out[j] = ii;
+        r0_out[j] = rr;
+    }
+
+    (s0_out, i0_out, r0_out)
+}
+
+/// Distribute initial disease states for a single group with size `n` and a
+/// desired number of initial infections `i0` and initial number immune `r0`.
+/// Immunes take precedence over infections.
+fn _distribute_initials1(n: f64, i0: f64, r0: f64) -> (f64, f64, f64) {
+    if r0 + i0 <= n {
+        (n - i0 - r0, i0, r0)
+    } else if r0 <= n {
+        (0.0, n - r0, r0)
+    } else {
+        panic!(
+            "Do not know how to allocate n={n} i0={i0} r0={r0}",
+            n = n,
+            i0 = i0,
+            r0 = r0
+        );
+    }
+}
+
 impl<const N: usize> DynodeModel for SEIRModel<N>
 where
     [(); 13 * N]: Sized,
 {
     fn integrate(&self, days: usize) -> ModelOutput {
         let population_fractions = self.parameters.population_fractions;
+        let populations = self.parameters.population * population_fractions;
 
         // set up initial state
         let mut initial_state: State<N> = SVector::zeros();
-        let initial_i = self.parameters.initial_infections * population_fractions;
-        let initial_r = self.parameters.population
-            * self.parameters.fraction_initial_immune
-            * population_fractions;
-        initial_state
-            .set_s(&(self.parameters.population * population_fractions - initial_i - initial_r));
+        let (initial_s, initial_i, initial_r) = distribute_initials(
+            populations,
+            self.parameters.initial_infections * population_fractions,
+            self.parameters.fraction_initial_immune * populations,
+        );
+        initial_state.set_s(&initial_s);
         initial_state.set_i(&initial_i);
         initial_state.set_r(&initial_r);
 
@@ -344,12 +385,13 @@ fn get_dominant_eigendata<const N: usize, S: Storage<f64, Const<N>, Const<N>>>(
 #[cfg(test)]
 mod test {
     use float_eq::assert_float_eq;
-    use nalgebra::{DVector, Matrix1, Vector1, matrix};
+    use nalgebra::{DVector, Matrix1, Vector1, Vector2, matrix};
 
     use super::SEIRModel;
     use crate::{
         AntiviralsParams, DynodeModel, MitigationParams, ModelOutput, OutputType, Parameters,
-        TTIQParams, VaccineParams, model::get_dominant_eigendata,
+        TTIQParams, VaccineParams,
+        model::{_distribute_initials1, distribute_initials, get_dominant_eigendata},
     };
 
     #[derive(Debug)]
@@ -394,6 +436,26 @@ mod test {
                 death_rate: death_incidence / params.population,
             }
         }
+    }
+
+    #[test]
+    fn test_distribute_initials() {
+        let n = Vector2::new(100.0, 200.0);
+        let i0 = Vector2::new(10.0, 20.0);
+        let r0 = Vector2::new(5.0, 10.0);
+
+        let (s0, i0_out, r0_out) = distribute_initials(n, i0, r0);
+        assert_float_eq!(s0[0], 85.0, abs <= 1e-5);
+        assert_float_eq!(i0_out[0], 10.0, abs <= 1e-5);
+        assert_float_eq!(r0_out[0], 5.0, abs <= 1e-5);
+    }
+
+    #[test]
+    fn test_distribute_initials_precedence() {
+        let (s, i, r) = _distribute_initials1(100.0, 75.0, 75.0);
+        assert_float_eq!(s, 0.0, abs <= 1e-5);
+        assert_float_eq!(i, 25.0, abs <= 1e-5);
+        assert_float_eq!(r, 75.0, abs <= 1e-5);
     }
 
     // population <- 3.3e8
