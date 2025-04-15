@@ -147,7 +147,9 @@ where
         // set up initial state
         let mut initial_state: State<N> = SVector::zeros();
         let initial_i = self.parameters.initial_infections * population_fractions;
-        let initial_r = self.parameters.initial_immune * population_fractions;
+        let initial_r = self.parameters.population
+            * self.parameters.fraction_initial_immune
+            * population_fractions;
         initial_state
             .set_s(&(self.parameters.population * population_fractions - initial_i - initial_r));
         initial_state.set_i(&initial_i);
@@ -412,7 +414,7 @@ mod test {
             population_fraction_labels: Vector1::new("All".to_string()),
             contact_matrix: Matrix1::new(1.0),
             initial_infections: 1000.0,
-            initial_immune: 0.0,
+            fraction_initial_immune: 0.0,
             r0: 2.0,
             latent_period: 1.0,
             infectious_period: 3.0,
@@ -475,7 +477,7 @@ mod test {
             population_fraction_labels: Vector1::new("All".to_string()),
             contact_matrix: Matrix1::new(1.0),
             initial_infections: 1000.0,
-            initial_immune: 0.0,
+            fraction_initial_immune: 0.0,
             r0: 2.0,
             latent_period: 1.0,
             infectious_period: 3.0,
@@ -586,7 +588,7 @@ mod test {
             population_fraction_labels: Vector1::new("All".to_string()),
             contact_matrix: Matrix1::new(1.0),
             initial_infections: 1_000.0,
-            initial_immune: 0.0,
+            fraction_initial_immune: 0.0,
             r0: 2.0,
             latent_period: 1.0,
             infectious_period: 3.0,
