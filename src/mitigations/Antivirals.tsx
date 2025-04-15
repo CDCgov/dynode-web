@@ -8,11 +8,9 @@ export function AntiviralsEditor() {
     return (
         <div>
             <FormGroup>
-                <label>Antiviral Efficacy: AVEi</label>
-                <div className="input-details">
-                    Prevention of transmission from treated infected
-                </div>
+                <label>Effectiveness against transmission (AVEi)</label>
                 <NumberInput
+                    parameter="mitigations.antivirals.ave_i"
                     range
                     min={0}
                     max={1}
@@ -22,11 +20,9 @@ export function AntiviralsEditor() {
                 />
             </FormGroup>
             <FormGroup>
-                <label>Antiviral Efficacy: AVEp</label>
-                <div className="input-details">
-                    Prevention of hospitalization/death
-                </div>
+                <label>Effectiveness vs. hospitalization & death (AVEp)</label>
                 <NumberInput
+                    parameter="mitigations.antivirals.ave_p"
                     range
                     min={0}
                     max={1}
@@ -38,6 +34,7 @@ export function AntiviralsEditor() {
             <FormGroup>
                 <label>Fraction of cases that seek care</label>
                 <NumberInput
+                    parameter="mitigations.antivirals.fraction_seek_care"
                     range
                     min={0}
                     max={1}
@@ -53,6 +50,7 @@ export function AntiviralsEditor() {
                     Fraction of diagnosed care-seeking outpatient cases
                 </label>
                 <NumberInput
+                    parameter="mitigations.antivirals.fraction_diagnosed_prescribed_outpatient"
                     range
                     min={0}
                     max={1}
@@ -71,6 +69,7 @@ export function AntiviralsEditor() {
                     regimen
                 </label>
                 <NumberInput
+                    parameter="mitigations.antivirals.fraction_adhere"
                     range
                     min={0}
                     max={1}
@@ -86,6 +85,7 @@ export function AntiviralsEditor() {
                     Fraction of hospitalized cases that receive antivirals
                 </label>
                 <NumberInput
+                    parameter="mitigations.antivirals.fraction_diagnosed_prescribed_inpatient"
                     range
                     min={0}
                     max={1}

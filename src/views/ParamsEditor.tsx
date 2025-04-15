@@ -83,6 +83,7 @@ function ScenarioParams() {
             <FormGroup>
                 <label>Initial infections</label>
                 <NumberInput
+                    parameter="initial_infections"
                     min={0}
                     step={100}
                     value={params.initial_infections}
@@ -108,6 +109,7 @@ function ScenarioParams() {
             <FormGroup>
                 <label>R0</label>
                 <NumberInput
+                    parameter="r0"
                     range
                     min={0.8}
                     max={2.2}
@@ -120,6 +122,7 @@ function ScenarioParams() {
             <FormGroup>
                 <label>Latent period</label>
                 <NumberInput
+                    parameter="latent_period"
                     range
                     min={0.5}
                     max={2.5}
@@ -132,6 +135,7 @@ function ScenarioParams() {
             <FormGroup>
                 <label>Infectious period</label>
                 <NumberInput
+                    parameter="infectious_period"
                     range
                     min={1}
                     max={4.5}
@@ -153,6 +157,7 @@ function ScenarioParams() {
                     }
                     renderInput={(value, onValue) => (
                         <NumberInput
+                            parameter="fraction_symptomatic"
                             range
                             min={0.3}
                             max={0.8}
@@ -173,6 +178,7 @@ function ScenarioParams() {
                     }
                     renderInput={(value, onValue) => (
                         <NumberInput
+                            parameter="fraction_hospitalized"
                             min={0.0}
                             max={0.1}
                             step={0.01}
@@ -192,6 +198,7 @@ function ScenarioParams() {
                     }
                     renderInput={(value, onValue) => (
                         <NumberInput
+                            parameter="fraction_dead"
                             min={0.0}
                             max={0.2}
                             step={0.005}
@@ -213,6 +220,7 @@ function DetectionParamsEditor() {
             <FormGroup>
                 <label>Proportion of new symptomatic infections tested</label>
                 <NumberInput
+                    parameter="p_test_sympto"
                     range
                     min={0}
                     max={0.1}
@@ -225,6 +233,7 @@ function DetectionParamsEditor() {
             <FormGroup>
                 <label>Test sensitivity</label>
                 <NumberInput
+                    parameter="test_sensitivity"
                     range
                     min={0}
                     max={1.0}
@@ -241,6 +250,7 @@ function DetectionParamsEditor() {
                     Probability a positive test is forwarded to public health
                 </label>
                 <NumberInput
+                    parameter="p_test_forward"
                     range
                     min={0}
                     max={1.0}
