@@ -1,9 +1,8 @@
-import { entries } from "../utils";
-
-const isDev = process.env.NODE_ENV === "development";
+import { entries, getUrlParam } from "../utils";
 
 const PREFIX = "dw";
 const DELIMITER = "::";
+let isPerfEnabled = getUrlParam("perf") === "true";
 
 export const MEASURES = {
     query: {
@@ -18,97 +17,109 @@ export const MEASURES = {
     },
 };
 
-export type Track = keyof typeof MEASURES;
-export type Measure<T extends Track> = keyof (typeof MEASURES)[T] & string;
+type Track = keyof typeof MEASURES;
+type Measure<T extends Track> = keyof (typeof MEASURES)[T] & string;
 
-export interface PerfStats {
-    track: string;
-    name: string;
-    min: number;
-    max: number;
-    mean: number;
-    count: number;
-}
+const markName = (track: string, measure: string, type: "start" | "end") =>
+    `${PREFIX}${DELIMITER}${track}${DELIMITER}${measure}${DELIMITER}${type}`;
 
-function measureName<T extends Track>(
-    track: T,
-    measure: Measure<T>,
-    type: "start" | "end"
-) {
-    return `${PREFIX}${DELIMITER}${track}${DELIMITER}${measure}${DELIMITER}${type}`;
-}
+let statsCache: Record<string, Record<string, PerfStats>> = {};
 
-interface PerfObj {
-    marks: Record<string, number>;
-    start: (track: Track, measure: keyof (typeof MEASURES)[Track]) => void;
-    stop: (track: Track, measure: keyof (typeof MEASURES)[Track]) => void;
-    stats: () => PerfStats[];
-    clear: () => void;
-}
-
-const PerfInternal: PerfObj = {
-    marks: {},
-    start(track, measure) {
-        performance.mark(measureName(track, measure, "start"));
+export const PerfTools = {
+    enable() {
+        isPerfEnabled = true;
     },
-    stop(track, measure) {
-        performance.measure(measureName(track, measure, "end"), {
-            start: measureName(track, measure, "start"),
+
+    start(track: Track, measure: Measure<Track>) {
+        if (isPerfEnabled) {
+            performance.mark(markName(track, measure, "start"));
+        }
+    },
+
+    stop(track: Track, measure: Measure<Track>) {
+        if (!isPerfEnabled) return;
+        performance.measure(markName(track, measure, "end"), {
+            start: markName(track, measure, "start"),
             detail: {
                 devtools: {
                     dataType: "track-entry",
-                    track: track,
+                    track,
                     trackGroup: "Dynode Web",
                 },
             },
         });
     },
+
     stats(): PerfStats[] {
-        let byTrack = performance
-            .getEntriesByType("measure")
-            .reduce((acc, entry) => {
-                if (!entry.name.startsWith(PREFIX)) {
-                    return acc;
+        const measures = performance.getEntriesByType("measure");
+        const grouped: Record<string, Record<string, number[]>> = {};
+
+        for (const { name, duration } of measures) {
+            if (!name.startsWith(PREFIX)) continue;
+            const [, track, measure] = name.split(DELIMITER);
+            grouped[track] ??= {};
+            grouped[track][measure] ??= [];
+            grouped[track][measure].push(duration);
+        }
+
+        const result: PerfStats[] = [];
+
+        for (const track in MEASURES) {
+            for (const measure in MEASURES[track as Track]) {
+                const durations = grouped[track]?.[measure] ?? [];
+                const prev: PerfStats | undefined =
+                    statsCache[track]?.[measure];
+
+                if (durations.length === 0 && prev) {
+                    result.push(prev);
+                    continue;
                 }
-                let [, track, measure] = entry.name.split(DELIMITER);
-                let duration = entry.duration;
-                if (!acc[track]) {
-                    acc[track] = {};
-                }
-                if (!acc[track][measure]) {
-                    acc[track][measure] = [];
-                }
-                acc[track][measure].push(duration);
-                return acc;
-            }, {} as { [track: string]: { [measure: string]: number[] } });
-        let stats: PerfStats[] = [];
-        for (let track in byTrack) {
-            for (let measure in byTrack[track]) {
-                let durations = byTrack[track][measure];
-                let min = Math.min(...durations);
-                let max = Math.max(...durations);
-                let mean =
-                    durations.reduce((acc, val) => acc + val, 0) /
-                    durations.length;
-                stats.push({
-                    track,
-                    name: measure,
-                    min,
-                    max,
-                    mean,
-                    count: durations.length,
-                });
+                if (durations.length === 0) continue;
+
+                const durationSum = durations.reduce((a, b) => a + b, 0);
+                const count = durations.length + (prev?.count ?? 0);
+                const meanCurrent = durationSum / durations.length;
+                const mean = prev
+                    ? (meanCurrent * durations.length +
+                          prev.mean * prev.count) /
+                      count
+                    : meanCurrent;
+                const min = Math.min(...durations, prev?.min ?? Infinity);
+                const max = Math.max(...durations, prev?.max ?? -Infinity);
+
+                const stat = { track, name: measure, min, max, mean, count };
+                statsCache[track] ??= {};
+                statsCache[track][measure] = stat;
+                result.push(stat);
             }
         }
-        return stats;
+
+        performance.clearMarks();
+        performance.clearMeasures();
+        return result;
     },
+
     clear() {
+        statsCache = {};
         performance.clearMarks();
         performance.clearMeasures();
     },
 };
 
-type PerfMethodMap = {
+export const Perf = Object.fromEntries(
+    entries(MEASURES).map(([track, measures]) => [
+        track,
+        Object.fromEntries(
+            entries(measures).map(([measure]) => [
+                measure,
+                {
+                    start: () => PerfTools.start(track as Track, measure),
+                    stop: () => PerfTools.stop(track as Track, measure),
+                },
+            ])
+        ),
+    ])
+) as {
     [T in Track]: {
         [M in keyof (typeof MEASURES)[T]]: {
             start: () => void;
@@ -117,39 +128,11 @@ type PerfMethodMap = {
     };
 };
 
-const PerfExport: PerfMethodMap = Object.fromEntries(
-    entries(MEASURES).map(([track, measures]) => {
-        const typedTrack = track as Track;
-
-        const measureEntries = entries(measures).map(([measure]) => {
-            return [
-                measure,
-                isDev
-                    ? {
-                          start: () => {
-                              PerfInternal.start(typedTrack, measure);
-                          },
-                          stop: () => {
-                              PerfInternal.stop(typedTrack, measure);
-                          },
-                      }
-                    : {
-                          start: () => {},
-                          stop: () => {},
-                      },
-            ];
-        });
-        return [typedTrack, Object.fromEntries(measureEntries)];
-    })
-) as PerfMethodMap;
-
-// Export with proper typing
-export const Perf: PerfMethodMap = PerfExport as PerfMethodMap;
-
-export function getStats() {
-    return PerfInternal.stats();
-}
-
-export function clear() {
-    PerfInternal.clear();
+export interface PerfStats {
+    track: string;
+    name: string;
+    min: number;
+    max: number;
+    mean: number;
+    count: number;
 }

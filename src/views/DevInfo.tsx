@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { getStats, PerfStats, MEASURES, clear } from "../utils/Perf";
+import { PerfTools, PerfStats, MEASURES } from "../utils/Perf";
 import { SelectInput } from "../forms/SelectInput";
 import { MitigationPlot } from "../plots/MitigationPlot";
 import { Point, useModelRunData } from "../state/modelRuns";
 
+const PRECISION = 1;
 const FILTER_OPTIONS = Object.keys(MEASURES).map((track) => ({
     value: track,
     label: track,
@@ -25,7 +26,8 @@ export function DevInfo() {
     let [perfStats, setPerfStats] = useState<PerfStats[]>([]);
     let [activeTracks, setActiveTracks] = useState<string[]>([]);
     useEffect(() => {
-        setPerfStats(getStats());
+        PerfTools.enable();
+        setPerfStats(PerfTools.stats());
     }, [modelRunData]);
 
     return (
@@ -61,16 +63,17 @@ export function DevInfo() {
                         }}
                     />
                 </div>
+
                 <div>
-                    <button onClick={() => setPerfStats(getStats())}>
-                        Recompute
+                    <button onClick={() => setPerfStats(PerfTools.stats())}>
+                        Enable/Flush
                     </button>
                 </div>
                 <div>
                     <button
                         onClick={() => {
-                            clear();
-                            setPerfStats(getStats());
+                            PerfTools.clear();
+                            setPerfStats(PerfTools.stats());
                         }}
                     >
                         Clear
@@ -100,9 +103,9 @@ export function DevInfo() {
                                 <td title={getDesc(stat)}>
                                     {stat.track}.{stat.name}
                                 </td>
-                                <td>{stat.mean.toFixed(1)}</td>
-                                <td>{stat.min.toFixed(1)}</td>
-                                <td>{stat.max.toFixed(1)}</td>
+                                <td>{stat.mean.toFixed(PRECISION)}</td>
+                                <td>{stat.min.toFixed(PRECISION)}</td>
+                                <td>{stat.max.toFixed(PRECISION)}</td>
                                 <td>{stat.count}</td>
                             </tr>
                         ))}
