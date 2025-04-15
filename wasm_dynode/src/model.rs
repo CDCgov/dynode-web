@@ -323,11 +323,11 @@ fn get_dominant_eigendata<const N: usize, S: Storage<f64, Const<N>, Const<N>>>(
     matrix: &Matrix<f64, Const<N>, Const<N>, S>,
 ) -> (f64, SVector<f64, N>) {
     let mut x = SVector::<f64, N>::from_element(1.0 / N as f64);
-    let mut norm = 1.0 as f64;
+    let mut norm = 1.0;
     loop {
         x = matrix * x;
         let new_norm = x.lp_norm(1);
-        x = x / new_norm;
+        x /= new_norm;
         if (new_norm - norm).abs() < f64::EPSILON {
             return (norm, x);
         } else {

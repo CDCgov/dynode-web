@@ -1,0 +1,52 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-yaml
+      - id: check-toml
+      - id: end-of-file-fixer
+        exclude: "\\.svg$"
+      - id: mixed-line-ending
+      - id: trailing-whitespace
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ["--baseline", ".secrets.baseline"]
+        exclude: package-lock.json
+  - repo: local
+    hooks:
+      - id: prettier
+        name: prettier
+        types_or: [markdown]
+        entry: npm run prettier
+        args: ["--check"]
+        language: system
+      - id: eslint
+        name: eslint
+        entry: npm run lint
+        language: system
+        types: [javascript]
+      - id: clippy
+        name: clippy
+        description: Lint rust files
+        entry: cargo +nightly clippy
+        args: ["--", "-D", "warnings"]
+        language: system
+        types: [rust]
+        pass_filenames: false
+      - id: cargo-check
+        name: cargo check
+        description: Check the rust package
+        entry: cargo +nightly check
+        language: system
+        types: [rust]
+        pass_filenames: false
+      - id: cargo-fmt
+        name: cargo fmt
+        description: Format rust files
+        entry: cargo fmt
+        args: ["--"]
+        language: system
+        types: [rust]
