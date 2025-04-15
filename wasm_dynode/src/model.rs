@@ -368,18 +368,28 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
         let di2v_to_r2v = i2v / eff_infectious_period;
 
         // Vaccine administration
-        let (administration_rate, administration_rate2) = if vax_params.enabled {
-            vaccine_rates_by_dose(
-                x,
-                vax_params.administration_rate,
-                vax_params.start,
-                vax_params.start2_delay,
-                vax_params.fraction_2,
-                vax_params.doses_available,
-            )
-        } else {
-            (0.0, 0.0)
-        };
+        let (administration_rate, administration_rate2) =
+            if vax_params.enabled && vax_params.doses == 1 {
+                vaccine_rates_by_dose(
+                    x,
+                    vax_params.administration_rate,
+                    vax_params.start,
+                    0.0,
+                    0.0,
+                    vax_params.doses_available,
+                )
+            } else if vax_params.enabled && vax_params.doses == 2 {
+                vaccine_rates_by_dose(
+                    x,
+                    vax_params.administration_rate,
+                    vax_params.start,
+                    vax_params.start2_delay,
+                    vax_params.fraction_2,
+                    vax_params.doses_available,
+                )
+            } else {
+                (0.0, 0.0)
+            };
         // total number unvaccinated (or 1, if none are) by group
         let u = (s + e + i + r).map(|x| if x == 0.0 { 1.0 } else { x });
         // total number singly vaccinated (or 1, if none are) by group
@@ -907,6 +917,62 @@ mod test {
         let model = SEIRModel::new(params);
         let results = TestResults::new(&model.parameters, &model.integrate(300));
         assert_float_eq!(results.attack_rate, 0.7672022, abs <= 1e-5);
+    }
+
+    // If using 2-dose parameters, but doses is set to 1, that should be equivalent
+    // to doses set to 2 but no one getting any vaccine
+    #[test]
+    fn test_2dose_vaccine_ignore_dose1() {
+        let mut params1 = Parameters {
+            population: 330_000_000.0,
+            population_fractions: Vector1::new(1.0),
+            population_fraction_labels: Vector1::new("All".to_string()),
+            contact_matrix: Matrix1::new(1.0),
+            initial_infections: 1_000.0,
+            r0: 2.0,
+            latent_period: 1.0,
+            infectious_period: 3.0,
+            mitigations: MitigationParams::default(),
+            fraction_symptomatic: Vector1::new(0.5),
+            fraction_hospitalized: Vector1::new(0.1),
+            hospitalization_delay: 1.0,
+            fraction_dead: Vector1::new(0.01),
+            death_delay: 1.0,
+            p_test_sympto: 0.0,
+            test_sensitivity: 0.90,
+            p_test_forward: 0.90,
+        };
+        let vax_params1 = VaccineParams {
+            enabled: true,
+            editable: true,
+            doses: 2,
+            start: 0.0,
+            start2_delay: 0.0,
+            fraction_2: 0.0,
+            administration_rate: 1_000_000.0,
+            doses_available: 20_000_000.0,
+            ve_s: 0.50,
+            ve_i: 0.50,
+            ve_p: 0.50,
+            ve_2s: 0.75,
+            ve_2i: 0.75,
+            ve_2p: 0.75,
+        };
+        params1.mitigations.vaccine = vax_params1;
+
+        let mut params2 = params1.clone();
+        let mut vax_params2 = vax_params1.clone();
+        vax_params2.doses = 1;
+        vax_params2.fraction_2 = 0.25;
+        params2.mitigations.vaccine = vax_params2;
+
+        let model1 = SEIRModel::new(params1);
+        let model2 = SEIRModel::new(params2);
+
+        let results1 = TestResults::new(&model1.parameters, &model1.integrate(300));
+        let results2 = TestResults::new(&model2.parameters, &model2.integrate(300));
+
+        assert_float_eq!(results1.attack_rate, results2.attack_rate, abs <= 1e-10);
     }
 
     #[test]

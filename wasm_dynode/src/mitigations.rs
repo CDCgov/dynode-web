@@ -11,7 +11,7 @@ pub trait Mitigation {
     fn set_editable(&mut self, editable: bool);
 }
 
-#[derive(Tsify, Debug, Clone, Serialize, Deserialize)]
+#[derive(Tsify, Debug, Clone, Copy, Serialize, Deserialize)]
 #[tsify(into_wasm_abi, from_wasm_abi)]
 pub struct VaccineParams {
     pub enabled: bool,
