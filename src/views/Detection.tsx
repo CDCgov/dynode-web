@@ -50,14 +50,14 @@ export function Detection() {
     return (
         <div>
             <h3>Probability of Detecting at Least One Case</h3>
-            <p className="subtitle mb-2">
+            <p className="subtitle">
                 Given {formatPct(params.p_test_sympto, 1)}% of new symptomatic
                 infections tested, {formatPct(params.p_test_forward)}% of tests
                 forwarded public health, and{" "}
                 {formatPct(params.test_sensitivity)}% test sensitivity.
             </p>
 
-            <h4 className="mb-1">Symptomatic Cases Tested</h4>
+            <h4>Symptomatic Cases Tested</h4>
             <PointPlot<Point>
                 dataTable={dt.table}
                 filter={(d) =>
@@ -123,7 +123,7 @@ export function Detection() {
                 }}
             />
 
-            <h4 className="mb-1 mt-1">Cumulative Probability of Detection</h4>
+            <h4 className="mt-1">Cumulative Probability of Detection</h4>
             <PointPlot
                 data={p_detect}
                 aspectRatio={0.4}

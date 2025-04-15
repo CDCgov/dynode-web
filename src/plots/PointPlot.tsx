@@ -138,9 +138,7 @@ export function PointPlot<
             <div className="row">
                 {[...facetedData.entries()].map(([key], i) => (
                     <div key={i}>
-                        <h4 className="mb-1">
-                            {renderFacet ? renderFacet(key) : `${key}`}
-                        </h4>
+                        <h4>{renderFacet ? renderFacet(key) : `${key}`}</h4>
                         <PointPlotInner
                             {...innerProps}
                             dataTable={facetedDt.filter(

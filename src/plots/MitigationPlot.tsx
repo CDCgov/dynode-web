@@ -114,7 +114,7 @@ export const MitigationPlot = function MitigationPlot<
                     // Text annotations: Day start-end
                     Plot.text([annotation], {
                         text: (d: Annotation) => `Day ${d.startX}–${d.endX}`,
-                        fontFamily: "Public Sans",
+                        fontFamily: "var(--header-font)",
                         fontSize: ANNOTATION_TEXT_SIZE,
                         fontWeight: "bold",
                         x: "startX",
@@ -130,7 +130,7 @@ export const MitigationPlot = function MitigationPlot<
                     // Text annotations: Description
                     Plot.text([annotation], {
                         text: (d: Annotation) => d.description,
-                        fontFamily: "Public Sans",
+                        fontFamily: "var(--header-font)",
                         fontSize: ANNOTATION_TEXT_SIZE,
                         x: "startX",
                         y: 0,
@@ -163,7 +163,7 @@ export const MitigationPlot = function MitigationPlot<
                 // Labels for each peak
                 Plot.text(peakLabels, {
                     text: "mitigation_type",
-                    fontFamily: "Public Sans",
+                    fontFamily: "var(--header-font)",
                     // fontWeight: "bold",
                     fontSize: 12,
                     textAnchor: "middle",
