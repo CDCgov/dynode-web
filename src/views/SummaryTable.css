@@ -6,6 +6,7 @@
     margin: 0;
     font-size: 16px;
 }
+
 .summary-table th,
 .summary-table td {
     white-space: nowrap;
@@ -31,6 +32,7 @@
     font-weight: normal;
     text-transform: uppercase;
     color: var(--summary-table-row-label);
+    padding-bottom: 4px;
 }
 .summary-table .secondary th {
     font-size: 12px;

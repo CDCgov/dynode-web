@@ -39,26 +39,35 @@ main {
     height: 100vh;
     overflow-y: auto;
     flex-grow: 1;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
     overscroll-behavior: none;
 }
 
 main h3,
 main h4 {
     font-family: var(--header-font);
-
-    font-weight: 600;
+    line-height: 1.2;
 }
 main h3 {
     font-size: 22px;
+    font-weight: 500;
+}
+main h3:has(+ .subtitle) {
+    margin-bottom: 0px;
+}
+main h3,
+main h3 + .subtitle {
+    margin-bottom: 18px;
 }
 main h4 {
-    font-weight: 700;
     font-size: 16px;
+    font-weight: 900;
+    margin-bottom: 6px;
 }
-
+main h4:has(+ .subtitle) {
+    margin-bottom: 0px;
+}
 .subtitle {
+    margin-bottom: 12px;
     font-family: var(--header-font);
     font-size: 15px;
     font-weight: 400;

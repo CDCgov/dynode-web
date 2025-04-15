@@ -14,6 +14,7 @@ function SummaryTableInner({
     outputType,
 }: {
     title: string;
+    description: string;
     outputType: OutputType;
 }) {
     let [params] = useParams();
@@ -46,7 +47,7 @@ function SummaryTableInner({
 
     return (
         <div className="summary-table-container mb-3">
-            <h3 className="mb-1">{title}</h3>
+            <h4>{title}</h4>
             <table className="summary-table">
                 <thead>
                     <tr>
@@ -105,17 +106,24 @@ export function SummaryTable() {
         <div className="summaries">
             <SummaryTableInner
                 title="Infections"
+                description="Infections over the entire period"
                 outputType="InfectionIncidence"
             />
             <SummaryTableInner
                 title="Symptomatic Infections"
+                description="Symptomatic infections over the entire period"
                 outputType="SymptomaticIncidence"
             />
             <SummaryTableInner
                 title="Hospitalizations"
+                description="Hospital admissions over the entire period"
                 outputType="HospitalIncidence"
             />
-            <SummaryTableInner title="Deaths" outputType="DeathIncidence" />
+            <SummaryTableInner
+                title="Deaths"
+                description="Deaths over the entire period"
+                outputType="DeathIncidence"
+            />
         </div>
     );
 }
