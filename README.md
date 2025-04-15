@@ -1,8 +1,26 @@
 # Dynode-Web
 
-** This project is currently in the early stages of development and not ready for use in production.**
+**This project is currently in the early stages of development and not ready for use in production.**
 
-**General disclaimer** This repository was created for use by CDC programs to collaborate on public health related projects in support of the [CDC mission](https://www.cdc.gov/about/organization/mission.htm). GitHub is not hosted by the CDC, but is a third party website used by CDC and its partners to share information and collaborate on software. CDC use of GitHub does not imply an endorsement of any one particular service, product, or enterprise.
+## Getting started
+
+-   Install rust
+    -   The nightly channel is specified in the `rust-toolchain.toml`, but you may need to explicitly swith with `rustup override set nightly`
+    -   Depending on your OS, you may need to explicitly specify your architecture, e.g., with `rustup target add x86_64-unknown-linux-gnu`
+-   Install wasm-pack: `curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh`
+-   Install [node](https://nodejs.org/en/download)
+-   Run model tests: `cargo test`
+-   Install frontend: `npm install`
+    -   Because of platform differences, you may need to delete `node_modules` and `package-lock.json` and run `npm install` again: `rm -rf package-lock.json node_modules/ && npm install`
+-   Run frontend tests: `npm run test`
+-   Compile the model to Web Assembly: `npm run wasm`
+-   Run the frontend: `npm run dev`
+
+---
+
+## General disclaimer
+
+This repository was created for use by CDC programs to collaborate on public health related projects in support of the [CDC mission](https://www.cdc.gov/about/organization/mission.htm). GitHub is not hosted by the CDC, but is a third party website used by CDC and its partners to share information and collaborate on software. CDC use of GitHub does not imply an endorsement of any one particular service, product, or enterprise.
 
 ## Public Domain Standard Notice
 
@@ -28,7 +46,7 @@ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE. See the Apache Software License for more details.
 
 You should have received a copy of the Apache Software License along with this
-program. If not, see http://www.apache.org/licenses/LICENSE-2.0.html
+program. If not, see <http://www.apache.org/licenses/LICENSE-2.0.html>
 
 The source code forked from other open source projects will inherit its license.
 
