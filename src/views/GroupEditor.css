@@ -1,17 +1,18 @@
 .group-editor-label {
     display: flex;
+    justify-content: space-between;
     align-items: center;
     margin-bottom: 5px;
 }
 
-.group-editor-label label {
-    flex-grow: 1;
-    margin-bottom: 0;
+.group-editor-label-sync input {
+    width: auto;
 }
 .group-editor-label-sync {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    white-space: nowrap;
+}
+.group-editor-label label {
+    margin-bottom: 0;
 }
 
 .secondary-label {

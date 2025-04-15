@@ -9,11 +9,11 @@
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-    overscroll-behavior: none;
 }
 
 aside {
     flex-shrink: 0;
+    overscroll-behavior: none;
 }
 
 .mobile-editor,
@@ -41,6 +41,7 @@ main {
     flex-grow: 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior: none;
 }
 
 main h3,

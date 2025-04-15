@@ -20,70 +20,83 @@ input:focus + .number-input-save {
     opacity: 1;
 }
 
-input[type="range"] {
+.range {
     -webkit-appearance: none;
     appearance: none;
     background: transparent;
     cursor: pointer;
     width: 100%;
-    padding: 0;
     display: block;
-    height: 12px;
+    padding: 0;
+    height: var(--thumb-size);
+}
+@media (pointer: coarse) {
+    .range {
+        height: var(--thumb-size-mobile);
+    }
 }
 
-/***** Chrome, Safari, Edge *****/
-input[type="range"]::-webkit-slider-runnable-track {
+.range::-webkit-slider-runnable-track {
     background: var(--grey);
     height: 3px;
 }
 
-/******** Firefox ********/
-input[type="range"]::-moz-range-track {
+.range::-moz-range-track {
     background: var(--grey);
     height: 3px;
 }
 
-/***** Thumb Styles *****/
-/***** Chrome, Safari, Edge *****/
-input[type="range"]::-webkit-slider-thumb {
+.range::-webkit-slider-thumb {
     -webkit-appearance: none; /* Override default look */
     appearance: none;
-    margin-top: -6px; /* Centers thumb on the track */
+    margin-top: calc(-0.5 * var(--thumb-size)); /* Centers thumb on the track */
     background-color: var(--purple);
-    height: 14px;
-    width: 14px;
-    border-radius: 14px;
+    height: var(--thumb-size);
+    width: var(--thumb-size);
+    border-radius: var(--thumb-size);
+}
+
+@media (pointer: coarse) {
+    .range::-webkit-slider-thumb {
+        margin-top: calc(-0.5 * var(--thumb-size-mobile));
+        height: var(--thumb-size-mobile);
+        width: var(--thumb-size-mobile);
+        border-radius: var(--thumb-size-mobile);
+    }
 }
 
 /***** Thumb Styles *****/
 /***** Firefox *****/
-input[type="range"]::-moz-range-thumb {
+.range::-moz-range-thumb {
     border: none; /*Removes extra border that FF applies*/
     border-radius: 0; /*Removes default border-radius that FF applies*/
     background-color: var(--purple);
-    height: 14px;
-    width: 14px;
-    border-radius: 14px;
+    height: var(--thumb-size);
+    width: var(--thumb-size);
+    border-radius: var(--thumb-size);
 }
 
 /***** Focus Styles *****/
 /* Removes default focus */
-input[type="range"]:focus {
+.range:focus,
+.range:active {
     outline: none;
     background: none;
 }
 
 /***** Chrome, Safari, Edge *****/
-input[type="range"]:focus::-webkit-slider-thumb {
-    border: 1px solid #fff;
-    outline: 3px solid rgba(122, 97, 212, 0.5);
+.range::-webkit-slider-thumb:hover,
+.range:focus::-webkit-slider-thumb,
+.range:active::-webkit-slider-thumb {
+    border: 2px solid #fff;
     outline-offset: 3px;
 }
 
 /******** Firefox ********/
-input[type="range"]:focus::-moz-range-thumb {
-    border: 1px solid #fff;
-    outline: 3px solid rgba(122, 97, 212, 0.5);
+.range::-moz-range-thumb:hover,
+.range:focus::-moz-range-thumb,
+.range:active::-moz-range-thumb {
+    border: 2px solid #fff;
     outline-offset: 3px;
 }
 

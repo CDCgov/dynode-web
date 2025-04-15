@@ -73,6 +73,7 @@ export const RangeInput = React.memo(
                     </div>
                     <input
                         ref={ref}
+                        className="range"
                         type="range"
                         value={value}
                         min={min}

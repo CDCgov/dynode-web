@@ -26,8 +26,12 @@ const markName = (track: string, measure: string, type: "start" | "end") =>
 let statsCache: Record<string, Record<string, PerfStats>> = {};
 
 export const PerfTools = {
-    enable() {
-        isPerfEnabled = true;
+    isEnabled() {
+        return isPerfEnabled;
+    },
+
+    setEnabled(enabled: boolean) {
+        isPerfEnabled = enabled;
     },
 
     start(track: Track, measure: Measure<Track>) {
