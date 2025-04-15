@@ -143,12 +143,15 @@ where
 {
     fn integrate(&self, days: usize) -> ModelOutput {
         let population_fractions = self.parameters.population_fractions;
+
+        // set up initial state
         let mut initial_state: State<N> = SVector::zeros();
-        initial_state.set_s(
-            &(population_fractions
-                * (self.parameters.population - self.parameters.initial_infections)),
-        );
-        initial_state.set_i(&(population_fractions * self.parameters.initial_infections));
+        let initial_i = self.parameters.initial_infections * population_fractions;
+        let initial_r = self.parameters.initial_immune * population_fractions;
+        initial_state
+            .set_s(&(self.parameters.population * population_fractions - initial_i - initial_r));
+        initial_state.set_i(&initial_i);
+        initial_state.set_r(&initial_r);
 
         let mut stepper = Dopri5::new(self, 0.0, days as f64, 1.0, initial_state, 1e-6, 1e-6);
         let _res = stepper.integrate();
@@ -409,6 +412,7 @@ mod test {
             population_fraction_labels: Vector1::new("All".to_string()),
             contact_matrix: Matrix1::new(1.0),
             initial_infections: 1000.0,
+            initial_immune: 0.0,
             r0: 2.0,
             latent_period: 1.0,
             infectious_period: 3.0,
@@ -471,6 +475,7 @@ mod test {
             population_fraction_labels: Vector1::new("All".to_string()),
             contact_matrix: Matrix1::new(1.0),
             initial_infections: 1000.0,
+            initial_immune: 0.0,
             r0: 2.0,
             latent_period: 1.0,
             infectious_period: 3.0,
@@ -581,6 +586,7 @@ mod test {
             population_fraction_labels: Vector1::new("All".to_string()),
             contact_matrix: Matrix1::new(1.0),
             initial_infections: 1_000.0,
+            initial_immune: 0.0,
             r0: 2.0,
             latent_period: 1.0,
             infectious_period: 3.0,
