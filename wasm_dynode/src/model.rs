@@ -458,6 +458,51 @@ mod test {
         assert_float_eq!(r, 75.0, abs <= 1e-5);
     }
 
+    // Making a proportion x of the population immune (in the absence of vaccination)
+    // is equivalent to decreasing the population size, initial infections, and R0
+    // by x. To compare attack rates, also need to adjust for reduced denominator.
+    #[test]
+    fn test_seir_immune_equivalent() {
+        let fii = 0.25;
+
+        let parameters1 = Parameters {
+            population: 330_000_000.0,
+            population_fractions: Vector1::new(1.0),
+            population_fraction_labels: Vector1::new("All".to_string()),
+            contact_matrix: Matrix1::new(1.0),
+            initial_infections: 1000.0,
+            fraction_initial_immune: fii,
+            r0: 2.0,
+            latent_period: 1.0,
+            infectious_period: 3.0,
+            mitigations: MitigationParams::default(),
+            fraction_symptomatic: Vector1::new(0.5),
+            fraction_hospitalized: Vector1::new(0.0),
+            hospitalization_delay: 1.0,
+            fraction_dead: Vector1::new(0.0),
+            death_delay: 1.0,
+            p_test_sympto: 0.0,
+            test_sensitivity: 0.90,
+            p_test_forward: 0.90,
+        };
+        let mut parameters2 = parameters1.clone();
+        parameters2.fraction_initial_immune = 0.0;
+        parameters2.r0 = parameters1.r0 * (1.0 - fii);
+        parameters2.population = parameters1.population * (1.0 - fii);
+
+        let model1 = SEIRModel::new(parameters1);
+        let model2 = SEIRModel::new(parameters2);
+
+        let results1 = TestResults::new(&model1.parameters, &model1.integrate(300));
+        let results2 = TestResults::new(&model2.parameters, &model2.integrate(300));
+
+        assert_float_eq!(
+            results1.attack_rate,
+            results2.attack_rate * (1.0 - fii),
+            abs <= 1e-10
+        );
+    }
+
     // population <- 3.3e8
     // SEIRTVModel(
     //     simulationLength = 300,
