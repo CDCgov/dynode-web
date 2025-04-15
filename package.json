@@ -8,9 +8,10 @@
         "wasm": "wasm-pack build ./wasm_dynode --target web",
         "prebuild": "npm run wasm",
         "build": "tsc -b && vite build",
-        "prettier": "prettier --write",
+        "prettier": "prettier --check",
         "lint": "eslint .",
-        "test": "vitest run",
+        "test": "vitest",
+        "test_run": "vitest run",
         "coverage": "vitest --coverage",
         "check": "npm run wasm && cargo test && npm run lint && npm run build && npm run test -- --no-watch",
         "preview": "vite preview"
