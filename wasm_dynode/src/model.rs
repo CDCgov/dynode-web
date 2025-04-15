@@ -134,7 +134,7 @@ impl<const N: usize> SEIRModel<N> {
 
 /// Probability of at least 1 success among N trials each with probability p
 pub fn p_detect1(n: f64, p: f64) -> f64 {
-    1.0 - (1.0 - p).powi(n as i32)
+    1.0 - (1.0 - p).powf(n)
 }
 
 impl<const N: usize> DynodeModel for SEIRModel<N>
