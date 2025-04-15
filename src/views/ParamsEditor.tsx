@@ -72,6 +72,7 @@ function ScenarioParams() {
             <FormGroup>
                 <label>Population size</label>
                 <NumberInput
+                    parameter="population"
                     min={0}
                     value={params.population}
                     step={1_000_000}

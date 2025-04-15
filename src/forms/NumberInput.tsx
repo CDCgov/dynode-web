@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import "./NumberInput.css";
 import { RangeInput } from "./RangeInput";
+import {
+    ParameterEditorConfig,
+    ParameterPath,
+} from "../config/parameters.config";
 
 type NumberType = "float" | "int";
 
@@ -36,12 +40,14 @@ interface NumberInputProps {
     showMinMaxLabels?: boolean;
     step?: number;
     value: number;
+    parameter?: ParameterPath;
     onValue: (val: number) => void;
     showSaveButton?: boolean;
 }
 
 export function NumberInput({
     numberType = "float",
+    parameter,
     range,
     min,
     max,
@@ -58,6 +64,9 @@ export function NumberInput({
         formatNumberToDisplay(value, numberType)
     );
     const [errorMessage, setErrorMessage] = useState("");
+
+    let tooltip =
+        parameter && ParameterEditorConfig.getConfig(parameter)?.tooltip;
 
     useEffect(() => {
         setInputValue(formatNumberToDisplay(value, numberType));
@@ -119,6 +128,7 @@ export function NumberInput({
                 onValue={handleRangeChange}
                 min={min}
                 max={max}
+                title={tooltip}
                 showMinMaxLabels={showMinMaxLabels}
                 step={step}
             />
@@ -126,7 +136,7 @@ export function NumberInput({
     }
 
     return (
-        <div className="number-input-wrapper">
+        <div className="number-input-wrapper" title={tooltip}>
             <input
                 ref={inputRef}
                 value={inputValue}
