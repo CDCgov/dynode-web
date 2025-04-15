@@ -136,11 +136,11 @@ impl<const N: usize> Default for MitigationParams<N> {
             vaccine: VaccineParams {
                 enabled: false,
                 editable: true,
-                // note: doses currently has no impact on model logic
                 doses: 1,
                 start: 0.0,
                 start2_delay: 30.0,
-                fraction_2: 0.0,
+                // note that fraction_2 value does not matter if doses=1
+                fraction_2: 0.25,
                 administration_rate: 1_500_000.0,
                 doses_available: 40_000_000.0,
                 ve_s: 0.5,
