@@ -13,7 +13,8 @@
 -   Install frontend: `npm install`
     -   Because of platform differences, you may need to delete `node_modules` and `package-lock.json` and run `npm install` again: `rm -rf package-lock.json node_modules/ && npm install`
 -   Run frontend tests: `npm run test`
--   Run the frontend: `npm run wasm`
+-   Compile the model to Web Assembly: `npm run wasm`
+-   Run the frontend: `npm run dev`
 
 ---
 
