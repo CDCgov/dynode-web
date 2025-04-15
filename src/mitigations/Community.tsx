@@ -15,6 +15,7 @@ export function CommunityEditor() {
             <FormGroup>
                 <label>Day to begin community mitigation</label>
                 <NumberInput
+                    parameter="mitigations.community.start"
                     range
                     min={0}
                     max={days}
@@ -26,6 +27,7 @@ export function CommunityEditor() {
             <FormGroup>
                 <label>Duration of community mitigation</label>
                 <NumberInput
+                    parameter="mitigations.community.duration"
                     range
                     min={1}
                     max={days - start}
@@ -39,6 +41,7 @@ export function CommunityEditor() {
                     initialState={true}
                 >
                     <MatrixInput
+                        parameter="mitigations.community.effectiveness"
                         value={effectiveness}
                         step={0.1}
                         min={0.0}
