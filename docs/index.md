@@ -29,6 +29,11 @@ These compartments currently represent the proportion of the total population $N
 
 ### Parameters
 
+- Model initialization
+    - $N$: total population size
+    - $N_i$: size of each population (so that $N_i/N$ is the proportion of the population in group $i$)
+    - $\mathrm{IU}_\bullet(0)$: number of people initially infected, assumed distributed proportionally across groups
+    - $\mathrm{RU}_\bullet(0)$: number of people initially immune, assumed distributed proportionally across groups
 - Transmission
     - $R_0$: basic reproduction number
     - Derive: $\beta = R_0 / T_I$ (note that this is a population-wide, average scalar)
@@ -67,6 +72,13 @@ These compartments currently represent the proportion of the total population $N
 - proportion of the population initially infected, assumed identical across groups
 - $N$: total population size
 - $N_i$: size of group $i$
+
+### Model initialization
+
+- $\mathrm{IU}_i(0) = \mathrm{IU}_\bullet(0) \times (N_i / N)$
+- $\mathrm{RU}_i(0) = \mathrm{RU}_\bullet(0) \times (N_i / N)$
+- $\mathrm{SU}_i(0) = N_i - \mathrm{IU}_i(0) - \mathrm{RU}_i(0)$
+- All other compartments initialized at 0
 
 ### Equations
 
