@@ -25,8 +25,10 @@ export function GroupEditor({
     return (
         <div>
             <div className="group-editor-label">
-                <label>{label}</label>
-                <span className="group-editor-label-sync secondary-label">
+                <div>
+                    <label>{label}</label>
+                </div>
+                <div className="group-editor-label-sync secondary-label">
                     <input
                         type="checkbox"
                         checked={sync}
@@ -40,7 +42,7 @@ export function GroupEditor({
                         }}
                     />{" "}
                     All
-                </span>
+                </div>
             </div>
             {sync && allSameValue ? (
                 renderInput(value[0], (newValue) => {

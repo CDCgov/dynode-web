@@ -23,12 +23,16 @@ function getDesc(stat: PerfStats): string {
 
 export function DevInfo() {
     let modelRunData = useModelRunData();
+    let [isEnabled, setIsEnabled] = useState(PerfTools.isEnabled());
     let [perfStats, setPerfStats] = useState<PerfStats[]>([]);
     let [activeTracks, setActiveTracks] = useState<string[]>([]);
     useEffect(() => {
-        PerfTools.enable();
+        PerfTools.setEnabled(isEnabled);
+        if (!isEnabled) {
+            PerfTools.clear();
+        }
         setPerfStats(PerfTools.stats());
-    }, [modelRunData]);
+    }, [modelRunData, isEnabled]);
 
     return (
         <div>
@@ -63,10 +67,14 @@ export function DevInfo() {
                         }}
                     />
                 </div>
-
+                <div>
+                    <button onClick={() => setIsEnabled(!isEnabled)}>
+                        {isEnabled ? "Disable" : "Enable"}
+                    </button>
+                </div>
                 <div>
                     <button onClick={() => setPerfStats(PerfTools.stats())}>
-                        Enable/Flush
+                        Flush
                     </button>
                 </div>
                 <div>
