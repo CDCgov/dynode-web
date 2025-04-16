@@ -29,6 +29,11 @@ These compartments currently represent the proportion of the total population $N
 
 ### Parameters
 
+- Model initialization
+    - $N$: total population size
+    - $N_i$: size of each population (so that $N_i/N$ is the proportion of the population in group $i$)
+    - $\mathrm{IU}_\bullet(0)$: number of people initially infected, assumed distributed proportionally across groups
+    - $\mathrm{RU}_\bullet(0)$: number of people initially immune, assumed distributed proportionally across groups
 - Transmission
     - $R_0$: basic reproduction number
     - Derive: $\beta = R_0 / T_I$ (note that this is a population-wide, average scalar)
@@ -64,9 +69,13 @@ These compartments currently represent the proportion of the total population $N
         - Symptomatic and asymptomatic cases are assumed otherwise equal (e.g., equally infectious) so that this fraction does not affect transmission (except via mitigations that depend on symptoms)
     - $\mathrm{IHR}_i$: proportion of infections that result in hospitalization
     - $\mathrm{IFR}_i$: proportion of infections that result in death ("F" is for "fatality"; this is the standard nomenclature)
-- proportion of the population initially infected, assumed identical across groups
-- $N$: total population size
-- $N_i$: size of group $i$
+
+### Model initialization
+
+- $\mathrm{RU}_i(0) = \mathrm{RU}_\bullet(0) \times (N_i / N)$
+- $\mathrm{IU}_i(0) = \mathrm{IU}_\bullet(0) \times (N_i / N)$, with the caveat that, while $\mathrm{RU}_\bullet(0) + \mathrm{IU}_\bullet(0) > N$ is strictly speaking a mathematical impossibility, the current implementation will prefer immunity to infection (e.g., if $\mathrm{RU}_\bullet(0)/N$ is set to 100%, then there will be zero infections at all times)
+- $\mathrm{SU}_i(0) = N_i - \mathrm{IU}_i(0) - \mathrm{RU}_i(0)$
+- All other compartments initialized at 0
 
 ### Equations
 

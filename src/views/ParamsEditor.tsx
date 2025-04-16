@@ -79,7 +79,6 @@ function ScenarioParams() {
                     onValue={(population) => updateParams({ population })}
                 />
             </FormGroup>
-
             <FormGroup>
                 <label>Initial infections</label>
                 <NumberInput
@@ -88,6 +87,20 @@ function ScenarioParams() {
                     value={params.initial_infections}
                     onValue={(initial_infections) =>
                         updateParams({ initial_infections })
+                    }
+                />
+            </FormGroup>
+            <FormGroup>
+                <label>Prior immunity (%)</label>
+                <NumberInput
+                    range
+                    min={0}
+                    max={100}
+                    step={1}
+                    numberType="float"
+                    value={params.fraction_initial_immune * 100}
+                    onValue={(fraction_initial_immune) =>
+                        updateParams({ fraction_initial_immune: fraction_initial_immune / 100 })
                     }
                 />
             </FormGroup>
