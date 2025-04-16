@@ -236,7 +236,7 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
             * (if params.mitigations.ttiq.enabled {
                 (1.0 - params.mitigations.ttiq.p_id_infectious
                     * params.mitigations.ttiq.p_infectious_isolates
-                    * (1.0 - params.mitigations.ttiq.isolation_reduction))
+                    * params.mitigations.ttiq.isolation_reduction)
                     * (1.0
                         - params.mitigations.ttiq.p_contact_trace
                             * params.mitigations.ttiq.p_traced_quarantines)
@@ -492,6 +492,44 @@ mod test {
         let results = TestResults::new(&model.parameters, &model.integrate(300));
         let expected = 0.7583813;
         assert_float_eq!(results.attack_rate, expected, abs <= 1e-5);
+    }
+
+    #[test]
+    // If isolation is perfect, should have no transmission
+    fn test_seir_perfect_isolation() {
+        let mut parameters = Parameters::default();
+        parameters.mitigations.ttiq = TTIQParams {
+            enabled: true,
+            editable: true,
+            p_id_infectious: 1.0,
+            p_infectious_isolates: 1.0,
+            isolation_reduction: 1.0,
+            p_contact_trace: 0.0,
+            p_traced_quarantines: 0.0,
+        };
+
+        let model = SEIRModel::new(parameters);
+        let results = TestResults::new(&model.parameters, &model.integrate(300));
+        assert_float_eq!(results.attack_rate, 0.0, abs <= 1e-10);
+    }
+
+    // If quarantine is perfect, should be no transmission
+    #[test]
+    fn test_seir_perfect_quarantine() {
+        let mut parameters = Parameters::default();
+        parameters.mitigations.ttiq = TTIQParams {
+            enabled: true,
+            editable: true,
+            p_id_infectious: 0.0,
+            p_infectious_isolates: 0.0,
+            isolation_reduction: 0.0,
+            p_contact_trace: 1.0,
+            p_traced_quarantines: 1.0,
+        };
+
+        let model = SEIRModel::new(parameters);
+        let results = TestResults::new(&model.parameters, &model.integrate(300));
+        assert_float_eq!(results.attack_rate, 0.0, abs <= 1e-10);
     }
 
     #[test]
