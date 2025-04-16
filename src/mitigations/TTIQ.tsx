@@ -15,7 +15,7 @@ export function TTIQEditor() {
     return (
         <div>
             <FormGroup>
-                <label>Probability an infectious person will be identified</label>
+                <label>Probability an infectious person becomes aware of their own infection</label>
                 <NumberInput
                     range
                     min={0}
@@ -26,7 +26,7 @@ export function TTIQEditor() {
                 />
             </FormGroup>
             <FormGroup>
-                <label>Probability an infectious person will isolate</label>
+                <label>Probability an aware, infectious person will isolate</label>
                 <NumberInput
                     range
                     min={0}
