@@ -16,6 +16,8 @@ The key dynamical compartments are:
 - $\mathrm{EV}_i$: exposed individuals who were vaccinated and had completed their ramp up period at the time of exposure
 - $\mathrm{IV}_i$: infectious exposed individuals who were vaccinated, etc.
 - $\mathrm{RV}_i$: removed exposed individuals who were vaccinated, etc.
+- $\mathrm{S2V}_i$: susceptible individuals who have received 2 vaccine doses and completed their second ramp-up before exposure
+- $\mathrm{E2V}_i$, $\mathrm{I2V}_i$, $\mathrm{R2V}_i$: as above
 
 There are other compartments, that reflect real epidemiological processes, that do not affect transmission:
 
@@ -44,15 +46,19 @@ These compartments currently represent the proportion of the total population $N
     - $T_H^\mathrm{pre}$: mean delay between infection (i.e., exposure) and hospitalization, among those who are hospitalized
     - $T_D^\mathrm{pre}$: mean delay between infection (i.e., exposure) and death, among those who die
 - Vaccination
-    - $\dot{V}(t)$: time-varying vaccine administration rate (number of people per time)
-    - $t_V$: start of vaccination
     - $\dot{V}_\mathrm{max}$: maximum vaccination rate
     - $V_\mathrm{tot}$: total number of vaccines available
+    - $t_V$: start of (first dose) vaccine administration
+    - $\Delta t_{V2}$: delay from $t_V$ before beginning administration of second doses, constrained between 0 and $V_\mathrm{tot} / \dot{V}_\mathrm{max}$
+    - $\mathrm{Frac2Dose}$: fraction of all doses set aside as second doses, constrained between 0 and $1 - \Delta t_{V2} V_\mathrm{tot} / \dot{V}_\mathrm{max}$
+    - Derive: $\dot{V}_1(t)$: time-varying first dose administration rate (number of people per time)
+    - Derive: $\dot{V}_2(t)$
 - Vaccine efficacy
     - $\mathrm{VE}_S$: efficacy against infection (i.e., being infected)
     - $\mathrm{VE}_I$: efficacy against transmission given infection
     - $\mathrm{VE}_{P,Y|I}$: efficacy against symptoms given infection.
         - At this time, vaccines are assumed to have no _additional_ protection against downstream outcomes. In future iterations, vaccines might provide further protection against hospitalization given symptomatic $\mathrm{VE}_{P,H|Y}$, or protection against death given hospitalization $\mathrm{VE}_{P,D|H}$.
+    - $\mathrm{VE}_{2S}$, etc.: efficacy of two doses (N.B.: this is not an incremental quantity; e.g., we almost certainly require $\mathrm{VE}_{2S} \geq \mathrm{VE}_S$)
 - Antiviral efficacy
     - $\mathrm{AVE}_I$: antiviral effectiveness against transmission given
       infected.
@@ -83,21 +89,42 @@ Let $f(A, B)$ be the flux from compartment $A$ to $B$.
 
 #### Vaccination
 
-All individuals, in any disease state, are eligible for vaccination. Vaccines are distributed equally across groups and states. The model tracks the total number of vaccine doses administered but the effect on the dynamical compartments is only to move susceptible individuals into the vaccinated track of compartments:
+The time-varying, first-dose vaccination rate is equals $\dot{V}_\mathrm{max}$ until second doses begin to be administered, then decreases to a new rate, until doses are exhausted:
 
 ```math
-f(\mathrm{SU}_i, \mathrm{SV}_i) = \frac{\mathrm{SU}}{\mathrm{SU} + \mathrm{EU} + \mathrm{IU} + \mathrm{RU}} \frac{N_i}{N} \dot{V}
-```
-
-where the time-varying vaccination rate is:
-
-```math
-\dot{V}(t) = \begin{cases}
+\dot{V}_1(t) = \begin{cases}
 0 & t < t_V \\
-\dot{V}_\mathrm{max} & (t - t_V) \dot{V}_\mathrm{max} < V_\mathrm{tot} \\
-0 & \text{afterward}
+\dot{V}_\mathrm{max} & t_V \leq t < t_V + \Delta t_{V2} \\
+\left(1 - \frac{\mathrm{Frac2Dose}}{1 - \Delta t_{V2} / t_\mathrm{end}} \right) \dot{V}_\mathrm{max} & t_V + \Delta t_{V2} \leq t < t_\mathrm{end} \\
+0 & t \geq t_\mathrm{end}
 \end{cases}
 ```
+
+where $t_\mathrm{end} = V_\mathrm{tot} / \dot{V}_\mathrm{max}$. The second-dose rate is:
+
+```math
+\dot{V}_2(t) = \begin{cases}
+0 & t < t_V + \Delta t_{V2} \\
+\frac{\mathrm{Frac2Dose}}{1 - \Delta t_{V2} / t_\mathrm{end}} \dot{V}_\mathrm{max} & t_V + \Delta t_{V2} \leq t < t_\mathrm{end} \\
+0 & t \geq t_\mathrm{end}
+\end{cases}
+```
+
+The flux into the vaccine-protected compartments are:
+
+```math
+\begin{align*}
+f(\mathrm{SU}_i, \mathrm{SV}_i) &= \frac{\mathrm{SU}}{\mathrm{SU} + \mathrm{EU} + \mathrm{IU} + \mathrm{RU}} \frac{N_i}{N} \dot{V}_1 \\
+f(\mathrm{SV}_i, \mathrm{S2V}_i) &= \frac{\mathrm{SV}}{\mathrm{SV} + \mathrm{EV} + \mathrm{IV} + \mathrm{RV}} \frac{N_i}{N} \dot{V}_2
+\end{align*}
+```
+
+Individuals keep their vaccine protection status $\mathrm{V}$ or $\mathrm{2V}$ as they transition from $S$ to $E$, $I$, and $R$.
+
+Note that this approach makes two major assumptions:
+
+- The number of individuals in ramp-up periods or infected during the ramp-up is negligible. We do not count those individuals in the denominator number of individuals eligible for vaccination.
+- Individuals who were infected without vaccine protection never cease to demand first-dose vaccines, and those who were infected with a single dose of protection never cease to demand second doses. In other words, vaccines flow into the $\mathrm{EU}$/$\mathrm{IU}$/$\mathrm{RU}$ compartments, but those compartments never leave the denominator of eligibles.
 
 #### Transmission
 
