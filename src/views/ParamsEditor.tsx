@@ -132,7 +132,7 @@ function ScenarioParams() {
 
             <FormGroup>
                 <GroupEditor
-                    label="Percent symptomatic"
+                    label="Symptomatic fraction"
                     value={params.fraction_symptomatic}
                     onValue={(newValue) =>
                         updateParams({ fraction_symptomatic: newValue })
@@ -152,7 +152,7 @@ function ScenarioParams() {
             </FormGroup>
             <FormGroup>
                 <GroupEditor
-                    label="Percent hospitalized"
+                    label="Infection-hospitalization ratio"
                     value={params.fraction_hospitalized}
                     onValue={(newValue) =>
                         updateParams({ fraction_hospitalized: newValue })
@@ -171,7 +171,7 @@ function ScenarioParams() {
             </FormGroup>
             <FormGroup>
                 <GroupEditor
-                    label="Fatality rate"
+                    label="Infection-fatality ratio"
                     value={params.fraction_dead}
                     onValue={(newValue) =>
                         updateParams({ fraction_dead: newValue })

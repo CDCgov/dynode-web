@@ -67,7 +67,7 @@ export function AntiviralsEditor() {
             </FormGroup>
             <FormGroup>
                 <label>
-                    Fraction of individuals that adhere to prescribed antiviral
+                    Fraction of individuals that adhere to prescribed outpatient antiviral
                     regimen
                 </label>
                 <NumberInput
@@ -83,8 +83,7 @@ export function AntiviralsEditor() {
             </FormGroup>
             <FormGroup>
                 <label>
-                    Fraction of hospitalized cases that are diagnosed and
-                    prescribed antivirals
+                    Fraction of hospitalized cases that receive antivirals
                 </label>
                 <NumberInput
                     range

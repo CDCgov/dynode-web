@@ -18,7 +18,7 @@ const PRESETS: Record<string, Preset> = {
         },
     },
     with_vaccines: {
-        label: "With vaccines",
+        label: "With mitigation strategies",
         getParams(): Parameters {
             const base = get_default_parameters();
             base.mitigations.vaccine.enabled = true;
