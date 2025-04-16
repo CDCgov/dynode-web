@@ -95,6 +95,58 @@ export function VaccineEditor() {
                     onValue={(ve_p) => updateParams({ ve_p: ve_p / 100 })}
                 />
             </FormGroup>
+            <FormGroup>
+                <label>Delay to second dose campaign</label>
+                <NumberInput
+                    range
+                    min={0}
+                    max={days}
+                    value={params.start2_delay}
+                    onValue={(start2_delay) => updateParams({ start2_delay })}
+                />
+            </FormGroup>
+            <FormGroup>
+                <label>Fraction of all doses that are second doses</label>
+                <NumberInput
+                    range
+                    min={0}
+                    max={100}
+                    value={params.fraction_2 * 100}
+                    onValue={(fraction_2) =>
+                        updateParams({ fraction_2: fraction_2 / 100 })
+                    }
+                />
+            </FormGroup>
+            <FormGroup>
+                <label>Second dose: Effectiveness against infection</label>
+                <NumberInput
+                    range
+                    min={0}
+                    max={100}
+                    value={params.ve_2s * 100}
+                    onValue={(ve_2s) => updateParams({ ve_2s: ve_2s / 100 })}
+                />
+            </FormGroup>
+            <FormGroup>
+                <label>Second dose: Effectiveness against onward transmission</label>
+                <NumberInput
+                    range
+                    min={0}
+                    max={100}
+                    value={params.ve_2i * 100}
+                    onValue={(ve_2i) => updateParams({ ve_2i: ve_2i / 100 })}
+                />
+            </FormGroup>
+            <FormGroup>
+                <label>Second dose: Effectiveness against illness</label>
+                <NumberInput
+                    range
+                    min={0}
+                    max={100}
+                    value={params.ve_2p * 100}
+                    onValue={(ve_2p) => updateParams({ ve_2p: ve_2p / 100 })}
+                />
+            </FormGroup>
         </div>
     );
 }
