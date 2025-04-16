@@ -194,11 +194,19 @@ fn vaccine_rates_by_dose(
     doses_available: f64,
 ) -> (f64, f64) {
     let duration = doses_available / max_rate;
-    let t_start2 = t_start + start2_delay;
     let t_end = t_start + duration;
-    let rate_frac = fraction_2 / (1.0 - start2_delay / duration);
+    let t_start2 = t_start + start2_delay;
+    // this clamp is a kludge: in fact this error should be caught at the UI level
+    let rate_frac = (fraction_2 / (1.0 - start2_delay / duration))
+        .max(0.0)
+        .min(1.0);
 
-    if t_start <= t && t < t_start2 {
+    assert!(max_rate >= 0.0);
+    assert!(doses_available >= 0.0);
+    assert!(start2_delay >= 0.0);
+    assert!(0.0 <= rate_frac && rate_frac <= 1.0);
+
+    if t_start <= t && t < t_start2 && t < t_end {
         (max_rate, 0.0)
     } else if t_start2 <= t && t < t_end {
         (max_rate * (1.0 - rate_frac), max_rate * rate_frac)
