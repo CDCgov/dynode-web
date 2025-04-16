@@ -236,7 +236,7 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
             * (if params.mitigations.ttiq.enabled {
                 (1.0 - params.mitigations.ttiq.p_id_infectious
                     * params.mitigations.ttiq.p_infectious_isolates
-                    * (1.0 - params.mitigations.ttiq.isolation_reduction))
+                    * params.mitigations.ttiq.isolation_reduction)
                     * (1.0
                         - params.mitigations.ttiq.p_contact_trace
                             * params.mitigations.ttiq.p_traced_quarantines)
@@ -492,6 +492,92 @@ mod test {
         let results = TestResults::new(&model.parameters, &model.integrate(300));
         let expected = 0.7583813;
         assert_float_eq!(results.attack_rate, expected, abs <= 1e-5);
+    }
+
+    #[test]
+    // If isolation is perfect, should have no transmission
+    fn test_seir_perfect_isolation() {
+        let ttiq_params = TTIQParams {
+            enabled: true,
+            editable: true,
+            p_id_infectious: 1.0,
+            p_infectious_isolates: 1.0,
+            isolation_reduction: 1.0,
+            p_contact_trace: 0.0,
+            p_traced_quarantines: 0.0,
+        };
+
+        let default_mitigations = MitigationParams::<1>::default();
+
+        let model = SEIRModel::new(Parameters {
+            population: 330_000_000.0,
+            population_fractions: Vector1::new(1.0),
+            population_fraction_labels: Vector1::new("All".to_string()),
+            contact_matrix: Matrix1::new(1.0),
+            initial_infections: 1000.0,
+            r0: 2.0,
+            latent_period: 1.0,
+            infectious_period: 3.0,
+            mitigations: MitigationParams {
+                vaccine: default_mitigations.vaccine,
+                antivirals: default_mitigations.antivirals,
+                community: default_mitigations.community,
+                ttiq: ttiq_params,
+            },
+            fraction_symptomatic: Vector1::new(0.5),
+            fraction_hospitalized: Vector1::new(0.0),
+            hospitalization_delay: 1.0,
+            fraction_dead: Vector1::new(0.0),
+            death_delay: 1.0,
+            p_test_sympto: 0.0,
+            test_sensitivity: 0.90,
+            p_test_forward: 0.90,
+        });
+        let results = TestResults::new(&model.parameters, &model.integrate(300));
+        assert_float_eq!(results.attack_rate, 0.0, abs <= 1e-10);
+    }
+
+    // If quarantine is perfect, should be no transmission
+    #[test]
+    fn test_seir_perfect_quarantine() {
+        let ttiq_params = TTIQParams {
+            enabled: true,
+            editable: true,
+            p_id_infectious: 0.0,
+            p_infectious_isolates: 0.0,
+            isolation_reduction: 0.0,
+            p_contact_trace: 1.0,
+            p_traced_quarantines: 1.0,
+        };
+
+        let default_mitigations = MitigationParams::<1>::default();
+
+        let model = SEIRModel::new(Parameters {
+            population: 330_000_000.0,
+            population_fractions: Vector1::new(1.0),
+            population_fraction_labels: Vector1::new("All".to_string()),
+            contact_matrix: Matrix1::new(1.0),
+            initial_infections: 1000.0,
+            r0: 2.0,
+            latent_period: 1.0,
+            infectious_period: 3.0,
+            mitigations: MitigationParams {
+                vaccine: default_mitigations.vaccine,
+                antivirals: default_mitigations.antivirals,
+                community: default_mitigations.community,
+                ttiq: ttiq_params,
+            },
+            fraction_symptomatic: Vector1::new(0.5),
+            fraction_hospitalized: Vector1::new(0.0),
+            hospitalization_delay: 1.0,
+            fraction_dead: Vector1::new(0.0),
+            death_delay: 1.0,
+            p_test_sympto: 0.0,
+            test_sensitivity: 0.90,
+            p_test_forward: 0.90,
+        });
+        let results = TestResults::new(&model.parameters, &model.integrate(300));
+        assert_float_eq!(results.attack_rate, 0.0, abs <= 1e-10);
     }
 
     #[test]
