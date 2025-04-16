@@ -3009,12 +3009,12 @@ Error generating stack: ` + l.message + `
     function Ct(z, j, H, at) {
       for (var yt = null, Ut = null, _t = j, At = j = 0, Ge = null; _t !== null && At < H.length; At++) {
         _t.index > At ? (Ge = _t, _t = null) : Ge = _t.sibling;
-        var Kt = X(z, _t, H[At], at);
-        if (Kt === null) {
+        var Wt = X(z, _t, H[At], at);
+        if (Wt === null) {
           _t === null && (_t = Ge);
           break;
         }
-        a && _t && Kt.alternate === null && u(z, _t), j = v(Kt, j, At), Ut === null ? yt = Kt : Ut.sibling = Kt, Ut = Kt, _t = Ge;
+        a && _t && Wt.alternate === null && u(z, _t), j = v(Wt, j, At), Ut === null ? yt = Wt : Ut.sibling = Wt, Ut = Wt, _t = Ge;
       }
       if (At === H.length) return l(z, _t), te && ys(z, At), yt;
       if (_t === null) {
@@ -3028,21 +3028,21 @@ Error generating stack: ` + l.message + `
     }
     function Mt(z, j, H, at) {
       if (H == null) throw Error(i(151));
-      for (var yt = null, Ut = null, _t = j, At = j = 0, Ge = null, Kt = H.next(); _t !== null && !Kt.done; At++, Kt = H.next()) {
+      for (var yt = null, Ut = null, _t = j, At = j = 0, Ge = null, Wt = H.next(); _t !== null && !Wt.done; At++, Wt = H.next()) {
         _t.index > At ? (Ge = _t, _t = null) : Ge = _t.sibling;
-        var ja = X(z, _t, Kt.value, at);
+        var ja = X(z, _t, Wt.value, at);
         if (ja === null) {
           _t === null && (_t = Ge);
           break;
         }
         a && _t && ja.alternate === null && u(z, _t), j = v(ja, j, At), Ut === null ? yt = ja : Ut.sibling = ja, Ut = ja, _t = Ge;
       }
-      if (Kt.done) return l(z, _t), te && ys(z, At), yt;
+      if (Wt.done) return l(z, _t), te && ys(z, At), yt;
       if (_t === null) {
-        for (; !Kt.done; At++, Kt = H.next()) Kt = ut(z, Kt.value, at), Kt !== null && (j = v(Kt, j, At), Ut === null ? yt = Kt : Ut.sibling = Kt, Ut = Kt);
+        for (; !Wt.done; At++, Wt = H.next()) Wt = ut(z, Wt.value, at), Wt !== null && (j = v(Wt, j, At), Ut === null ? yt = Wt : Ut.sibling = Wt, Ut = Wt);
         return te && ys(z, At), yt;
       }
-      for (_t = h(_t); !Kt.done; At++, Kt = H.next()) Kt = K(_t, z, At, Kt.value, at), Kt !== null && (a && Kt.alternate !== null && _t.delete(Kt.key === null ? At : Kt.key), j = v(Kt, j, At), Ut === null ? yt = Kt : Ut.sibling = Kt, Ut = Kt);
+      for (_t = h(_t); !Wt.done; At++, Wt = H.next()) Wt = K(_t, z, At, Wt.value, at), Wt !== null && (a && Wt.alternate !== null && _t.delete(Wt.key === null ? At : Wt.key), j = v(Wt, j, At), Ut === null ? yt = Wt : Ut.sibling = Wt, Ut = Wt);
       return a && _t.forEach(function(QD) {
         return u(z, QD);
       }), te && ys(z, At), yt;
@@ -7202,7 +7202,7 @@ function ok(t14, e) {
 function T1(t14, e) {
   return e === "float" ? t14.toLocaleString("en-US", { minimumFractionDigits: 1, maximumFractionDigits: 20 }) : t14.toLocaleString("en-US");
 }
-function Wt({ numberType: t14 = "float", range: e, min: n, max: i, showMinMaxLabels: r = true, step: s, value: o, onValue: c, showSaveButton: f = true, ...d }) {
+function Kt({ numberType: t14 = "float", range: e, min: n, max: i, showMinMaxLabels: r = true, step: s, value: o, onValue: c, showSaveButton: f = true, ...d }) {
   const p = Y.useRef(null), g = Y.useRef(null), [y, b] = Y.useState(T1(o, t14)), [x, _] = Y.useState("");
   Y.useEffect(() => {
     b(T1(o, t14));
@@ -7232,7 +7232,7 @@ function Wt({ numberType: t14 = "float", range: e, min: n, max: i, showMinMaxLab
 function lk(t14, e) {
   return Math.round((t14 + e) * 1e4) / 1e4;
 }
-function Zt({ children: t14 }) {
+function Xt({ children: t14 }) {
   return R.jsx("div", { className: "form-group", children: t14 });
 }
 function Is(t14) {
@@ -9719,7 +9719,7 @@ function rV(t14, e) {
 }
 async function Q8(t14) {
   if (Me !== void 0) return Me;
-  typeof t14 < "u" && (Object.getPrototypeOf(t14) === Object.prototype ? { module_or_path: t14 } = t14 : console.warn("using deprecated parameters for the initialization function; pass a single object instead")), typeof t14 > "u" && (t14 = new URL("/dynode-web/assets/wasm_dynode_bg-CTd0RMHq.wasm", import.meta.url));
+  typeof t14 < "u" && (Object.getPrototypeOf(t14) === Object.prototype ? { module_or_path: t14 } = t14 : console.warn("using deprecated parameters for the initialization function; pass a single object instead")), typeof t14 > "u" && (t14 = new URL("/dynode-web/assets/wasm_dynode_bg-_bmIQ47A.wasm", import.meta.url));
   const e = iV();
   (typeof t14 == "string" || typeof Request == "function" && t14 instanceof Request || typeof URL == "function" && t14 instanceof URL) && (t14 = fetch(t14));
   const { instance: n, module: i } = await nV(await t14, e);
@@ -9842,7 +9842,7 @@ function cV(t14, e, n) {
   for (let s = 0; s < i; ++s) r[s] = t14 + s * n;
   return r;
 }
-const Qt = void 0;
+const Zt = void 0;
 function En(t14) {
   return Array.isArray(t14);
 }
@@ -9873,7 +9873,7 @@ function mV(t14, e) {
   return Wc(t14) ? t14.indexOf(e) : -1;
 }
 function gV(t14, e) {
-  return ts(t14) ? t14.join(e) : Qt;
+  return ts(t14) ? t14.join(e) : Zt;
 }
 function yV(t14, e) {
   return Wc(t14) ? t14.lastIndexOf(e) : -1;
@@ -9882,13 +9882,13 @@ function vV(t14) {
   return Wc(t14) ? t14.length : 0;
 }
 function bV(t14, e) {
-  return ts(t14) ? t14.map((n) => Ni(n) ? n[e] : Qt) : Qt;
+  return ts(t14) ? t14.map((n) => Ni(n) ? n[e] : Zt) : Zt;
 }
 function xV(t14) {
-  return ts(t14) ? t14.slice().reverse() : Ui(t14) ? t14.split("").reverse().join("") : Qt;
+  return ts(t14) ? t14.slice().reverse() : Ui(t14) ? t14.split("").reverse().join("") : Zt;
 }
 function _V(t14, e, n) {
-  return Wc(t14) ? t14.slice(e, n) : Qt;
+  return Wc(t14) ? t14.slice(e, n) : Zt;
 }
 const wV = Object.freeze(Object.defineProperty({ __proto__: null, compact: hV, concat: dV, includes: pV, indexof: mV, join: gV, lastindexof: yV, length: vV, pluck: bV, reverse: xV, slice: _V }, Symbol.toStringTag, { value: "Module" }));
 function Rd(t14, e, n = "0") {
@@ -10155,7 +10155,7 @@ function Xj(t14) {
   return s0(t14) ? wb(t14.entries()) : t14 != null ? Object.entries(t14) : [];
 }
 function Qj(t14) {
-  return t14 ? Object.fromEntries(t14) : Qt;
+  return t14 ? Object.fromEntries(t14) : Zt;
 }
 const Zj = Object.freeze(Object.defineProperty({ __proto__: null, entries: Xj, has: qj, keys: Yj, object: Qj, values: Gj }, Symbol.toStringTag, { value: "Module" }));
 function Kj(t14) {
@@ -10322,26 +10322,26 @@ function s6(t14, e) {
 }
 const c7 = { count: { create: () => Ue({ value: (t14) => t14.count }), param: [] }, array_agg: { create: () => Ue({ init: (t14) => t14.values = true, value: (t14) => t14.list.values(t14.stream) }), param: [1] }, object_agg: { create: () => Ue({ init: (t14) => t14.values = true, value: (t14) => Object.fromEntries(t14.list.values()) }), param: [2] }, map_agg: { create: () => Ue({ init: (t14) => t14.values = true, value: (t14) => new Map(t14.list.values()) }), param: [2] }, entries_agg: { create: () => Ue({ init: (t14) => t14.values = true, value: (t14) => t14.list.values(t14.stream) }), param: [2] }, any: { create: () => Ue({ add: (t14, e) => {
   t14.any == null && (t14.any = e);
-}, value: (t14) => t14.valid ? t14.any : Qt }), param: [1] }, valid: { create: () => Ue({ value: (t14) => t14.valid }), param: [1] }, invalid: { create: () => Ue({ value: (t14) => t14.count - t14.valid }), param: [1] }, distinct: { create: () => ({ init: (t14) => t14.distinct = vU(), value: (t14) => t14.distinct.count() + (t14.valid === t14.count ? 0 : 1), add: (t14, e) => t14.distinct.increment(e), rem: (t14, e) => t14.distinct.decrement(e) }), param: [1] }, array_agg_distinct: { create: () => Ue({ value: (t14) => t14.distinct.values() }), param: [1], req: ["distinct"] }, mode: { create: () => Ue({ value: (t14) => {
-  let e = Qt, n = 0;
+}, value: (t14) => t14.valid ? t14.any : Zt }), param: [1] }, valid: { create: () => Ue({ value: (t14) => t14.valid }), param: [1] }, invalid: { create: () => Ue({ value: (t14) => t14.count - t14.valid }), param: [1] }, distinct: { create: () => ({ init: (t14) => t14.distinct = vU(), value: (t14) => t14.distinct.count() + (t14.valid === t14.count ? 0 : 1), add: (t14, e) => t14.distinct.increment(e), rem: (t14, e) => t14.distinct.decrement(e) }), param: [1] }, array_agg_distinct: { create: () => Ue({ value: (t14) => t14.distinct.values() }), param: [1], req: ["distinct"] }, mode: { create: () => Ue({ value: (t14) => {
+  let e = Zt, n = 0;
   return t14.distinct.forEach((i, r) => {
     r > n && (n = r, e = i);
   }), e;
-} }), param: [1], req: ["distinct"] }, sum: { create: () => ({ init: (t14) => t14.sum = 0, value: (t14) => t14.valid ? t14.sum : Qt, add: (t14, e) => Tc(e) ? t14.sum === 0 ? t14.sum = e : t14.sum += e : t14.sum += +e, rem: (t14, e) => t14.sum -= e }), param: [1] }, product: { create: () => ({ init: (t14) => s6(t14, 1), value: (t14) => t14.valid ? t14.product_v ? s6(t14, bU(t14.list.values())) : t14.product : void 0, add: (t14, e) => Tc(e) && t14.product === 1 ? t14.product = e : t14.product *= e, rem: (t14, e) => e == 0 || e === 1 / 0 || e === -1 / 0 ? t14.product_v = true : t14.product /= e }), param: [1], stream: ["array_agg"] }, mean: { create: () => ({ init: (t14) => t14.mean = 0, value: (t14) => t14.valid ? t14.mean : Qt, add: (t14, e) => {
+} }), param: [1], req: ["distinct"] }, sum: { create: () => ({ init: (t14) => t14.sum = 0, value: (t14) => t14.valid ? t14.sum : Zt, add: (t14, e) => Tc(e) ? t14.sum === 0 ? t14.sum = e : t14.sum += e : t14.sum += +e, rem: (t14, e) => t14.sum -= e }), param: [1] }, product: { create: () => ({ init: (t14) => s6(t14, 1), value: (t14) => t14.valid ? t14.product_v ? s6(t14, bU(t14.list.values())) : t14.product : void 0, add: (t14, e) => Tc(e) && t14.product === 1 ? t14.product = e : t14.product *= e, rem: (t14, e) => e == 0 || e === 1 / 0 || e === -1 / 0 ? t14.product_v = true : t14.product /= e }), param: [1], stream: ["array_agg"] }, mean: { create: () => ({ init: (t14) => t14.mean = 0, value: (t14) => t14.valid ? t14.mean : Zt, add: (t14, e) => {
   t14.mean_d = e - t14.mean, t14.mean += t14.mean_d / t14.valid;
 }, rem: (t14, e) => {
   t14.mean_d = e - t14.mean, t14.mean -= t14.valid ? t14.mean_d / t14.valid : t14.mean;
-} }), param: [1] }, average: { create: () => Ue({ value: (t14) => t14.valid ? t14.mean : Qt }), param: [1], req: ["mean"] }, variance: { create: () => ({ init: (t14) => t14.dev = 0, value: (t14) => t14.valid > 1 ? t14.dev / (t14.valid - 1) : Qt, add: (t14, e) => t14.dev += t14.mean_d * (e - t14.mean), rem: (t14, e) => t14.dev -= t14.mean_d * (e - t14.mean) }), param: [1], req: ["mean"] }, variancep: { create: () => Ue({ value: (t14) => t14.valid > 1 ? t14.dev / t14.valid : Qt }), param: [1], req: ["variance"] }, stdev: { create: () => Ue({ value: (t14) => t14.valid > 1 ? Math.sqrt(t14.dev / (t14.valid - 1)) : Qt }), param: [1], req: ["variance"] }, stdevp: { create: () => Ue({ value: (t14) => t14.valid > 1 ? Math.sqrt(t14.dev / t14.valid) : Qt }), param: [1], req: ["variance"] }, min: { create: () => ({ init: (t14) => t14.min = Qt, value: (t14) => t14.min = Number.isNaN(t14.min) ? t14.list.min() : t14.min, add: (t14, e) => {
-  (e < t14.min || t14.min === Qt) && (t14.min = e);
+} }), param: [1] }, average: { create: () => Ue({ value: (t14) => t14.valid ? t14.mean : Zt }), param: [1], req: ["mean"] }, variance: { create: () => ({ init: (t14) => t14.dev = 0, value: (t14) => t14.valid > 1 ? t14.dev / (t14.valid - 1) : Zt, add: (t14, e) => t14.dev += t14.mean_d * (e - t14.mean), rem: (t14, e) => t14.dev -= t14.mean_d * (e - t14.mean) }), param: [1], req: ["mean"] }, variancep: { create: () => Ue({ value: (t14) => t14.valid > 1 ? t14.dev / t14.valid : Zt }), param: [1], req: ["variance"] }, stdev: { create: () => Ue({ value: (t14) => t14.valid > 1 ? Math.sqrt(t14.dev / (t14.valid - 1)) : Zt }), param: [1], req: ["variance"] }, stdevp: { create: () => Ue({ value: (t14) => t14.valid > 1 ? Math.sqrt(t14.dev / t14.valid) : Zt }), param: [1], req: ["variance"] }, min: { create: () => ({ init: (t14) => t14.min = Zt, value: (t14) => t14.min = Number.isNaN(t14.min) ? t14.list.min() : t14.min, add: (t14, e) => {
+  (e < t14.min || t14.min === Zt) && (t14.min = e);
 }, rem: (t14, e) => {
   e <= t14.min && (t14.min = NaN);
-} }), param: [1], stream: ["array_agg"] }, max: { create: () => ({ init: (t14) => t14.max = Qt, value: (t14) => t14.max = Number.isNaN(t14.max) ? t14.list.max() : t14.max, add: (t14, e) => {
-  (e > t14.max || t14.max === Qt) && (t14.max = e);
+} }), param: [1], stream: ["array_agg"] }, max: { create: () => ({ init: (t14) => t14.max = Zt, value: (t14) => t14.max = Number.isNaN(t14.max) ? t14.list.max() : t14.max, add: (t14, e) => {
+  (e > t14.max || t14.max === Zt) && (t14.max = e);
 }, rem: (t14, e) => {
   e >= t14.max && (t14.max = NaN);
 } }), param: [1], stream: ["array_agg"] }, quantile: { create: (t14) => Ue({ value: (e) => e.list.quantile(t14) }), param: [1, 1], req: ["array_agg"] }, median: { create: () => Ue({ value: (t14) => t14.list.quantile(0.5) }), param: [1], req: ["array_agg"] }, covariance: { create: () => ({ init: (t14) => {
   t14.cov = t14.mean_x = t14.mean_y = t14.dev_x = t14.dev_y = 0;
-}, value: (t14) => t14.valid > 1 ? t14.cov / (t14.valid - 1) : Qt, add: (t14, e, n) => {
+}, value: (t14) => t14.valid > 1 ? t14.cov / (t14.valid - 1) : Zt, add: (t14, e, n) => {
   const i = e - t14.mean_x, r = n - t14.mean_y;
   t14.mean_x += i / t14.valid, t14.mean_y += r / t14.valid;
   const s = n - t14.mean_y;
@@ -10351,7 +10351,7 @@ const c7 = { count: { create: () => Ue({ value: (t14) => t14.count }), param: []
   t14.mean_x -= t14.valid ? i / t14.valid : t14.mean_x, t14.mean_y -= t14.valid ? r / t14.valid : t14.mean_y;
   const s = n - t14.mean_y;
   t14.dev_x -= i * (e - t14.mean_x), t14.dev_y -= r * s, t14.cov -= i * s;
-} }), param: [2] }, covariancep: { create: () => Ue({ value: (t14) => t14.valid > 1 ? t14.cov / t14.valid : Qt }), param: [2], req: ["covariance"] }, corr: { create: () => Ue({ value: (t14) => t14.valid > 1 ? t14.cov / (Math.sqrt(t14.dev_x) * Math.sqrt(t14.dev_y)) : Qt }), param: [2], req: ["covariance"] }, bins: { create: (t14, e, n, i) => Ue({ value: (r) => gU(r.min, r.max, t14, e, n, i) }), param: [1, 4], req: ["min", "max"] } }, u6 = { create() {
+} }), param: [2] }, covariancep: { create: () => Ue({ value: (t14) => t14.valid > 1 ? t14.cov / t14.valid : Zt }), param: [2], req: ["covariance"] }, corr: { create: () => Ue({ value: (t14) => t14.valid > 1 ? t14.cov / (Math.sqrt(t14.dev_x) * Math.sqrt(t14.dev_y)) : Zt }), param: [2], req: ["covariance"] }, bins: { create: (t14, e, n, i) => Ue({ value: (r) => gU(r.min, r.max, t14, e, n, i) }), param: [1, 4], req: ["min", "max"] } }, u6 = { create() {
   let t14;
   return { init: () => t14 = 1, value: (e) => {
     const n = e.index;
@@ -10393,12 +10393,12 @@ const c7 = { count: { create: () => Ue({ value: (t14) => t14.count }), param: []
   t14 = +t14, t14 > 0 || Ce("ntile num must be greater than zero.");
   const { init: e, value: n } = o6.create();
   return { init: e, value: (i) => Math.ceil(t14 * n(i)) };
-}, param: [0, 1] }, lag: { create(t14, e = Qt) {
+}, param: [0, 1] }, lag: { create(t14, e = Zt) {
   return t14 = +t14 || 1, { init: Ur, value: (n, i) => {
     const r = n.index - t14;
     return r >= 0 ? n.value(r, i) : e;
   } };
-}, param: [1, 2] }, lead: { create(t14, e = Qt) {
+}, param: [1, 2] }, lead: { create(t14, e = Zt) {
   return t14 = +t14 || 1, { init: Ur, value: (n, i) => {
     const r = n.index + t14;
     return r < n.size ? n.value(r, i) : e;
@@ -10410,15 +10410,15 @@ const c7 = { count: { create: () => Ue({ value: (t14) => t14.count }), param: []
 }, param: [1] }, nth_value: { create(t14) {
   return t14 = +t14, t14 > 0 || Ce("nth_value nth must be greater than zero."), { init: Ur, value: (e, n) => {
     const i = e.i0 + (t14 - 1);
-    return i < e.i1 ? e.value(i, n) : Qt;
+    return i < e.i1 ? e.value(i, n) : Zt;
   } };
-}, param: [1, 1] }, fill_down: { create(t14 = Qt) {
+}, param: [1, 1] }, fill_down: { create(t14 = Zt) {
   let e;
   return { init: () => e = t14, value: (n, i) => {
     const r = n.value(n.index, i);
     return Ni(r) ? e = r : e;
   } };
-}, param: [1, 1] }, fill_up: { create(t14 = Qt) {
+}, param: [1, 1] }, fill_up: { create(t14 = Zt) {
   let e, n;
   return { init: () => (e = t14, n = -1), value: (i, r) => i.index <= n ? e : (n = xU(i, r, i.index)) >= 0 ? e = i.value(n, r) : (n = i.size, e = t14) };
 }, param: [1, 1] } };
@@ -10456,12 +10456,12 @@ function Mb(t14, e) {
   return t14 < e ? -1 : t14 > e ? 1 : t14 >= e ? 0 : NaN;
 }
 function _U(t14, e = 0, n = t14.length) {
-  let i = n ? t14[e++] : Qt;
+  let i = n ? t14[e++] : Zt;
   for (let r = e; r < n; ++r) i < t14[r] && (i = t14[r]);
   return i;
 }
 function wU(t14, e = 0, n = t14.length) {
-  let i = n ? t14[e++] : Qt;
+  let i = n ? t14[e++] : Zt;
   for (let r = e; r < n; ++r) i > t14[r] && (i = t14[r]);
   return i;
 }
@@ -10470,7 +10470,7 @@ function Jh(t14) {
 }
 function SU(t14, e) {
   const n = t14.length;
-  if (!n) return Qt;
+  if (!n) return Zt;
   if ((e = +e) <= 0 || n < 2) return Jh(t14[0]);
   if (e >= 1) return Jh(t14[n - 1]);
   const i = (n - 1) * e, r = Math.floor(i), s = Jh(t14[r]);
@@ -10799,17 +10799,17 @@ function Jr(t14, e) {
 function oo(t14, e) {
   return t14 < 48 ? t14 === 36 : t14 < 58 ? true : t14 < 65 ? false : t14 < 91 ? true : t14 < 97 ? t14 === 95 : t14 < 123 ? true : t14 <= 65535 ? t14 >= 170 && JU.test(String.fromCharCode(t14)) : e === false ? false : Gy(t14, N7) || Gy(t14, XU);
 }
-var Xt = function(e, n) {
+var Qt = function(e, n) {
   n === void 0 && (n = {}), this.label = e, this.keyword = n.keyword, this.beforeExpr = !!n.beforeExpr, this.startsExpr = !!n.startsExpr, this.isLoop = !!n.isLoop, this.isAssign = !!n.isAssign, this.prefix = !!n.prefix, this.postfix = !!n.postfix, this.binop = n.binop || null, this.updateContext = null;
 };
 function si(t14, e) {
-  return new Xt(t14, { beforeExpr: true, binop: e });
+  return new Qt(t14, { beforeExpr: true, binop: e });
 }
 var ui = { beforeExpr: true }, Rn = { startsExpr: true }, Ob = {};
 function qt(t14, e) {
-  return e === void 0 && (e = {}), e.keyword = t14, Ob[t14] = new Xt(t14, e);
+  return e === void 0 && (e = {}), e.keyword = t14, Ob[t14] = new Qt(t14, e);
 }
-var C = { num: new Xt("num", Rn), regexp: new Xt("regexp", Rn), string: new Xt("string", Rn), name: new Xt("name", Rn), privateId: new Xt("privateId", Rn), eof: new Xt("eof"), bracketL: new Xt("[", { beforeExpr: true, startsExpr: true }), bracketR: new Xt("]"), braceL: new Xt("{", { beforeExpr: true, startsExpr: true }), braceR: new Xt("}"), parenL: new Xt("(", { beforeExpr: true, startsExpr: true }), parenR: new Xt(")"), comma: new Xt(",", ui), semi: new Xt(";", ui), colon: new Xt(":", ui), dot: new Xt("."), question: new Xt("?", ui), questionDot: new Xt("?."), arrow: new Xt("=>", ui), template: new Xt("template"), invalidTemplate: new Xt("invalidTemplate"), ellipsis: new Xt("...", ui), backQuote: new Xt("`", Rn), dollarBraceL: new Xt("${", { beforeExpr: true, startsExpr: true }), eq: new Xt("=", { beforeExpr: true, isAssign: true }), assign: new Xt("_=", { beforeExpr: true, isAssign: true }), incDec: new Xt("++/--", { prefix: true, postfix: true, startsExpr: true }), prefix: new Xt("!/~", { beforeExpr: true, prefix: true, startsExpr: true }), logicalOR: si("||", 1), logicalAND: si("&&", 2), bitwiseOR: si("|", 3), bitwiseXOR: si("^", 4), bitwiseAND: si("&", 5), equality: si("==/!=/===/!==", 6), relational: si("</>/<=/>=", 7), bitShift: si("<</>>/>>>", 8), plusMin: new Xt("+/-", { beforeExpr: true, binop: 9, prefix: true, startsExpr: true }), modulo: si("%", 10), star: si("*", 10), slash: si("/", 10), starstar: new Xt("**", { beforeExpr: true }), coalesce: si("??", 1), _break: qt("break"), _case: qt("case", ui), _catch: qt("catch"), _continue: qt("continue"), _debugger: qt("debugger"), _default: qt("default", ui), _do: qt("do", { isLoop: true, beforeExpr: true }), _else: qt("else", ui), _finally: qt("finally"), _for: qt("for", { isLoop: true }), _function: qt("function", Rn), _if: qt("if"), _return: qt("return", ui), _switch: qt("switch"), _throw: qt("throw", ui), _try: qt("try"), _var: qt("var"), _const: qt("const"), _while: qt("while", { isLoop: true }), _with: qt("with"), _new: qt("new", { beforeExpr: true, startsExpr: true }), _this: qt("this", Rn), _super: qt("super", Rn), _class: qt("class", Rn), _extends: qt("extends", ui), _export: qt("export"), _import: qt("import", Rn), _null: qt("null", Rn), _true: qt("true", Rn), _false: qt("false", Rn), _in: qt("in", { beforeExpr: true, binop: 7 }), _instanceof: qt("instanceof", { beforeExpr: true, binop: 7 }), _typeof: qt("typeof", { beforeExpr: true, prefix: true, startsExpr: true }), _void: qt("void", { beforeExpr: true, prefix: true, startsExpr: true }), _delete: qt("delete", { beforeExpr: true, prefix: true, startsExpr: true }) }, xi = /\r\n?|\n|\u2028|\u2029/, tB = new RegExp(xi.source, "g");
+var C = { num: new Qt("num", Rn), regexp: new Qt("regexp", Rn), string: new Qt("string", Rn), name: new Qt("name", Rn), privateId: new Qt("privateId", Rn), eof: new Qt("eof"), bracketL: new Qt("[", { beforeExpr: true, startsExpr: true }), bracketR: new Qt("]"), braceL: new Qt("{", { beforeExpr: true, startsExpr: true }), braceR: new Qt("}"), parenL: new Qt("(", { beforeExpr: true, startsExpr: true }), parenR: new Qt(")"), comma: new Qt(",", ui), semi: new Qt(";", ui), colon: new Qt(":", ui), dot: new Qt("."), question: new Qt("?", ui), questionDot: new Qt("?."), arrow: new Qt("=>", ui), template: new Qt("template"), invalidTemplate: new Qt("invalidTemplate"), ellipsis: new Qt("...", ui), backQuote: new Qt("`", Rn), dollarBraceL: new Qt("${", { beforeExpr: true, startsExpr: true }), eq: new Qt("=", { beforeExpr: true, isAssign: true }), assign: new Qt("_=", { beforeExpr: true, isAssign: true }), incDec: new Qt("++/--", { prefix: true, postfix: true, startsExpr: true }), prefix: new Qt("!/~", { beforeExpr: true, prefix: true, startsExpr: true }), logicalOR: si("||", 1), logicalAND: si("&&", 2), bitwiseOR: si("|", 3), bitwiseXOR: si("^", 4), bitwiseAND: si("&", 5), equality: si("==/!=/===/!==", 6), relational: si("</>/<=/>=", 7), bitShift: si("<</>>/>>>", 8), plusMin: new Qt("+/-", { beforeExpr: true, binop: 9, prefix: true, startsExpr: true }), modulo: si("%", 10), star: si("*", 10), slash: si("/", 10), starstar: new Qt("**", { beforeExpr: true }), coalesce: si("??", 1), _break: qt("break"), _case: qt("case", ui), _catch: qt("catch"), _continue: qt("continue"), _debugger: qt("debugger"), _default: qt("default", ui), _do: qt("do", { isLoop: true, beforeExpr: true }), _else: qt("else", ui), _finally: qt("finally"), _for: qt("for", { isLoop: true }), _function: qt("function", Rn), _if: qt("if"), _return: qt("return", ui), _switch: qt("switch"), _throw: qt("throw", ui), _try: qt("try"), _var: qt("var"), _const: qt("const"), _while: qt("while", { isLoop: true }), _with: qt("with"), _new: qt("new", { beforeExpr: true, startsExpr: true }), _this: qt("this", Rn), _super: qt("super", Rn), _class: qt("class", Rn), _extends: qt("extends", ui), _export: qt("export"), _import: qt("import", Rn), _null: qt("null", Rn), _true: qt("true", Rn), _false: qt("false", Rn), _in: qt("in", { beforeExpr: true, binop: 7 }), _instanceof: qt("instanceof", { beforeExpr: true, binop: 7 }), _typeof: qt("typeof", { beforeExpr: true, prefix: true, startsExpr: true }), _void: qt("void", { beforeExpr: true, prefix: true, startsExpr: true }), _delete: qt("delete", { beforeExpr: true, prefix: true, startsExpr: true }) }, xi = /\r\n?|\n|\u2028|\u2029/, tB = new RegExp(xi.source, "g");
 function Do(t14) {
   return t14 === 10 || t14 === 13 || t14 === 8232 || t14 === 8233;
 }
@@ -13117,7 +13117,7 @@ Ft.readWord = function() {
   return this.keywords.test(t14) && (e = Ob[t14]), this.finishToken(e, t14);
 };
 var DB = "8.14.1";
-ze.acorn = { Parser: ze, version: DB, defaultOptions: Xy, Position: Cc, SourceLocation: l0, getLineInfo: L7, Node: d0, TokenType: Xt, tokTypes: C, keywordTypes: Ob, TokContext: Ti, tokContexts: ye, isIdentifierChar: oo, isIdentifierStart: Jr, Token: Lb, isNewLine: Do, lineBreak: xi, lineBreakG: tB, nonASCIIwhitespace: k7 };
+ze.acorn = { Parser: ze, version: DB, defaultOptions: Xy, Position: Cc, SourceLocation: l0, getLineInfo: L7, Node: d0, TokenType: Qt, tokTypes: C, keywordTypes: Ob, TokContext: Ti, tokContexts: ye, isIdentifierChar: oo, isIdentifierStart: Jr, Token: Lb, isNewLine: Do, lineBreak: xi, lineBreakG: tB, nonASCIIwhitespace: k7 };
 function kB(t14, e) {
   return ze.parse(t14, e);
 }
@@ -13650,7 +13650,7 @@ function TE(t14, ...e) {
     const c = Array(i);
     let f = 0;
     r.forEach((d) => {
-      const p = d.column(o) || { at: () => Qt };
+      const p = d.column(o) || { at: () => Zt };
       d.scan((g) => c[f++] = p.at(g));
     }), s.add(o, c);
   }), s.new(t14);
@@ -14073,7 +14073,7 @@ function Kz(t14, e, n, ...i) {
 }
 function Wz(t14, e, [n, i], { names: r, exprs: s, ops: o = [] }) {
   const c = Zn(t14), f = t14.totalRows();
-  r.forEach((y) => c.add(y, Array(f).fill(Qt)));
+  r.forEach((y) => c.add(y, Array(f).fill(Zt)));
   const d = NE(e, i), p = Oo(["lr", "rr", "data"], "{" + Jc(r, (y, b) => `_[${b}][lr] = $[${b}](rr, data);`) + "}", r.map((y) => c.data[y]), Ys(e, o, s)), g = e.data();
   return t14.scan((y, b) => {
     const x = d.get(n(y, b));
@@ -14273,7 +14273,7 @@ function AP(t14, e, n) {
   const i = t14.totalRows(), r = [];
   return t14.scan((s, o) => {
     const c = or(e(s, o)), f = Math.min(c.length, n);
-    for (; r.length < f; ) r.push(Array(i).fill(Qt));
+    for (; r.length < f; ) r.push(Array(i).fill(Zt));
     for (let d = 0; d < f; ++d) r[d][s] = c[d];
   }), r;
 }
@@ -16340,10 +16340,10 @@ const L9 = Y.createContext(void 0), vq = ({ initialParams: t14, children: e }) =
 };
 function bq() {
   let [t14] = wi(), [e, n] = S0("vaccine"), [i] = w0(), r = [{ value: 1, label: "One dose" }, { value: 2, label: "Two doses" }];
-  return R.jsxs("div", { children: [R.jsxs(Zt, { children: [R.jsx("label", { children: "Vaccine type" }), R.jsx(G8, { value: r.find((s) => s.value === e.doses), options: r, onChange: (s) => {
+  return R.jsxs("div", { children: [R.jsxs(Xt, { children: [R.jsx("label", { children: "Vaccine type" }), R.jsx(G8, { value: r.find((s) => s.value === e.doses), options: r, onChange: (s) => {
     let o = s == null ? void 0 : s.value;
     o && n({ doses: o });
-  } })] }), R.jsxs(Zt, { children: [R.jsx("label", { children: "Vaccination start" }), R.jsx(Wt, { range: true, min: 0, max: i, value: e.start, onValue: (s) => n({ start: s }) })] }), R.jsxs(Zt, { children: [R.jsx("label", { children: "Vaccine doses available" }), R.jsx(Wt, { range: true, min: 0, step: 1e6, max: t14.population, value: e.doses_available, onValue: (s) => n({ doses_available: s }) })] }), R.jsxs(Zt, { children: [R.jsx("label", { children: "Vaccine administration rate" }), R.jsx(Wt, { range: true, min: 0, max: 3e7, step: 1e6, value: e.administration_rate, onValue: (s) => n({ administration_rate: s }) })] }), R.jsxs(Zt, { children: [R.jsx("label", { children: "Vaccine effectiveness against infection" }), R.jsx(Wt, { range: true, min: 0, max: 100, value: e.ve_s * 100, onValue: (s) => n({ ve_s: s / 100 }) })] }), R.jsxs(Zt, { children: [R.jsx("label", { children: "Vaccine effectiveness against onward transmission" }), R.jsx(Wt, { range: true, min: 0, max: 100, value: e.ve_i * 100, onValue: (s) => n({ ve_i: s / 100 }) })] }), R.jsxs(Zt, { children: [R.jsx("label", { children: "Vaccine effectiveness against illness" }), R.jsx(Wt, { range: true, min: 0, max: 100, value: e.ve_p * 100, onValue: (s) => n({ ve_p: s / 100 }) })] })] });
+  } })] }), R.jsxs(Xt, { children: [R.jsx("label", { children: "Vaccination start" }), R.jsx(Kt, { range: true, min: 0, max: i, value: e.start, onValue: (s) => n({ start: s }) })] }), R.jsxs(Xt, { children: [R.jsx("label", { children: "Vaccine doses available" }), R.jsx(Kt, { range: true, min: 0, step: 1e6, max: t14.population, value: e.doses_available, onValue: (s) => n({ doses_available: s }) })] }), R.jsxs(Xt, { children: [R.jsx("label", { children: "Vaccine administration rate" }), R.jsx(Kt, { range: true, min: 0, max: 3e7, step: 1e6, value: e.administration_rate, onValue: (s) => n({ administration_rate: s }) })] }), R.jsxs(Xt, { children: [R.jsx("label", { children: "Vaccine effectiveness against infection" }), R.jsx(Kt, { range: true, min: 0, max: 100, value: e.ve_s * 100, onValue: (s) => n({ ve_s: s / 100 }) })] }), R.jsxs(Xt, { children: [R.jsx("label", { children: "Vaccine effectiveness against onward transmission" }), R.jsx(Kt, { range: true, min: 0, max: 100, value: e.ve_i * 100, onValue: (s) => n({ ve_i: s / 100 }) })] }), R.jsxs(Xt, { children: [R.jsx("label", { children: "Vaccine effectiveness against illness" }), R.jsx(Kt, { range: true, min: 0, max: 100, value: e.ve_p * 100, onValue: (s) => n({ ve_p: s / 100 }) })] })] });
 }
 function xq({ value: t14, onChange: e, cols: n, rows: i, symmetric: r, step: s, min: o, max: c }) {
   const f = r !== void 0;
@@ -16354,7 +16354,7 @@ function xq({ value: t14, onChange: e, cols: n, rows: i, symmetric: r, step: s, 
   const p = (g, y) => (b) => {
     isNaN(b) || e(d.newValue(g, y, b));
   };
-  return R.jsx(R.Fragment, { children: R.jsxs("table", { children: [R.jsx("thead", { children: R.jsxs("tr", { children: [R.jsx("th", {}), n.map((g, y) => R.jsx("th", { children: g }, y))] }) }), R.jsx("tbody", { children: i.map((g, y) => R.jsxs("tr", { children: [R.jsx("td", { children: g }), n.map((b, x) => f && x < y ? R.jsx("td", {}, x) : R.jsx("td", { children: R.jsx(Wt, { min: o, max: c, numberType: "float", value: t14[d.index(y, x)], onValue: p(y, x), showMinMaxLabels: false, showSaveButton: false, step: s }) }, x))] }, y)) })] }) });
+  return R.jsx(R.Fragment, { children: R.jsxs("table", { children: [R.jsx("thead", { children: R.jsxs("tr", { children: [R.jsx("th", {}), n.map((g, y) => R.jsx("th", { children: g }, y))] }) }), R.jsx("tbody", { children: i.map((g, y) => R.jsxs("tr", { children: [R.jsx("td", { children: g }), n.map((b, x) => f && x < y ? R.jsx("td", {}, x) : R.jsx("td", { children: R.jsx(Kt, { min: o, max: c, numberType: "float", value: t14[d.index(y, x)], onValue: p(y, x), showMinMaxLabels: false, showSaveButton: false, step: s }) }, x))] }, y)) })] }) });
 }
 class _q {
   constructor(e, n, i, r) {
@@ -16399,13 +16399,13 @@ function Sq({ title: t14, initialState: e, children: n }) {
 }
 function Eq() {
   let [{ start: t14, duration: e, effectiveness: n }, i] = S0("community"), [r] = wi(), [s] = w0();
-  return R.jsxs("div", { children: [R.jsxs(Zt, { children: [R.jsx("label", { children: "Day to begin community mitigation" }), R.jsx(Wt, { range: true, min: 0, max: s, step: 1, value: t14, onValue: (o) => i({ start: o }) })] }), R.jsxs(Zt, { children: [R.jsx("label", { children: "Duration of community mitigation" }), R.jsx(Wt, { range: true, min: 1, max: s - t14, value: e, onValue: (o) => i({ duration: o }) })] }), R.jsx(Zt, { children: R.jsx(Sq, { title: "Community mitigation effectiveness", initialState: true, children: R.jsx(xq, { value: n, step: 0.1, min: 0, max: 1, symmetric: r.population_fraction_labels, onChange: (o) => {
+  return R.jsxs("div", { children: [R.jsxs(Xt, { children: [R.jsx("label", { children: "Day to begin community mitigation" }), R.jsx(Kt, { range: true, min: 0, max: s, step: 1, value: t14, onValue: (o) => i({ start: o }) })] }), R.jsxs(Xt, { children: [R.jsx("label", { children: "Duration of community mitigation" }), R.jsx(Kt, { range: true, min: 1, max: s - t14, value: e, onValue: (o) => i({ duration: o }) })] }), R.jsx(Xt, { children: R.jsx(Sq, { title: "Community mitigation effectiveness", initialState: true, children: R.jsx(xq, { value: n, step: 0.1, min: 0, max: 1, symmetric: r.population_fraction_labels, onChange: (o) => {
     i({ effectiveness: o });
   } }) }) })] });
 }
 function Mq() {
   let [t14, e] = S0("antivirals");
-  return R.jsxs("div", { children: [R.jsxs(Zt, { children: [R.jsx("label", { children: "Antiviral Efficacy: AVEi" }), R.jsx("div", { className: "input-details", children: "Prevention of transmission from treated infected" }), R.jsx(Wt, { range: true, min: 0, max: 1, step: 0.01, value: t14.ave_i, onValue: (n) => e({ ave_i: n }) })] }), R.jsxs(Zt, { children: [R.jsx("label", { children: "Antiviral Efficacy: AVEp" }), R.jsx("div", { className: "input-details", children: "Prevention of hospitalization/death" }), R.jsx(Wt, { range: true, min: 0, max: 1, step: 0.01, value: t14.ave_p, onValue: (n) => e({ ave_p: n }) })] }), R.jsxs(Zt, { children: [R.jsx("label", { children: "Fraction of cases that seek care" }), R.jsx(Wt, { range: true, min: 0, max: 1, step: 0.01, value: t14.fraction_seek_care, onValue: (n) => e({ fraction_seek_care: n }) })] }), R.jsxs(Zt, { children: [R.jsx("label", { children: "Fraction of diagnosed care-seeking outpatient cases" }), R.jsx(Wt, { range: true, min: 0, max: 1, step: 0.01, value: t14.fraction_diagnosed_prescribed_outpatient, onValue: (n) => e({ fraction_diagnosed_prescribed_outpatient: n }) })] }), R.jsxs(Zt, { children: [R.jsx("label", { children: "Fraction of individuals that adhere to prescribed outpatient antiviral regimen" }), R.jsx(Wt, { range: true, min: 0, max: 1, step: 0.01, value: t14.fraction_adhere, onValue: (n) => e({ fraction_adhere: n }) })] }), R.jsxs(Zt, { children: [R.jsx("label", { children: "Fraction of hospitalized cases that receive antivirals" }), R.jsx(Wt, { range: true, min: 0, max: 1, step: 0.01, value: t14.fraction_diagnosed_prescribed_inpatient, onValue: (n) => e({ fraction_diagnosed_prescribed_inpatient: n }) })] })] });
+  return R.jsxs("div", { children: [R.jsxs(Xt, { children: [R.jsx("label", { children: "Antiviral Efficacy: AVEi" }), R.jsx("div", { className: "input-details", children: "Prevention of transmission from treated infected" }), R.jsx(Kt, { range: true, min: 0, max: 1, step: 0.01, value: t14.ave_i, onValue: (n) => e({ ave_i: n }) })] }), R.jsxs(Xt, { children: [R.jsx("label", { children: "Antiviral Efficacy: AVEp" }), R.jsx("div", { className: "input-details", children: "Prevention of hospitalization/death" }), R.jsx(Kt, { range: true, min: 0, max: 1, step: 0.01, value: t14.ave_p, onValue: (n) => e({ ave_p: n }) })] }), R.jsxs(Xt, { children: [R.jsx("label", { children: "Fraction of cases that seek care" }), R.jsx(Kt, { range: true, min: 0, max: 1, step: 0.01, value: t14.fraction_seek_care, onValue: (n) => e({ fraction_seek_care: n }) })] }), R.jsxs(Xt, { children: [R.jsx("label", { children: "Fraction of diagnosed care-seeking outpatient cases" }), R.jsx(Kt, { range: true, min: 0, max: 1, step: 0.01, value: t14.fraction_diagnosed_prescribed_outpatient, onValue: (n) => e({ fraction_diagnosed_prescribed_outpatient: n }) })] }), R.jsxs(Xt, { children: [R.jsx("label", { children: "Fraction of individuals that adhere to prescribed outpatient antiviral regimen" }), R.jsx(Kt, { range: true, min: 0, max: 1, step: 0.01, value: t14.fraction_adhere, onValue: (n) => e({ fraction_adhere: n }) })] }), R.jsxs(Xt, { children: [R.jsx("label", { children: "Fraction of hospitalized cases that receive antivirals" }), R.jsx(Kt, { range: true, min: 0, max: 1, step: 0.01, value: t14.fraction_diagnosed_prescribed_inpatient, onValue: (n) => e({ fraction_diagnosed_prescribed_inpatient: n }) })] })] });
 }
 function Aq({ title: t14, titleId: e, ...n }, i) {
   return Y.createElement("svg", Object.assign({ xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 20 20", fill: "currentColor", "aria-hidden": "true", "data-slot": "icon", ref: i, "aria-labelledby": e }, n), t14 ? Y.createElement("title", { id: e }, t14) : null, Y.createElement("path", { fillRule: "evenodd", d: "M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z", clipRule: "evenodd" }));
@@ -16417,7 +16417,7 @@ function Cq({ title: t14, titleId: e, ...n }, i) {
 const Oq = Y.forwardRef(Cq);
 function Nq() {
   let [{ p_id_infectious: t14, p_infectious_isolates: e, isolation_reduction: n, p_contact_trace: i, p_traced_quarantines: r }, s] = S0("ttiq");
-  return R.jsxs("div", { children: [R.jsxs(Zt, { children: [R.jsx("label", { children: "Probability an infectious person becomes aware of their own infection" }), R.jsx(Wt, { range: true, min: 0, max: 1, step: 0.01, value: t14, onValue: (o) => s({ p_id_infectious: o }) })] }), R.jsxs(Zt, { children: [R.jsx("label", { children: "Probability an aware, infectious person will isolate" }), R.jsx(Wt, { range: true, min: 0, max: 1, step: 0.01, value: e, onValue: (o) => s({ p_infectious_isolates: o }) })] }), R.jsxs(Zt, { children: [R.jsx("label", { children: "Proportional reduction in infectious period due to isolation" }), R.jsx(Wt, { range: true, min: 0, max: 1, step: 0.01, value: n, onValue: (o) => s({ isolation_reduction: o }) })] }), R.jsxs(Zt, { children: [R.jsx("label", { children: "Probability contact tracing identifies an exposed person" }), R.jsx(Wt, { range: true, min: 0, max: 1, step: 0.01, value: i, onValue: (o) => s({ p_contact_trace: o }) })] }), R.jsxs(Zt, { children: [R.jsx("label", { children: "Probability a traced person quarantines" }), R.jsx(Wt, { range: true, min: 0, max: 1, step: 0.01, value: r, onValue: (o) => s({ p_traced_quarantines: o }) })] })] });
+  return R.jsxs("div", { children: [R.jsxs(Xt, { children: [R.jsx("label", { children: "Probability an infectious person becomes aware of their own infection" }), R.jsx(Kt, { range: true, min: 0, max: 1, step: 0.01, value: t14, onValue: (o) => s({ p_id_infectious: o }) })] }), R.jsxs(Xt, { children: [R.jsx("label", { children: "Probability an aware, infectious person will isolate" }), R.jsx(Kt, { range: true, min: 0, max: 1, step: 0.01, value: e, onValue: (o) => s({ p_infectious_isolates: o }) })] }), R.jsxs(Xt, { children: [R.jsx("label", { children: "Proportional reduction in infectious period due to isolation" }), R.jsx(Kt, { range: true, min: 0, max: 1, step: 0.01, value: n, onValue: (o) => s({ isolation_reduction: o }) })] }), R.jsxs(Xt, { children: [R.jsx("label", { children: "Probability contact tracing identifies an exposed person" }), R.jsx(Kt, { range: true, min: 0, max: 1, step: 0.01, value: i, onValue: (o) => s({ p_contact_trace: o }) })] }), R.jsxs(Xt, { children: [R.jsx("label", { children: "Probability a traced person quarantines" }), R.jsx(Kt, { range: true, min: 0, max: 1, step: 0.01, value: r, onValue: (o) => s({ p_traced_quarantines: o }) })] })] });
 }
 let Rq = { vaccine: bq, antivirals: Mq, community: Eq, ttiq: Nq };
 function Dq({ name: t14, enabled: e, onToggle: n, children: i }) {
@@ -16458,11 +16458,11 @@ function I9({ activeTab: t14 }) {
 }
 function Lq() {
   let [t14, e] = w0(), [n, i] = wi();
-  return R.jsxs(R.Fragment, { children: [R.jsxs(Zt, { children: [R.jsx("label", { children: "Days" }), R.jsx(Wt, { range: true, min: 1, max: 400, step: 10, value: t14, numberType: "int", onValue: (r) => e(r) })] }), R.jsxs(Zt, { children: [R.jsx("label", { children: "Population size" }), R.jsx(Wt, { min: 0, value: n.population, step: 1e6, numberType: "int", onValue: (r) => i({ population: r }) })] }), R.jsxs(Zt, { children: [R.jsx("label", { children: "Initial infections" }), R.jsx(Wt, { min: 0, step: 100, value: n.initial_infections, onValue: (r) => i({ initial_infections: r }) })] }), R.jsxs(Zt, { children: [R.jsx("label", { children: "R0" }), R.jsx(Wt, { range: true, min: 0.8, max: 2.2, step: 0.1, value: n.r0, numberType: "float", onValue: (r) => i({ r0: r }) })] }), R.jsxs(Zt, { children: [R.jsx("label", { children: "Latent period" }), R.jsx(Wt, { range: true, min: 0.5, max: 2.5, step: 0.1, value: n.latent_period, numberType: "float", onValue: (r) => i({ latent_period: r }) })] }), R.jsxs(Zt, { children: [R.jsx("label", { children: "Infectious period" }), R.jsx(Wt, { range: true, min: 1, max: 4.5, step: 0.1, value: n.infectious_period, numberType: "float", onValue: (r) => i({ infectious_period: r }) })] }), R.jsx(Zt, { children: R.jsx(K1, { label: "Symptomatic fraction", value: n.fraction_symptomatic, onValue: (r) => i({ fraction_symptomatic: r }), renderInput: (r, s) => R.jsx(Wt, { range: true, min: 0.3, max: 0.8, step: 0.01, value: r, numberType: "float", onValue: s }) }) }), R.jsx(Zt, { children: R.jsx(K1, { label: "Infection-hospitalization ratio", value: n.fraction_hospitalized, onValue: (r) => i({ fraction_hospitalized: r }), renderInput: (r, s) => R.jsx(Wt, { min: 0, max: 0.1, step: 0.01, value: r, numberType: "float", onValue: s }) }) }), R.jsx(Zt, { children: R.jsx(K1, { label: "Infection-fatality ratio", value: n.fraction_dead, onValue: (r) => i({ fraction_dead: r }), renderInput: (r, s) => R.jsx(Wt, { min: 0, max: 0.2, step: 5e-3, value: r, numberType: "float", onValue: s }) }) })] });
+  return R.jsxs(R.Fragment, { children: [R.jsxs(Xt, { children: [R.jsx("label", { children: "Days" }), R.jsx(Kt, { range: true, min: 1, max: 400, step: 10, value: t14, numberType: "int", onValue: (r) => e(r) })] }), R.jsxs(Xt, { children: [R.jsx("label", { children: "Population size" }), R.jsx(Kt, { min: 0, value: n.population, step: 1e6, numberType: "int", onValue: (r) => i({ population: r }) })] }), R.jsxs(Xt, { children: [R.jsx("label", { children: "Initial infections" }), R.jsx(Kt, { min: 0, step: 100, value: n.initial_infections, onValue: (r) => i({ initial_infections: r }) })] }), R.jsxs(Xt, { children: [R.jsx("label", { children: "Prior immunity (%)" }), R.jsx(Kt, { range: true, min: 0, max: 100, step: 1, numberType: "float", value: n.fraction_initial_immune * 100, onValue: (r) => i({ fraction_initial_immune: r / 100 }) })] }), R.jsxs(Xt, { children: [R.jsx("label", { children: "R0" }), R.jsx(Kt, { range: true, min: 0.8, max: 2.2, step: 0.1, value: n.r0, numberType: "float", onValue: (r) => i({ r0: r }) })] }), R.jsxs(Xt, { children: [R.jsx("label", { children: "Latent period" }), R.jsx(Kt, { range: true, min: 0.5, max: 2.5, step: 0.1, value: n.latent_period, numberType: "float", onValue: (r) => i({ latent_period: r }) })] }), R.jsxs(Xt, { children: [R.jsx("label", { children: "Infectious period" }), R.jsx(Kt, { range: true, min: 1, max: 4.5, step: 0.1, value: n.infectious_period, numberType: "float", onValue: (r) => i({ infectious_period: r }) })] }), R.jsx(Xt, { children: R.jsx(K1, { label: "Symptomatic fraction", value: n.fraction_symptomatic, onValue: (r) => i({ fraction_symptomatic: r }), renderInput: (r, s) => R.jsx(Kt, { range: true, min: 0.3, max: 0.8, step: 0.01, value: r, numberType: "float", onValue: s }) }) }), R.jsx(Xt, { children: R.jsx(K1, { label: "Infection-hospitalization ratio", value: n.fraction_hospitalized, onValue: (r) => i({ fraction_hospitalized: r }), renderInput: (r, s) => R.jsx(Kt, { min: 0, max: 0.1, step: 0.01, value: r, numberType: "float", onValue: s }) }) }), R.jsx(Xt, { children: R.jsx(K1, { label: "Infection-fatality ratio", value: n.fraction_dead, onValue: (r) => i({ fraction_dead: r }), renderInput: (r, s) => R.jsx(Kt, { min: 0, max: 0.2, step: 5e-3, value: r, numberType: "float", onValue: s }) }) })] });
 }
 function Iq() {
   let [t14, e] = wi();
-  return R.jsxs(R.Fragment, { children: [R.jsxs(Zt, { children: [R.jsx("label", { children: "Proportion of new symptomatic infections tested" }), R.jsx(Wt, { range: true, min: 0, max: 0.1, step: 1e-3, value: t14.p_test_sympto, numberType: "float", onValue: (n) => e({ p_test_sympto: n }) })] }), R.jsxs(Zt, { children: [R.jsx("label", { children: "Test sensitivity" }), R.jsx(Wt, { range: true, min: 0, max: 1, step: 0.01, value: t14.test_sensitivity, numberType: "float", onValue: (n) => e({ test_sensitivity: n }) })] }), R.jsxs(Zt, { children: [R.jsx("label", { children: "Probability a positive test is forwarded to public health" }), R.jsx(Wt, { range: true, min: 0, max: 1, step: 0.01, value: t14.p_test_forward, numberType: "float", onValue: (n) => e({ p_test_forward: n }) })] })] });
+  return R.jsxs(R.Fragment, { children: [R.jsxs(Xt, { children: [R.jsx("label", { children: "Proportion of new symptomatic infections tested" }), R.jsx(Kt, { range: true, min: 0, max: 0.1, step: 1e-3, value: t14.p_test_sympto, numberType: "float", onValue: (n) => e({ p_test_sympto: n }) })] }), R.jsxs(Xt, { children: [R.jsx("label", { children: "Test sensitivity" }), R.jsx(Kt, { range: true, min: 0, max: 1, step: 0.01, value: t14.test_sensitivity, numberType: "float", onValue: (n) => e({ test_sensitivity: n }) })] }), R.jsxs(Xt, { children: [R.jsx("label", { children: "Probability a positive test is forwarded to public health" }), R.jsx(Kt, { range: true, min: 0, max: 1, step: 0.01, value: t14.p_test_forward, numberType: "float", onValue: (n) => e({ p_test_forward: n }) })] })] });
 }
 function kn(t14, e) {
   return t14 == null || e == null ? NaN : t14 < e ? -1 : t14 > e ? 1 : t14 >= e ? 0 : NaN;
