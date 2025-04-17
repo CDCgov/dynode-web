@@ -13,7 +13,6 @@ export function CommunityEditor() {
     return (
         <div>
             <FormGroup>
-                <label>Day to begin community mitigation</label>
                 <NumberInput
                     parameter="mitigations.community.start"
                     range
@@ -25,7 +24,6 @@ export function CommunityEditor() {
                 />
             </FormGroup>
             <FormGroup>
-                <label>Duration of community mitigation</label>
                 <NumberInput
                     parameter="mitigations.community.duration"
                     range
@@ -37,7 +35,6 @@ export function CommunityEditor() {
             </FormGroup>
             <FormGroup>
                 <MiniExpandable
-                    title="Community mitigation effectiveness"
                     parameter="mitigations.community.effectiveness"
                     initialState={true}
                 >

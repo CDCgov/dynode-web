@@ -1,13 +1,11 @@
 import { useState } from "react";
 import { Caret } from "./Caret";
 import "./MiniExpandable.css";
-import {
-    ParameterEditorConfig,
-    ParameterPath,
-} from "../config/parameters.config";
+import { ParameterPath } from "../config/parameters.config";
+import { Label } from "../forms/Label";
 
 type MiniExpandableProps = {
-    title: string;
+    title?: string;
     parameter?: ParameterPath;
     initialState: boolean;
     children: React.ReactNode;
@@ -20,16 +18,18 @@ export function MiniExpandable({
     children,
 }: MiniExpandableProps) {
     const [expanded, setExpanded] = useState(initialState);
-    let tooltip =
-        parameter && ParameterEditorConfig.getConfig(parameter)?.tooltip;
     return (
         <div>
             <div
                 className="mini-expandable-header"
-                title={tooltip}
                 onClick={() => setExpanded(!expanded)}
             >
-                <Caret dir={expanded ? "down" : "left"} /> {title}
+                <Caret dir={expanded ? "down" : "left"} />
+                {title ? (
+                    <label>{title}</label>
+                ) : (
+                    <Label parameter={parameter} />
+                )}
             </div>
             <div
                 className="mini-expandable-content"

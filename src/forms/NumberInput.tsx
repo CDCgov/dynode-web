@@ -5,6 +5,7 @@ import {
     ParameterEditorConfig,
     ParameterPath,
 } from "../config/parameters.config";
+import { Label } from "./Label";
 
 type NumberType = "float" | "int";
 
@@ -61,12 +62,11 @@ export function NumberInput({
     const inputRef = useRef<HTMLInputElement>(null);
     const rafRef = useRef<number | null>(null);
     const [inputValue, setInputValue] = useState(
-        formatNumberToDisplay(value, numberType)
+        formatNumberToDisplay(value, numberType),
     );
     const [errorMessage, setErrorMessage] = useState("");
 
-    let tooltip =
-        parameter && ParameterEditorConfig.getConfig(parameter)?.tooltip;
+    let paramConfig = parameter && ParameterEditorConfig.getConfig(parameter);
 
     useEffect(() => {
         setInputValue(formatNumberToDisplay(value, numberType));
@@ -122,45 +122,51 @@ export function NumberInput({
         }
 
         return (
-            <RangeInput
-                ref={inputRef}
-                value={value}
-                onValue={handleRangeChange}
-                min={min}
-                max={max}
-                title={tooltip}
-                showMinMaxLabels={showMinMaxLabels}
-                step={step}
-            />
+            <>
+                <Label parameter={parameter} />
+                <RangeInput
+                    ref={inputRef}
+                    value={value}
+                    onValue={handleRangeChange}
+                    min={min}
+                    max={max}
+                    title={paramConfig?.tooltip}
+                    showMinMaxLabels={showMinMaxLabels}
+                    step={step}
+                />
+            </>
         );
     }
 
     return (
-        <div className="number-input-wrapper" title={tooltip}>
-            <input
-                ref={inputRef}
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onBlur={commitValue}
-                onKeyDown={handleKeyDown}
-                {...otherProps}
-            />
-            {showSaveButton && (
-                <div className="number-input-save">
-                    <button
-                        onClick={(e) => {
-                            e.preventDefault();
-                            commitValue();
-                        }}
-                    >
-                        Save
-                    </button>
-                </div>
-            )}
-            {errorMessage && (
-                <span className="input-error">{errorMessage}</span>
-            )}
-        </div>
+        <>
+            <Label parameter={parameter} />
+            <div className="number-input-wrapper" title={paramConfig?.tooltip}>
+                <input
+                    ref={inputRef}
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onBlur={commitValue}
+                    onKeyDown={handleKeyDown}
+                    {...otherProps}
+                />
+                {showSaveButton && (
+                    <div className="number-input-save">
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                commitValue();
+                            }}
+                        >
+                            Save
+                        </button>
+                    </div>
+                )}
+                {errorMessage && (
+                    <span className="input-error">{errorMessage}</span>
+                )}
+            </div>
+        </>
     );
 }
 

@@ -3,3 +3,6 @@
     align-items: center;
     cursor: pointer;
 }
+.mini-expandable-header label {
+    margin-bottom: 0;
+}

@@ -15,7 +15,6 @@ export function VaccineEditor() {
     return (
         <div>
             <FormGroup>
-                <label>Vaccine type</label>
                 <SelectInput
                     parameter="mitigations.vaccine.doses"
                     value={dosesOptions.find((o) => o.value === params.doses)}
@@ -31,7 +30,6 @@ export function VaccineEditor() {
                 />
             </FormGroup>
             <FormGroup>
-                <label>Vaccination start</label>
                 <NumberInput
                     parameter="mitigations.vaccine.start"
                     range
@@ -42,7 +40,6 @@ export function VaccineEditor() {
                 />
             </FormGroup>
             <FormGroup>
-                <label>Vaccine doses available</label>
                 <NumberInput
                     parameter="mitigations.vaccine.doses_available"
                     range
@@ -56,7 +53,6 @@ export function VaccineEditor() {
                 />
             </FormGroup>
             <FormGroup>
-                <label>Vaccine administration rate</label>
                 <NumberInput
                     parameter="mitigations.vaccine.administration_rate"
                     range
@@ -70,7 +66,6 @@ export function VaccineEditor() {
                 />
             </FormGroup>
             <FormGroup>
-                <label>Vaccine effectiveness against infection</label>
                 <NumberInput
                     parameter="mitigations.vaccine.ve_s"
                     range
@@ -81,7 +76,6 @@ export function VaccineEditor() {
                 />
             </FormGroup>
             <FormGroup>
-                <label>Vaccine effectiveness against onward transmission</label>
                 <NumberInput
                     parameter="mitigations.vaccine.ve_i"
                     range
@@ -92,7 +86,6 @@ export function VaccineEditor() {
                 />
             </FormGroup>
             <FormGroup>
-                <label>Vaccine effectiveness against illness</label>
                 <NumberInput
                     parameter="mitigations.vaccine.ve_p"
                     range

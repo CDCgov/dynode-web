@@ -4,6 +4,7 @@ import {
     ParameterEditorConfig,
     ParameterPath,
 } from "../config/parameters.config";
+import { Label } from "./Label";
 
 interface SelectInputProps<T> extends OriginalSelectProps {
     valueMap?: Record<string, T> | null;
@@ -137,22 +138,25 @@ export function SelectInput<T>({
 
     return (
         isMounted && (
-            <span title={tooltip}>
-                <Select
-                    instanceId={id}
-                    {...props}
-                    value={props.value}
-                    components={components}
-                    theme={(theme) => ({
-                        ...theme,
-                        colors: colors
-                            ? {
-                                  ...colors,
-                              }
-                            : theme.colors,
-                    })}
-                />
-            </span>
+            <>
+                <Label parameter={parameter} />
+                <span title={tooltip}>
+                    <Select
+                        instanceId={id}
+                        {...props}
+                        value={props.value}
+                        components={components}
+                        theme={(theme) => ({
+                            ...theme,
+                            colors: colors
+                                ? {
+                                      ...colors,
+                                  }
+                                : theme.colors,
+                        })}
+                    />
+                </span>
+            </>
         )
     );
 }
