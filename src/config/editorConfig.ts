@@ -1,6 +1,7 @@
 import { HKT, MappedFlatObject } from "../utils";
 
 interface EditorConfigItem<T> {
+    label?: string;
     tooltip?: string;
     defaultValue?: T;
 }

@@ -1,18 +1,22 @@
 import { useState } from "react";
 import { useParams } from "../ModelState";
 import "./GroupEditor.css";
+import { ParameterPath } from "../config/parameters.config";
+import { Label } from "../forms/Label";
 type GroupEditorProps = {
     value: number[];
     onValue: (value: number[]) => void;
-    label: string;
+    label?: string;
+    parameter?: ParameterPath;
     renderInput: (
         value: number,
-        onValue: (newValue: number) => void
+        onValue: (newValue: number) => void,
     ) => React.ReactNode;
 };
 
 export function GroupEditor({
     label,
+    parameter,
     value,
     onValue,
     renderInput,
@@ -25,9 +29,7 @@ export function GroupEditor({
     return (
         <div>
             <div className="group-editor-label">
-                <div>
-                    <label>{label}</label>
-                </div>
+                <div>{label ? label : <Label parameter={parameter} />}</div>
                 <div className="group-editor-label-sync secondary-label">
                     <input
                         type="checkbox"

@@ -8,7 +8,6 @@ export function AntiviralsEditor() {
     return (
         <div>
             <FormGroup>
-                <label>Effectiveness against transmission (AVEi)</label>
                 <NumberInput
                     parameter="mitigations.antivirals.ave_i"
                     range
@@ -20,7 +19,6 @@ export function AntiviralsEditor() {
                 />
             </FormGroup>
             <FormGroup>
-                <label>Effectiveness vs. hospitalization & death (AVEp)</label>
                 <NumberInput
                     parameter="mitigations.antivirals.ave_p"
                     range
@@ -32,7 +30,6 @@ export function AntiviralsEditor() {
                 />
             </FormGroup>
             <FormGroup>
-                <label>Fraction of cases that seek care</label>
                 <NumberInput
                     parameter="mitigations.antivirals.fraction_seek_care"
                     range
@@ -46,9 +43,6 @@ export function AntiviralsEditor() {
                 />
             </FormGroup>
             <FormGroup>
-                <label>
-                    Fraction of diagnosed care-seeking outpatient cases
-                </label>
                 <NumberInput
                     parameter="mitigations.antivirals.fraction_diagnosed_prescribed_outpatient"
                     range
@@ -64,10 +58,6 @@ export function AntiviralsEditor() {
                 />
             </FormGroup>
             <FormGroup>
-                <label>
-                    Fraction of individuals that adhere to prescribed outpatient antiviral
-                    regimen
-                </label>
                 <NumberInput
                     parameter="mitigations.antivirals.fraction_adhere"
                     range
@@ -81,9 +71,6 @@ export function AntiviralsEditor() {
                 />
             </FormGroup>
             <FormGroup>
-                <label>
-                    Fraction of hospitalized cases that receive antivirals
-                </label>
                 <NumberInput
                     parameter="mitigations.antivirals.fraction_diagnosed_prescribed_inpatient"
                     range
