@@ -32,3 +32,6 @@ Cargo.lock
 
 .vscode
 .wip
+
+# Temporary
+pnpm-lock.yaml
