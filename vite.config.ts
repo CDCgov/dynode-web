@@ -6,7 +6,7 @@ import path from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
-    base: "/dynode-web/",
+    base: process.env.TARGET === "azure" ? "./" : "/dynode-web/",
     resolve: {
         alias: {
             "@wasm": path.resolve(__dirname, "./wasm_dynode/pkg"),
