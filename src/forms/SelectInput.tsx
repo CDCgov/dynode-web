@@ -1,14 +1,20 @@
 import { useEffect, useId, useState } from "react";
 import Select, { Props as OriginalSelectProps, components } from "react-select";
+import {
+    ParameterEditorConfig,
+    ParameterPath,
+} from "../config/parameters.config";
 
 interface SelectInputProps<T> extends OriginalSelectProps {
     valueMap?: Record<string, T> | null;
     colorTheme?: "light" | "dark";
+    parameter?: ParameterPath;
 }
 
 export function SelectInput<T>({
     valueMap,
     colorTheme = "dark",
+    parameter,
     ...props
 }: SelectInputProps<T>) {
     // If you don't wait until the component is attached to the dom
@@ -22,6 +28,9 @@ export function SelectInput<T>({
     if (props.value && valueMap) {
         throw new Error("Don't use both valueMap and value");
     }
+
+    let tooltip =
+        parameter && ParameterEditorConfig.getConfig(parameter)?.tooltip;
 
     // const value = props.value ? valueMap?.[props.value as string] : null;
 
@@ -128,20 +137,22 @@ export function SelectInput<T>({
 
     return (
         isMounted && (
-            <Select
-                instanceId={id}
-                {...props}
-                value={props.value}
-                components={components}
-                theme={(theme) => ({
-                    ...theme,
-                    colors: colors
-                        ? {
-                              ...colors,
-                          }
-                        : theme.colors,
-                })}
-            />
+            <span title={tooltip}>
+                <Select
+                    instanceId={id}
+                    {...props}
+                    value={props.value}
+                    components={components}
+                    theme={(theme) => ({
+                        ...theme,
+                        colors: colors
+                            ? {
+                                  ...colors,
+                              }
+                            : theme.colors,
+                    })}
+                />
+            </span>
         )
     );
 }

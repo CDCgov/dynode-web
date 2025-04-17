@@ -38,10 +38,10 @@ export function CommunityEditor() {
             <FormGroup>
                 <MiniExpandable
                     title="Community mitigation effectiveness"
+                    parameter="mitigations.community.effectiveness"
                     initialState={true}
                 >
                     <MatrixInput
-                        parameter="mitigations.community.effectiveness"
                         value={effectiveness}
                         step={0.1}
                         min={0.0}
