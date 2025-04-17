@@ -8,6 +8,7 @@
         "wasm": "wasm-pack build ./wasm_dynode --target web",
         "prebuild": "npm run wasm",
         "build": "tsc -b && vite build",
+        "build:azure": "export TARGET=azure; npm run build",
         "prettier": "prettier",
         "lint": "eslint .",
         "test": "vitest",
