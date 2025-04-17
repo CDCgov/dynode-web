@@ -24,6 +24,11 @@ export const ParameterEditorConfig = defineEditorConfig<Parameters>({
         label: "Infectious period",
         tooltip: "Mean duration of infectious period, in days",
     },
+    fraction_initial_immune: {
+        label: "Prior Immunity (%)",
+        tooltip:
+            "Proportion of the population that is immune at the start of the simulation",
+    },
     fraction_symptomatic: {
         label: "Symptomatic fraction",
         tooltip:

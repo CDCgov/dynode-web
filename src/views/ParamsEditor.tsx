@@ -92,6 +92,7 @@ function ScenarioParams() {
             </FormGroup>
             <FormGroup>
                 <NumberInput
+                    parameter="fraction_initial_immune"
                     range
                     min={0}
                     max={100}
