@@ -131,3 +131,9 @@ input:focus + .number-input-save {
     position: absolute;
     right: 0;
 }
+
+.range-info {
+    position: absolute;
+    color: #8e99cd;
+    font-size: 10px;
+}

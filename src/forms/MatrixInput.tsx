@@ -34,7 +34,7 @@ export function MatrixInput({
     // Check symmetric v.s. cols/rows
     if (isSymmetric && (cols || rows)) {
         throw new Error(
-            "Cannot set both symmetric and cols/rows props at the same time."
+            "Cannot set both symmetric and cols/rows props at the same time.",
         );
     } else if (isSymmetric) {
         cols = symmetric;
@@ -79,7 +79,6 @@ export function MatrixInput({
                                             numberType="float"
                                             value={value[m.index(i, j)]}
                                             onValue={handleChange(i, j)}
-                                            showMinMaxLabels={false}
                                             showSaveButton={false}
                                             step={step}
                                         />
@@ -103,12 +102,12 @@ class FlatMatrix {
         flatColMajor: number[],
         cols: number,
         rows: number,
-        isSymmetric: boolean
+        isSymmetric: boolean,
     ) {
         // Length should be equal to rows * cols
         if (flatColMajor.length !== rows * cols) {
             throw new Error(
-                `Value length ${flatColMajor.length} does not match matrix size ${rows}x${cols}`
+                `Value length ${flatColMajor.length} does not match matrix size ${rows}x${cols}`,
             );
         }
 
@@ -135,7 +134,7 @@ if (import.meta.vitest) {
     describe("FlatMatrix", () => {
         test("length check", () => {
             expect(() => new FlatMatrix([1, 2, 3], 2, 2, false)).toThrow(
-                "Value length 3 does not match matrix size 2x2"
+                "Value length 3 does not match matrix size 2x2",
             );
         });
         test("index", () => {

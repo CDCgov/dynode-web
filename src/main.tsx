@@ -3,7 +3,6 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import initWasm, { get_default_parameters } from "@wasm/wasm_dynode";
 import { ParamsProvider } from "./ModelState.tsx";
-
 import "./index.css";
 import "./layout/spacing.css";
 
@@ -15,6 +14,6 @@ initWasm().then(() => {
             <ParamsProvider initialParams={initialParams}>
                 <App />
             </ParamsProvider>
-        </StrictMode>
+        </StrictMode>,
     );
 });
