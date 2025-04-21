@@ -51,6 +51,22 @@ impl<const N: usize> AVE<N> {
     }
 }
 
+/// Probability of detecting at least `x` infections if `n` infection each have a
+/// probability `p` of being detected.
+///
+/// Note that statrs::distribution::Binomial requires integer arguments, so we need
+/// to use the beta function directly.
+fn p_detect_n(x: f64, n: f64, p: f64) -> f64 {
+    if n == 0.0 {
+        0.0
+    } else if n > 0.0 {
+        1.0 - statrs::function::beta::checked_beta_reg(n - (x - 1.0), 1.0 + (x - 1.0), 1.0 - p)
+            .unwrap()
+    } else {
+        panic!("n must be positive")
+    }
+}
+
 pub struct SEIRModel<const N: usize> {
     pub(crate) parameters: Parameters<N>,
     contact_matrix_normalization: f64,
@@ -130,11 +146,6 @@ impl<const N: usize> SEIRModel<N> {
             ave,
         }
     }
-}
-
-/// Probability of at least 1 success among N trials each with probability p
-pub fn p_detect1(n: f64, p: f64) -> f64 {
-    1.0 - (1.0 - p).powf(n)
 }
 
 /// Distribute initial disease states for groups of size `n`, initial numbers
@@ -231,7 +242,8 @@ where
                 output.add_death_incidence(*time, new_deaths.data.as_slice().into());
                 output.add_p_detect(
                     *time,
-                    p_detect1(
+                    p_detect_n(
+                        1.0,
                         state.get_y_cum().sum() * self.parameters.p_test_sympto,
                         self.parameters.test_sensitivity * self.parameters.p_test_forward,
                     ),
@@ -387,7 +399,7 @@ mod test {
     use float_eq::assert_float_eq;
     use nalgebra::{DVector, Matrix1, Vector1, Vector2, matrix};
 
-    use super::SEIRModel;
+    use super::{SEIRModel, p_detect_n};
     use crate::{
         AntiviralsParams, DynodeModel, MitigationParams, ModelOutput, OutputType, Parameters,
         TTIQParams, VaccineParams,
@@ -456,6 +468,22 @@ mod test {
         assert_float_eq!(s, 0.0, abs <= 1e-5);
         assert_float_eq!(i, 25.0, abs <= 1e-5);
         assert_float_eq!(r, 75.0, abs <= 1e-5);
+    }
+
+    #[test]
+    fn test_p_detect_1() {
+        let x = 1.0;
+        let p: f64 = 0.234;
+        let n = 10.0;
+        assert_float_eq!(p_detect_n(x, n, p), 1.0 - (1.0 - p).powf(n), abs <= 1e-10);
+    }
+
+    #[test]
+    fn test_p_detect_n0() {
+        let x = 1.0;
+        let p: f64 = 0.5;
+        let n = 0.0;
+        assert_float_eq!(p_detect_n(x, n, p), 0.0, abs <= 1e-10);
     }
 
     // Making a proportion x of the population immune (in the absence of vaccination)
