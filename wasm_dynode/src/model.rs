@@ -54,8 +54,10 @@ impl<const N: usize> AVE<N> {
 /// Probability of detecting at least `x` infections if `n` infection each have a
 /// probability `p` of being detected.
 ///
+/// This is 1 - CDF_binomial(x - 1; n, p).
+///
 /// Note that statrs::distribution::Binomial requires integer arguments, so we need
-/// to use the beta function directly.
+/// to use the beta function directly to allow for float arguments.
 fn p_detect_n(x: f64, n: f64, p: f64) -> f64 {
     if n == 0.0 {
         0.0
