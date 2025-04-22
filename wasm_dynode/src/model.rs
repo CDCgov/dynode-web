@@ -486,6 +486,12 @@ mod test {
         assert_float_eq!(p_detect_n(x, n, p), 0.0, abs <= 1e-10);
     }
 
+    #[test]
+    fn test_p_detect_multiple() {
+        // Cf. R: 1.0 - pbinom(4, size = 10, prob = 0.5)
+        assert_float_eq!(p_detect_n(5.0, 10.0, 0.5), 0.6230469, abs <= 1e-6);
+    }
+
     // Making a proportion x of the population immune (in the absence of vaccination)
     // is equivalent to decreasing the population size, initial infections, and R0
     // by x. To compare attack rates, also need to adjust for reduced denominator.
