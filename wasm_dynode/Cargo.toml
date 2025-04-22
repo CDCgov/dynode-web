@@ -25,7 +25,8 @@ strum = "0.27.1"
 strum_macros = "0.27.1"
 float_eq = "1.0.1"
 statrs = "0.18.0"
-getrandom = { version = "0.3.2", features = ["wasm_js"] }
+# This is used as a dependency of statsrs and must be matched to that version
+getrandom = { version = "0.2", features = ["js"] }
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.13"
