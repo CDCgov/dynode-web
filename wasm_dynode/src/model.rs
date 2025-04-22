@@ -4,49 +4,49 @@ use ode_solvers::{Dopri5, System};
 use paste::paste;
 
 pub struct AVE<const N: usize> {
-    pub rr_i: SVector<f64, N>,
-    pub rr_p_hosp: SVector<f64, N>,
-    pub rr_p_death: SVector<f64, N>,
+    pub pop_eff_i_given_symp: SVector<f64, N>,
+    pub pop_eff_p_hosp_given_symp: SVector<f64, N>,
+    pub pop_eff_p_death_given_symp: SVector<f64, N>,
 }
 
 impl<const N: usize> AVE<N> {
     fn new(params: &Parameters<N>) -> Self {
         let av_params = &params.mitigations.antivirals;
-        let ones = SVector::<f64, N>::from_element(1.0);
+        let zeros = SVector::<f64, N>::from_element(0.0);
 
-        // risk ratio (proportional reduction) against transmission
-        let rr_i = if av_params.enabled {
-            ones - params.fraction_symptomatic
-                * av_params.fraction_seek_care
-                * av_params.fraction_diagnosed_prescribed_outpatient
-                * av_params.fraction_adhere
-                * av_params.ave_i
+        let prob_take_ave_given_symp = av_params.fraction_seek_care
+            * av_params.fraction_diagnosed_prescribed_outpatient
+            * av_params.fraction_adhere;
+
+        // efficacy against transmission given symptomatic
+        let pop_eff_i_given_symp = if av_params.enabled {
+            SVector::<f64, N>::from_element(prob_take_ave_given_symp * av_params.ave_i)
         } else {
-            ones
+            zeros
         };
 
-        // risk ratio against hospitalization given infection
-        let rr_p_hosp = if av_params.enabled {
-            ones - params.fraction_symptomatic
-                * av_params.fraction_seek_care
-                * av_params.fraction_diagnosed_prescribed_outpatient
-                * av_params.fraction_adhere
-                * av_params.ave_p
+        // efficacy against hospitalization given symptomatic
+        let pop_eff_p_hosp_given_symp = if av_params.enabled {
+            SVector::<f64, N>::from_element(prob_take_ave_given_symp * av_params.ave_p)
         } else {
-            ones
+            zeros
         };
 
-        // risk ratio against death given infection
-        let rr_p_death = if av_params.enabled {
-            (1.0 - av_params.fraction_diagnosed_prescribed_inpatient * av_params.ave_p) * rr_p_hosp
+        // efficacy against death given hosp
+        let pop_eff_p_death_given_symp = if av_params.enabled {
+            // note: we use the same ave_p for protection against death given hospitalization
+            // as for against hospitalization given symptomatic
+            SVector::<f64, N>::from_element(
+                av_params.fraction_diagnosed_prescribed_inpatient * av_params.ave_p,
+            )
         } else {
-            ones
+            zeros
         };
 
         Self {
-            rr_i,
-            rr_p_hosp,
-            rr_p_death,
+            pop_eff_i_given_symp,
+            pop_eff_p_hosp_given_symp,
+            pop_eff_p_death_given_symp,
         }
     }
 }
@@ -116,7 +116,10 @@ macro_rules! make_state {
 }
 
 make_state!(
-    s, e, i, r, sv, ev, iv, rv, y_cum, pre_h, h_cum, pre_d, d_cum
+    s, e, i, r, // unprotected
+    sv, ev, iv, rv, // single-dose protected
+    s2v, e2v, i2v, r2v, // two-dose protected
+    y_cum, pre_h, h_cum, pre_d, d_cum // outcome counters
 );
 
 impl<const N: usize> SEIRModel<N> {
@@ -177,9 +180,44 @@ fn _distribute_initials1(n: f64, i0: f64, r0: f64) -> (f64, f64, f64) {
     }
 }
 
+/// Allocate a vaccine administration rate into first and second doses. Administration
+/// can occur at most at `max_rate` (doses per unit time). Starting at `t_start`,
+/// vaccines are administered at that rate, until `doses_available` is exhausted.
+/// At `start2_delay` after `t_start`, administration is split between first and second
+/// doses such that `fraction_2` of all doses are second doses.
+fn vaccine_rates_by_dose(
+    t: f64,
+    max_rate: f64,
+    t_start: f64,
+    start2_delay: f64,
+    fraction_2: f64,
+    doses_available: f64,
+) -> (f64, f64) {
+    let duration = doses_available / max_rate;
+    let t_end = t_start + duration;
+    let t_start2 = t_start + start2_delay;
+    // this clamp is a kludge: in fact this error should be caught at the UI level
+    let rate_frac = (fraction_2 / (1.0 - start2_delay / duration))
+        .max(0.0)
+        .min(1.0);
+
+    assert!(max_rate >= 0.0);
+    assert!(doses_available >= 0.0);
+    assert!(start2_delay >= 0.0);
+    assert!(0.0 <= rate_frac && rate_frac <= 1.0);
+
+    if t_start <= t && t < t_start2 && t < t_end {
+        (max_rate, 0.0)
+    } else if t_start2 <= t && t < t_end {
+        (max_rate * (1.0 - rate_frac), max_rate * rate_frac)
+    } else {
+        (0.0, 0.0)
+    }
+}
+
 impl<const N: usize> DynodeModel for SEIRModel<N>
 where
-    [(); 13 * N]: Sized,
+    [(); 17 * N]: Sized,
 {
     fn integrate(&self, days: usize) -> ModelOutput {
         let population_fractions = self.parameters.population_fractions;
@@ -204,24 +242,30 @@ where
         let mut first_loop = true;
         let mut prev_i_plus_r = SVector::zeros();
         let mut prev_iv_plus_rv = SVector::zeros();
+        let mut prev_iv2_plus_rv2 = SVector::zeros();
         let mut prev_h_cum = SVector::zeros();
         let mut prev_d_cum = SVector::zeros();
 
         for (time, state) in stepper.x_out().iter().zip(stepper.y_out().iter()) {
             let i_plus_r = state.get_i() + state.get_r();
             let iv_plus_rv = state.get_iv() + state.get_rv();
+            let iv2_plus_rv2 = state.get_i2v() + state.get_r2v();
             if first_loop {
                 prev_i_plus_r = i_plus_r;
                 prev_iv_plus_rv = iv_plus_rv;
+                prev_iv2_plus_rv2 = iv2_plus_rv2;
                 prev_h_cum = state.get_h_cum().into();
                 prev_d_cum = state.get_d_cum().into();
                 first_loop = false;
             } else {
                 let new_infections_unvac = i_plus_r - prev_i_plus_r;
                 let new_infections_vac = iv_plus_rv - prev_iv_plus_rv;
-                let new_infections = new_infections_unvac + new_infections_vac;
+                let new_infections_vac2 = iv2_plus_rv2 - prev_iv2_plus_rv2;
+                let new_infections =
+                    new_infections_unvac + new_infections_vac + new_infections_vac2;
                 let new_symptomatic = (new_infections_unvac
-                    + (1.0 - self.parameters.mitigations.vaccine.ve_p) * new_infections_vac)
+                    + (1.0 - self.parameters.mitigations.vaccine.ve_p) * new_infections_vac
+                    + (1.0 - self.parameters.mitigations.vaccine.ve_2p) * new_infections_vac2)
                     .component_mul(&self.parameters.fraction_symptomatic);
                 let new_hospitalizations = state.get_h_cum() - prev_h_cum;
                 let new_deaths = state.get_d_cum() - prev_d_cum;
@@ -238,6 +282,7 @@ where
                 );
                 prev_i_plus_r = i_plus_r;
                 prev_iv_plus_rv = iv_plus_rv;
+                prev_iv2_plus_rv2 = iv2_plus_rv2;
                 prev_h_cum = state.get_h_cum().into();
                 prev_d_cum = state.get_d_cum().into();
             }
@@ -255,15 +300,16 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
         let sv = y.get_sv();
         let ev = y.get_ev();
         let iv = y.get_iv();
+        let rv = y.get_rv();
+        let s2v = y.get_s2v();
+        let e2v = y.get_e2v();
+        let i2v = y.get_i2v();
         let pre_h = y.get_pre_h();
         let pre_d = y.get_pre_d();
 
         let params = &self.parameters;
         let community_params = &params.mitigations.community;
-
-        let ve_s = self.parameters.mitigations.vaccine.ve_s;
-        let ve_i = self.parameters.mitigations.vaccine.ve_i;
-        let ve_p = self.parameters.mitigations.vaccine.ve_p;
+        let vax_params = &params.mitigations.vaccine;
 
         // Community mitigation
         let contact_matrix = if community_params.enabled
@@ -293,8 +339,27 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
         // Transmission
         let beta = self.parameters.r0 / self.parameters.infectious_period;
         let ones = SVector::<f64, N>::from_element(1.0);
-        let i_effective = i.component_mul(&self.ave.rr_i)
-            + (iv * (1.0 - ve_i)).component_mul(&(ones + (1.0 - ve_p) * (ones - self.ave.rr_i)));
+        let i_effective = i.component_mul(
+            &(ones
+                - self
+                    .parameters
+                    .fraction_symptomatic
+                    .component_mul(&self.ave.pop_eff_i_given_symp)),
+        ) + (iv * (1.0 - vax_params.ve_i)).component_mul(
+            &(ones
+                - vax_params.ve_p
+                    * self
+                        .parameters
+                        .fraction_symptomatic
+                        .component_mul(&self.ave.pop_eff_i_given_symp)),
+        ) + (i2v * (1.0 - vax_params.ve_2i)).component_mul(
+            &(ones
+                - vax_params.ve_2p
+                    * self
+                        .parameters
+                        .fraction_symptomatic
+                        .component_mul(&self.ave.pop_eff_i_given_symp)),
+        );
 
         let infection_rate = (beta / self.parameters.population)
             * (contact_matrix * i_effective).component_div(&self.parameters.population_fractions);
@@ -303,47 +368,68 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
         let de_to_i = e / self.parameters.latent_period;
         let di_to_r = i / eff_infectious_period;
 
-        let dsv_to_ev = sv.component_mul(&((1.0 - ve_s) * infection_rate));
+        let dsv_to_ev = sv.component_mul(&((1.0 - vax_params.ve_s) * infection_rate));
+        let ds2v_to_e2v = s2v.component_mul(&((1.0 - vax_params.ve_2s) * infection_rate));
         let dev_to_iv = ev / self.parameters.latent_period;
+        let de2v_to_i2v = e2v / self.parameters.latent_period;
         let div_to_rv = iv / eff_infectious_period;
+        let di2v_to_r2v = i2v / eff_infectious_period;
 
-        // Vaccine
-        let administration_rate = if self.parameters.mitigations.vaccine.enabled {
-            if x < self.parameters.mitigations.vaccine.start {
-                0.0
-            } else if (x - self.parameters.mitigations.vaccine.start)
-                * self.parameters.mitigations.vaccine.administration_rate
-                <= self.parameters.mitigations.vaccine.doses_available
-            {
-                self.parameters.mitigations.vaccine.administration_rate
+        // Vaccine administration
+        let (administration_rate, administration_rate2) =
+            if vax_params.enabled && vax_params.doses == 1 {
+                vaccine_rates_by_dose(
+                    x,
+                    vax_params.administration_rate,
+                    vax_params.start,
+                    0.0,
+                    0.0,
+                    vax_params.doses_available,
+                )
+            } else if vax_params.enabled && vax_params.doses == 2 {
+                vaccine_rates_by_dose(
+                    x,
+                    vax_params.administration_rate,
+                    vax_params.start,
+                    vax_params.start2_delay,
+                    vax_params.fraction_2,
+                    vax_params.doses_available,
+                )
             } else {
-                0.0
-            }
-        } else {
-            0.0
-        };
-        // 0.5828430256204575
+                (0.0, 0.0)
+            };
+        // total number unvaccinated (or 1, if none are) by group
+        let u = (s + e + i + r).map(|x| if x == 0.0 { 1.0 } else { x });
+        // total number singly vaccinated (or 1, if none are) by group
+        let v = (sv + ev + iv + rv).map(|x| if x == 0.0 { 1.0 } else { x });
         let ds_to_sv = s
-            .component_div(&(s + e + i + r))
+            .component_div(&u)
             .component_mul(&self.parameters.population_fractions)
             * administration_rate;
+        let dsv_to_s2v = sv
+            .component_div(&v)
+            .component_mul(&self.parameters.population_fractions)
+            * administration_rate2;
 
         // Symptomatic
         // at risk of progression to symptoms
-        let dat_risk = de_to_i + dev_to_iv * (1.0 - ve_p);
+        let dat_risk =
+            de_to_i + dev_to_iv * (1.0 - vax_params.ve_p) + de2v_to_i2v * (1.0 - vax_params.ve_2p);
         // progression to symptoms
         let dsymp = dat_risk.component_mul(&self.parameters.fraction_symptomatic);
 
         // Hospitalizations
         let dto_pre_h = dat_risk
             .component_mul(&self.parameters.fraction_hospitalized)
-            .component_mul(&self.ave.rr_p_hosp);
+            // hospitalization implicitly includes symptoms
+            .component_mul(&(ones - self.ave.pop_eff_p_hosp_given_symp));
         let dpre_h_to_h_cum = pre_h / self.parameters.hospitalization_delay;
 
         // Deaths
         let dto_pre_d = dat_risk
             .component_mul(&self.parameters.fraction_dead)
-            .component_mul(&self.ave.rr_p_death);
+            // death implicitly includes symptoms
+            .component_mul(&(ones - self.ave.pop_eff_p_death_given_symp));
 
         let dpre_d_to_d_cum = pre_d / self.parameters.death_delay;
 
@@ -352,10 +438,14 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
         dy.set_e(&(ds_to_e - de_to_i));
         dy.set_i(&(de_to_i - di_to_r));
         dy.set_r(&di_to_r);
-        dy.set_sv(&(-dsv_to_ev + ds_to_sv));
+        dy.set_sv(&(-dsv_to_ev + ds_to_sv - dsv_to_s2v));
         dy.set_ev(&(dsv_to_ev - dev_to_iv));
         dy.set_iv(&(dev_to_iv - div_to_rv));
         dy.set_rv(&div_to_rv);
+        dy.set_s2v(&(-ds2v_to_e2v + dsv_to_s2v));
+        dy.set_e2v(&(ds2v_to_e2v - de2v_to_i2v));
+        dy.set_i2v(&(-di2v_to_r2v + de2v_to_i2v));
+        dy.set_r2v(&di2v_to_r2v);
         dy.set_y_cum(&dsymp);
         dy.set_pre_h(&(dto_pre_h - dpre_h_to_h_cum));
         dy.set_h_cum(&dpre_h_to_h_cum);
@@ -391,7 +481,10 @@ mod test {
     use crate::{
         AntiviralsParams, DynodeModel, MitigationParams, ModelOutput, OutputType, Parameters,
         TTIQParams, VaccineParams,
-        model::{_distribute_initials1, distribute_initials, get_dominant_eigendata},
+        model::{
+            _distribute_initials1, distribute_initials, get_dominant_eigendata,
+            vaccine_rates_by_dose,
+        },
     };
 
     #[derive(Debug)]
@@ -566,6 +659,11 @@ mod test {
             ve_s: 0.5,
             ve_i: 0.5,
             ve_p: 0.5,
+            ve_2s: 0.7,
+            ve_2i: 0.7,
+            ve_2p: 0.7,
+            start2_delay: 0.0,
+            fraction_2: 0.0,
         };
 
         let ttiq_params = TTIQParams {
@@ -703,7 +801,12 @@ mod test {
         assert!((model.parameters.fraction_hospitalized[1] - ihr[1]).abs() < 1e-5);
 
         // Check deaths
-        assert!((model.parameters.fraction_dead[0] - ifr[0]).abs() < 1e-5);
+        assert!(
+            (model.parameters.fraction_dead[0] - ifr[0]).abs() < 1e-5,
+            "fraction_dead={:?} ifr={:?}",
+            model.parameters.fraction_dead,
+            ifr
+        );
         assert!((model.parameters.fraction_dead[1] - ifr[1]).abs() < 1e-5);
     }
 
@@ -763,6 +866,125 @@ mod test {
         assert_float_eq!(results.attack_rate, 0.77889514, abs <= 1e-5);
     }
 
+    // population <- 3.3e8
+    // SEIRV2DoseModel(
+    //     simulationLength = 300,
+    //     population = population,
+    //     R0 = 2.0,
+    //     latentPeriod = 1.0,
+    //     infectiousPeriod = 3.0,
+    //     seedInfections = 1000.0 / population,
+    //     VEs1 = 0.50,
+    //     VEs2 = 0.75,
+    //     VEi1 = 0.50,
+    //     VEi2 = 0.75,
+    //     VEp1 = 0.50,
+    //     VEp2 = 0.75,
+    //     vaccineAdministrationRatePerDay = 1e6,
+    //     vaccineAvailabilityByDay = 2e7,
+    //     tolerance = 1e-6,
+    // )
+    #[test]
+    fn test_2dose_vaccine() {
+        let mut params = Parameters {
+            population: 330_000_000.0,
+            population_fractions: Vector1::new(1.0),
+            population_fraction_labels: Vector1::new("All".to_string()),
+            contact_matrix: Matrix1::new(1.0),
+            initial_infections: 1_000.0,
+            fraction_initial_immune: 0.0,
+            r0: 2.0,
+            latent_period: 1.0,
+            infectious_period: 3.0,
+            mitigations: MitigationParams::default(),
+            fraction_symptomatic: Vector1::new(0.5),
+            fraction_hospitalized: Vector1::new(0.1),
+            hospitalization_delay: 1.0,
+            fraction_dead: Vector1::new(0.01),
+            death_delay: 1.0,
+            p_test_sympto: 0.0,
+            test_sensitivity: 0.90,
+            p_test_forward: 0.90,
+        };
+        params.mitigations.vaccine = VaccineParams {
+            enabled: true,
+            editable: true,
+            doses: 2,
+            start: 0.0,
+            start2_delay: 0.0,
+            fraction_2: 0.5,
+            administration_rate: 1_000_000.0,
+            doses_available: 20_000_000.0,
+            ve_s: 0.50,
+            ve_i: 0.50,
+            ve_p: 0.50,
+            ve_2s: 0.75,
+            ve_2i: 0.75,
+            ve_2p: 0.75,
+        };
+
+        let model = SEIRModel::new(params);
+        let results = TestResults::new(&model.parameters, &model.integrate(300));
+        assert_float_eq!(results.attack_rate, 0.7672022, abs <= 1e-5);
+    }
+
+    // If using 2-dose parameters, but doses is set to 1, that should be equivalent
+    // to doses set to 2 but no one getting any vaccine
+    #[test]
+    fn test_2dose_vaccine_ignore_dose1() {
+        let mut params1 = Parameters {
+            population: 330_000_000.0,
+            population_fractions: Vector1::new(1.0),
+            population_fraction_labels: Vector1::new("All".to_string()),
+            contact_matrix: Matrix1::new(1.0),
+            initial_infections: 1_000.0,
+            fraction_initial_immune: 0.0,
+            r0: 2.0,
+            latent_period: 1.0,
+            infectious_period: 3.0,
+            mitigations: MitigationParams::default(),
+            fraction_symptomatic: Vector1::new(0.5),
+            fraction_hospitalized: Vector1::new(0.1),
+            hospitalization_delay: 1.0,
+            fraction_dead: Vector1::new(0.01),
+            death_delay: 1.0,
+            p_test_sympto: 0.0,
+            test_sensitivity: 0.90,
+            p_test_forward: 0.90,
+        };
+        let vax_params1 = VaccineParams {
+            enabled: true,
+            editable: true,
+            doses: 2,
+            start: 0.0,
+            start2_delay: 0.0,
+            fraction_2: 0.0,
+            administration_rate: 1_000_000.0,
+            doses_available: 20_000_000.0,
+            ve_s: 0.50,
+            ve_i: 0.50,
+            ve_p: 0.50,
+            ve_2s: 0.75,
+            ve_2i: 0.75,
+            ve_2p: 0.75,
+        };
+        params1.mitigations.vaccine = vax_params1;
+
+        let mut params2 = params1.clone();
+        let mut vax_params2 = vax_params1.clone();
+        vax_params2.doses = 1;
+        vax_params2.fraction_2 = 0.25;
+        params2.mitigations.vaccine = vax_params2;
+
+        let model1 = SEIRModel::new(params1);
+        let model2 = SEIRModel::new(params2);
+
+        let results1 = TestResults::new(&model1.parameters, &model1.integrate(300));
+        let results2 = TestResults::new(&model2.parameters, &model2.integrate(300));
+
+        assert_float_eq!(results1.attack_rate, results2.attack_rate, abs <= 1e-10);
+    }
+
     #[test]
     fn test_eigen() {
         let x = matrix![1.0, 3.0; 2.0, 4.0];
@@ -770,5 +992,28 @@ mod test {
         assert!((eval - 5.3722813).abs() < 1e-6);
         assert!((evec[0] - 0.4069297).abs() < 1e-6);
         assert!((evec[1] - 0.5930703).abs() < 1e-6);
+    }
+
+    #[test]
+    fn test_vax_rate_by_dose() {
+        // before vaccination starts, no rates
+        let (rate1, rate2) = vaccine_rates_by_dose(0.0, 1.0, 1.0, 0.0, 0.5, 10.0);
+        assert_float_eq!(rate1, 0.0, abs <= 1e-6);
+        assert_float_eq!(rate2, 0.0, abs <= 1e-6);
+
+        // when it's only first dose, all rate should be there
+        let (rate1, rate2) = vaccine_rates_by_dose(0.0, 1.0, 0.0, 1.0, 0.5, 10.0);
+        assert_float_eq!(rate1, 1.0, abs <= 1e-6);
+        assert_float_eq!(rate2, 0.0, abs <= 1e-6);
+
+        // if both start at the same time, just split
+        let (rate1, rate2) = vaccine_rates_by_dose(0.0, 1.0, 0.0, 0.0, 0.5, 10.0);
+        assert_float_eq!(rate1, 0.5, abs <= 1e-6);
+        assert_float_eq!(rate2, 0.5, abs <= 1e-6);
+
+        // if 2nd dose starts later, it needs a certain rate
+        let (rate1, rate2) = vaccine_rates_by_dose(7.5, 1.0, 0.0, 5.0, 0.25, 10.0);
+        assert_float_eq!(rate1, 0.5, abs <= 1e-6);
+        assert_float_eq!(rate2, 0.5, abs <= 1e-6);
     }
 }
