@@ -63,9 +63,10 @@ These compartments currently represent the proportion of the total population $N
     - $\mathrm{AVE}_I$: antiviral effectiveness against transmission given
       infected.
         - Note that this is the _effectiveness_ and incorporates the interaction between the delay from exposure to receiving antivirals and the generation time distribution.
-    - $\mathrm{AVE}_P$: antiviral efficacy against progression.
-        - At this time, efficacy against hospitalization given symptoms $\mathrm{AVE}_{P,H|Y}$ is assumed equal to efficacy against death given hospitalization $\mathrm{AVE}_{P,D|H}$.
-        - However, outpatient and inpatient antivirals are considered sufficiently different that individuals can receive both and they have independent effects.
+    - $\mathrm{AVE}_{P,H|Y}$: efficacy against progression to hospitalization given symptomatic infection
+    - $\mathrm{AVE}_{P,D|H}$: efficacy against progression to death given hospitalization
+        - All fatalities are assumed to occur following hospitalization, so the protection against death given symptomatic infection is the combination of these two protections
+    - Note that outpatient and inpatient antivirals are considered sufficiently different that individuals can receive both and they have independent effects.
     - In the model, antivirals are not given before exposure, so $\mathrm{AVE}_S$ is undefined.
 - Antiviral usage
     - $A_\mathrm{op}$: proportion of symptomatic but not (yet) hospitalized people who receive antivirals. This probability is a combination of seeking care, being diagnosed, getting an antiviral prescribed, and adhering to the regimen. ("op" is for "outpatient.)

@@ -21,14 +21,26 @@ export function AntiviralsEditor() {
             </FormGroup>
             <FormGroup>
                 <NumberInput
-                    parameter="mitigations.antivirals.ave_p"
+                    parameter="mitigations.antivirals.ave_p_hosp"
                     range
                     min={0}
                     max={1}
                     step={0.01}
-                    value={params.ave_p}
                     numberType="pct"
-                    onValue={(ave_p) => updateParams({ ave_p })}
+                    value={params.ave_p_hosp}
+                    onValue={(ave_p_hosp) => updateParams({ ave_p_hosp })}
+                />
+            </FormGroup>
+            <FormGroup>
+                <NumberInput
+                    parameter="mitigations.antivirals.ave_p_death"
+                    range
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    numberType="pct"
+                    value={params.ave_p_death}
+                    onValue={(ave_p_death) => updateParams({ ave_p_death })}
                 />
             </FormGroup>
             <FormGroup>
@@ -38,8 +50,8 @@ export function AntiviralsEditor() {
                     min={0}
                     max={1}
                     step={0.01}
-                    value={params.fraction_seek_care}
                     numberType="pct"
+                    value={params.fraction_seek_care}
                     onValue={(fraction_seek_care) =>
                         updateParams({ fraction_seek_care })
                     }
