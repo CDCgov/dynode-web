@@ -127,7 +127,21 @@ export const ParameterEditorConfig = defineEditorConfig<Parameters>({
     },
     "mitigations.vaccine.administration_rate": {
         label: "Vaccine administration rate",
-        tooltip: "Number of doses administered per day",
+        tooltip: "Maximum number of doses administered per day",
+    },
+    "mitigations.vaccine.ramp_up": {
+        label: "Ramp-up period",
+        tooltip: "Time from vaccination to achieving protection from vaccination, in days. " +
+          "Individuals infected before the ramp-up period is complete have no protection from vaccination."
+    },
+    "mitigations.vaccine.dose2_delay": {
+        label: "Delay between doses",
+        tooltip: "Time that a person must wait before receiving their second dose, in days",
+    },
+    "mitigations.vaccine.p_get_2_doses": {
+        label: "Fraction of vaccinees who receive 2 doses",
+        tooltip:
+            "Of people who receive a first dose, the proportion that also receive a second dose",
     },
     "mitigations.vaccine.ve_s": {
         label: "Vaccine effectiveness against infection",
