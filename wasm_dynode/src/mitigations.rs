@@ -48,7 +48,8 @@ pub struct AntiviralsParams {
     pub fraction_diagnosed_prescribed_outpatient: f64,
     pub fraction_seek_care: f64,
     pub ave_i: f64,
-    pub ave_p: f64,
+    pub ave_p_hosp: f64,
+    pub ave_p_death: f64,
 }
 
 #[derive(Tsify, Debug, Clone, Serialize, Deserialize)]
@@ -154,7 +155,8 @@ impl<const N: usize> Default for MitigationParams<N> {
                 enabled: false,
                 editable: true,
                 ave_i: 0.5,
-                ave_p: 0.5,
+                ave_p_hosp: 0.5,
+                ave_p_death: 0.1,
                 fraction_adhere: 0.8,
                 fraction_diagnosed_prescribed_inpatient: 1.0,
                 fraction_diagnosed_prescribed_outpatient: 0.7,

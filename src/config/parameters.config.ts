@@ -57,14 +57,19 @@ export const ParameterEditorConfig = defineEditorConfig<Parameters>({
             "Proportion of positive tests that are forwarded to public health, resulting in a detection",
     },
     "mitigations.antivirals.ave_i": {
-        label: "Effectiveness against transmission (AVEi)",
+        label: "Effectiveness against onward transmission",
         tooltip:
             "Proportional reduction in onward transmission among treated, infected individuals",
     },
-    "mitigations.antivirals.ave_p": {
-        label: "Effectiveness vs. hospitalization & death (AVEp)",
+    "mitigations.antivirals.ave_p_hosp": {
+        label: "Effectiveness vs. hospitalization",
         tooltip:
-            "Proportion of treated, symptomatic infections that avert hospitalization, and of treated, hospitalized individuals who avert death",
+            "Proportion of treated, symptomatic infections that avert hospitalization",
+    },
+    "mitigations.antivirals.ave_p_death": {
+        label: "Effectiveness vs. death",
+        tooltip:
+            "Proportion of treated, hospitalized infections that avert death",
     },
     "mitigations.antivirals.fraction_seek_care": {
         label: "Fraction of cases that seek care",
