@@ -24,6 +24,7 @@ export function TTIQEditor() {
                     max={1.0}
                     step={0.01}
                     value={p_id_infectious}
+                    numberType="pct"
                     onValue={(value) =>
                         updateParams({ p_id_infectious: value })
                     }
@@ -37,6 +38,7 @@ export function TTIQEditor() {
                     max={1.0}
                     step={0.01}
                     value={p_infectious_isolates}
+                    numberType="pct"
                     onValue={(value) =>
                         updateParams({ p_infectious_isolates: value })
                     }
@@ -50,6 +52,7 @@ export function TTIQEditor() {
                     max={1.0}
                     step={0.01}
                     value={isolation_reduction}
+                    numberType="pct"
                     onValue={(value) =>
                         updateParams({ isolation_reduction: value })
                     }
@@ -62,6 +65,7 @@ export function TTIQEditor() {
                     min={0}
                     max={1.0}
                     step={0.01}
+                    numberType="pct"
                     value={p_contact_trace}
                     onValue={(value) =>
                         updateParams({ p_contact_trace: value })
@@ -75,6 +79,7 @@ export function TTIQEditor() {
                     min={0}
                     max={1.0}
                     step={0.01}
+                    numberType="pct"
                     value={p_traced_quarantines}
                     onValue={(value) =>
                         updateParams({ p_traced_quarantines: value })

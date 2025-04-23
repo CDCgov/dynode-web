@@ -15,6 +15,7 @@ export function AntiviralsEditor() {
                     max={1}
                     step={0.01}
                     value={params.ave_i}
+                    numberType="pct"
                     onValue={(ave_i) => updateParams({ ave_i })}
                 />
             </FormGroup>
@@ -26,6 +27,7 @@ export function AntiviralsEditor() {
                     max={1}
                     step={0.01}
                     value={params.ave_p}
+                    numberType="pct"
                     onValue={(ave_p) => updateParams({ ave_p })}
                 />
             </FormGroup>
@@ -37,6 +39,7 @@ export function AntiviralsEditor() {
                     max={1}
                     step={0.01}
                     value={params.fraction_seek_care}
+                    numberType="pct"
                     onValue={(fraction_seek_care) =>
                         updateParams({ fraction_seek_care })
                     }
@@ -49,6 +52,7 @@ export function AntiviralsEditor() {
                     min={0}
                     max={1}
                     step={0.01}
+                    numberType="pct"
                     value={params.fraction_diagnosed_prescribed_outpatient}
                     onValue={(fraction_diagnosed_prescribed_outpatient) =>
                         updateParams({
@@ -64,6 +68,7 @@ export function AntiviralsEditor() {
                     min={0}
                     max={1}
                     step={0.01}
+                    numberType="pct"
                     value={params.fraction_adhere}
                     onValue={(fraction_adhere) =>
                         updateParams({ fraction_adhere })
@@ -77,6 +82,7 @@ export function AntiviralsEditor() {
                     min={0}
                     max={1}
                     step={0.01}
+                    numberType="pct"
                     value={params.fraction_diagnosed_prescribed_inpatient}
                     onValue={(fraction_diagnosed_prescribed_inpatient) =>
                         updateParams({

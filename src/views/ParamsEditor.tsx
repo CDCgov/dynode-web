@@ -94,15 +94,14 @@ function ScenarioParams() {
                 <NumberInput
                     parameter="fraction_initial_immune"
                     range
+                    numberType="pct"
                     min={0}
-                    max={100}
-                    step={1}
-                    numberType="float"
-                    value={params.fraction_initial_immune * 100}
+                    max={1}
+                    step={0.01}
+                    value={params.fraction_initial_immune}
                     onValue={(fraction_initial_immune) =>
                         updateParams({
-                            fraction_initial_immune:
-                                fraction_initial_immune / 100,
+                            fraction_initial_immune: fraction_initial_immune,
                         })
                     }
                 />
@@ -160,7 +159,7 @@ function ScenarioParams() {
                             max={0.8}
                             step={0.01}
                             value={value}
-                            numberType="float"
+                            numberType="pct"
                             onValue={onValue}
                         />
                     )}
@@ -220,7 +219,7 @@ function DetectionParamsEditor() {
                     max={0.1}
                     step={0.001}
                     value={params.p_test_sympto}
-                    numberType="float"
+                    numberType="pct"
                     onValue={(value) => updateParams({ p_test_sympto: value })}
                 />
             </FormGroup>
@@ -232,7 +231,7 @@ function DetectionParamsEditor() {
                     max={1.0}
                     step={0.01}
                     value={params.test_sensitivity}
-                    numberType="float"
+                    numberType="pct"
                     onValue={(value) =>
                         updateParams({ test_sensitivity: value })
                     }
@@ -246,7 +245,7 @@ function DetectionParamsEditor() {
                     max={1.0}
                     step={0.01}
                     value={params.p_test_forward}
-                    numberType="float"
+                    numberType="pct"
                     onValue={(value) => updateParams({ p_test_forward: value })}
                 />
             </FormGroup>
