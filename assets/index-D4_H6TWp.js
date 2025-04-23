@@ -7192,7 +7192,7 @@ class kL {
 function RL(t15) {
   return new kL(t15);
 }
-const I2 = RL({ population: { label: "Population size", tooltip: "The total number of people in the simulation" }, initial_infections: { label: "Initial infections", tooltip: "Number of people infected at time 0" }, r0: { label: "R0", tooltip: "Basic reproduction number" }, latent_period: { label: "Latent period", tooltip: "Mean delay from infection to infectiousness, in days" }, infectious_period: { label: "Infectious period", tooltip: "Mean duration of infectious period, in days" }, fraction_initial_immune: { label: "Prior Immunity (%)", tooltip: "Proportion of the population that is immune at the start of the simulation" }, fraction_symptomatic: { label: "Symptomatic fraction", tooltip: "Proportion of infections that would result in symptoms in the absence of mitigations" }, fraction_hospitalized: { label: "Infection-hospitalization ratio", tooltip: "Proportion of infections that would result in hospitalization in the absence of mitigations" }, fraction_dead: { label: "Infection-fatality ratio", tooltip: "Proportion of infections that would result in death in the absence of mitigations" }, p_test_sympto: { label: "Proportion of symptomatic infections tested" }, test_sensitivity: { label: "Test sensitivity", tooltip: "Proportion of tested infections that are positive" }, p_test_forward: { label: " Probability a positive test is forwarded to public health", tooltip: "Proportion of positive tests that are forwarded to public health, resulting in a detection" }, "mitigations.antivirals.ave_i": { label: "Effectiveness against onward transmission", tooltip: "Proportional reduction in onward transmission among treated, infected individuals" }, "mitigations.antivirals.ave_p_hosp": { label: "Effectiveness vs. hospitalization", tooltip: "Proportion of treated, symptomatic infections that avert hospitalization" }, "mitigations.antivirals.ave_p_death": { label: "Effectiveness vs. death", tooltip: "Proportion of treated, hospitalized infections that avert death" }, "mitigations.antivirals.fraction_seek_care": { label: "Fraction of cases that seek care", tooltip: "Proportion of symptomatic infections that seek care" }, "mitigations.antivirals.fraction_diagnosed_prescribed_outpatient": { label: "Fraction of diagnosed care-seeking outpatient cases", tooltip: "Proportion of care-seeking infections that are prescribed outpatient antivirals" }, "mitigations.antivirals.fraction_adhere": { label: "Fraction of individuals that adhere to prescribed outpatient antiviral regimen", tooltip: "Proportion of individuals prescribed outpatient antivirals who take their course" }, "mitigations.antivirals.fraction_diagnosed_prescribed_inpatient": { label: "Fraction of hospitalized cases that receive antivirals", tooltip: "Proportion of hospitalized infections that are prescribed inpatient antivirals" }, "mitigations.community.start": { label: "Day to begin community mitigation", tooltip: "Start day of the mitigation" }, "mitigations.community.duration": { label: "Duration of community mitigation", tooltip: "Duration of the mitigation in days" }, "mitigations.community.effectiveness": { label: "Community mitigation effectiveness", tooltip: "Proportional reduction in transmission due to the mitigation, where negative values mean an increase in transmission" }, "mitigations.ttiq.p_id_infectious": { label: "Probability an infectious person becomes aware of their own infection" }, "mitigations.ttiq.p_infectious_isolates": { label: "Probability an aware, infectious person will isolate" }, "mitigations.ttiq.isolation_reduction": { label: "Proportional reduction in infectious period due to isolation" }, "mitigations.ttiq.p_contact_trace": { label: "Probability contact tracing will identify an exposed person" }, "mitigations.ttiq.p_traced_quarantines": { label: "Probability a traced contact will quarantine and never transmit" }, "mitigations.vaccine.start": { label: "Vaccination start", tooltip: "Start day of the vaccination campaign" }, "mitigations.vaccine.doses": { label: "Vaccine type" }, "mitigations.vaccine.doses_available": { label: "Vaccine doses available", tooltip: "Total number of doses available for vaccination. Determines the duration of the vaccine campaign." }, "mitigations.vaccine.administration_rate": { label: "Vaccine administration rate", tooltip: "Number of doses administered per day" }, "mitigations.vaccine.ve_s": { label: "Vaccine effectiveness against infection", tooltip: "Vaccine effectiveness against infection" }, "mitigations.vaccine.ve_i": { label: "Vaccine effectiveness against onward transmission", tooltip: "Vaccine effectiveness against onward transmission" }, "mitigations.vaccine.ve_p": { label: "Vaccine effectiveness against illness", tooltip: "Vaccine effectiveness against illness" } });
+const I2 = RL({ population: { label: "Population size", tooltip: "The total number of people in the simulation" }, initial_infections: { label: "Initial infections", tooltip: "Number of people infected at time 0" }, r0: { label: "R0", tooltip: "Basic reproduction number" }, latent_period: { label: "Latent period", tooltip: "Mean delay from infection to infectiousness, in days" }, infectious_period: { label: "Infectious period", tooltip: "Mean duration of infectious period, in days" }, fraction_initial_immune: { label: "Prior Immunity (%)", tooltip: "Proportion of the population that is immune at the start of the simulation" }, fraction_symptomatic: { label: "Symptomatic fraction", tooltip: "Proportion of infections that would result in symptoms in the absence of mitigations" }, fraction_hospitalized: { label: "Infection-hospitalization ratio", tooltip: "Proportion of infections that would result in hospitalization in the absence of mitigations" }, fraction_dead: { label: "Infection-fatality ratio", tooltip: "Proportion of infections that would result in death in the absence of mitigations" }, p_test_sympto: { label: "Proportion of symptomatic infections tested" }, test_sensitivity: { label: "Test sensitivity", tooltip: "Proportion of tested infections that are positive" }, p_test_forward: { label: " Probability a positive test is forwarded to public health", tooltip: "Proportion of positive tests that are forwarded to public health, resulting in a detection" }, "mitigations.antivirals.ave_i": { label: "Effectiveness against onward transmission", tooltip: "Proportional reduction in onward transmission among treated, infected individuals" }, "mitigations.antivirals.ave_p_hosp": { label: "Effectiveness vs. hospitalization", tooltip: "Proportion of treated, symptomatic infections that avert hospitalization" }, "mitigations.antivirals.ave_p_death": { label: "Effectiveness vs. death", tooltip: "Proportion of treated, hospitalized infections that avert death" }, "mitigations.antivirals.fraction_seek_care": { label: "Fraction of cases that seek care", tooltip: "Proportion of symptomatic infections that seek care" }, "mitigations.antivirals.fraction_diagnosed_prescribed_outpatient": { label: "Fraction of diagnosed care-seeking outpatient cases", tooltip: "Proportion of care-seeking infections that are prescribed outpatient antivirals" }, "mitigations.antivirals.fraction_adhere": { label: "Fraction of individuals that adhere to prescribed outpatient antiviral regimen", tooltip: "Proportion of individuals prescribed outpatient antivirals who take their course" }, "mitigations.antivirals.fraction_diagnosed_prescribed_inpatient": { label: "Fraction of hospitalized cases that receive antivirals", tooltip: "Proportion of hospitalized infections that are prescribed inpatient antivirals" }, "mitigations.community.start": { label: "Day to begin community mitigation", tooltip: "Start day of the mitigation" }, "mitigations.community.duration": { label: "Duration of community mitigation", tooltip: "Duration of the mitigation in days" }, "mitigations.community.effectiveness": { label: "Community mitigation effectiveness", tooltip: "Proportional reduction in transmission due to the mitigation, where negative values mean an increase in transmission" }, "mitigations.ttiq.p_id_infectious": { label: "Probability an infectious person becomes aware of their own infection" }, "mitigations.ttiq.p_infectious_isolates": { label: "Probability an aware, infectious person will isolate" }, "mitigations.ttiq.isolation_reduction": { label: "Proportional reduction in infectious period due to isolation" }, "mitigations.ttiq.p_contact_trace": { label: "Probability contact tracing will identify an exposed person" }, "mitigations.ttiq.p_traced_quarantines": { label: "Probability a traced contact will quarantine and never transmit" }, "mitigations.vaccine.start": { label: "Vaccination start", tooltip: "Start day of the vaccination campaign" }, "mitigations.vaccine.doses": { label: "Vaccine type" }, "mitigations.vaccine.doses_available": { label: "Vaccine doses available", tooltip: "Total number of doses available for vaccination. Determines the duration of the vaccine campaign." }, "mitigations.vaccine.administration_rate": { label: "Vaccine administration rate", tooltip: "Maximum number of doses administered per day" }, "mitigations.vaccine.ramp_up": { label: "Ramp-up period", tooltip: "Time from vaccination to achieving protection from vaccination, in days. Individuals infected before the ramp-up period is complete have no protection from vaccination." }, "mitigations.vaccine.dose2_delay": { label: "Delay between doses", tooltip: "Time that a person must wait before receiving their second dose, in days" }, "mitigations.vaccine.p_get_2_doses": { label: "Fraction of vaccinees who receive 2 doses", tooltip: "Of people who receive a first dose, the proportion that also receive a second dose" }, "mitigations.vaccine.ve_s": { label: "Vaccine effectiveness against infection", tooltip: "Vaccine effectiveness against infection" }, "mitigations.vaccine.ve_i": { label: "Vaccine effectiveness against onward transmission", tooltip: "Vaccine effectiveness against onward transmission" }, "mitigations.vaccine.ve_p": { label: "Vaccine effectiveness against illness", tooltip: "Vaccine effectiveness against illness" } });
 function td(t15) {
   let e = t15.parameter && I2.getConfig(t15.parameter), n = e == null ? void 0 : e.tooltip;
   const i = F.useRef(null), [r, s] = F.useState(null);
@@ -9534,7 +9534,7 @@ function eb(t15, e) {
 function Ej(t15, e) {
   return Math.round((t15 + e) * 1e4) / 1e4;
 }
-function te(t15) {
+function Wt(t15) {
   if ("range" in t15 && t15.range === true) return "isMulti" in t15 && t15.isMulti === true ? N.jsx(I5, { ...t15 }) : N.jsx(I5, { ...t15 });
   if (typeof t15.value == "number") return N.jsx(Cj, { ...t15 });
 }
@@ -9568,7 +9568,7 @@ function I5(t15) {
   };
   return N.jsxs(N.Fragment, { children: [N.jsx(td, { parameter: t15.parameter }), N.jsx(wj, { numberType: t15.numberType, min: t15.min, max: t15.max, step: t15.step, value: t15.value, valueLabelDisplay: t15.tooltipLabelFormat ? "auto" : "off", markFormat: t15.markFormat, valueLabelFormat: t15.tooltipLabelFormat, track: false, onChange: e, showMinMaxLabels: t15.showMinMaxLabels })] });
 }
-function ee({ children: t15 }) {
+function Jt({ children: t15 }) {
   return N.jsx("div", { className: "form-group", children: t15 });
 }
 function vo(t15) {
@@ -11245,7 +11245,7 @@ function _U(t15, e) {
 }
 async function v7(t15) {
   if (Ue !== void 0) return Ue;
-  typeof t15 < "u" && (Object.getPrototypeOf(t15) === Object.prototype ? { module_or_path: t15 } = t15 : console.warn("using deprecated parameters for the initialization function; pass a single object instead")), typeof t15 > "u" && (t15 = new URL("/dynode-web/assets/wasm_dynode_bg-Sv-xcyiU.wasm", import.meta.url));
+  typeof t15 < "u" && (Object.getPrototypeOf(t15) === Object.prototype ? { module_or_path: t15 } = t15 : console.warn("using deprecated parameters for the initialization function; pass a single object instead")), typeof t15 > "u" && (t15 = new URL("/dynode-web/assets/wasm_dynode_bg-BZ-Gd5oi.wasm", import.meta.url));
   const e = xU();
   (typeof t15 == "string" || typeof Request == "function" && t15 instanceof Request || typeof URL == "function" && t15 instanceof URL) && (t15 = fetch(t15));
   const { instance: n, module: i } = await vU(await t15, e);
@@ -12332,10 +12332,10 @@ function Ai(t15, e) {
   return new re(t15, { beforeExpr: true, binop: e });
 }
 var Mi = { beforeExpr: true }, Qn = { startsExpr: true }, dx = {};
-function Jt(t15, e) {
+function ee(t15, e) {
   return e === void 0 && (e = {}), e.keyword = t15, dx[t15] = new re(t15, e);
 }
-var R = { num: new re("num", Qn), regexp: new re("regexp", Qn), string: new re("string", Qn), name: new re("name", Qn), privateId: new re("privateId", Qn), eof: new re("eof"), bracketL: new re("[", { beforeExpr: true, startsExpr: true }), bracketR: new re("]"), braceL: new re("{", { beforeExpr: true, startsExpr: true }), braceR: new re("}"), parenL: new re("(", { beforeExpr: true, startsExpr: true }), parenR: new re(")"), comma: new re(",", Mi), semi: new re(";", Mi), colon: new re(":", Mi), dot: new re("."), question: new re("?", Mi), questionDot: new re("?."), arrow: new re("=>", Mi), template: new re("template"), invalidTemplate: new re("invalidTemplate"), ellipsis: new re("...", Mi), backQuote: new re("`", Qn), dollarBraceL: new re("${", { beforeExpr: true, startsExpr: true }), eq: new re("=", { beforeExpr: true, isAssign: true }), assign: new re("_=", { beforeExpr: true, isAssign: true }), incDec: new re("++/--", { prefix: true, postfix: true, startsExpr: true }), prefix: new re("!/~", { beforeExpr: true, prefix: true, startsExpr: true }), logicalOR: Ai("||", 1), logicalAND: Ai("&&", 2), bitwiseOR: Ai("|", 3), bitwiseXOR: Ai("^", 4), bitwiseAND: Ai("&", 5), equality: Ai("==/!=/===/!==", 6), relational: Ai("</>/<=/>=", 7), bitShift: Ai("<</>>/>>>", 8), plusMin: new re("+/-", { beforeExpr: true, binop: 9, prefix: true, startsExpr: true }), modulo: Ai("%", 10), star: Ai("*", 10), slash: Ai("/", 10), starstar: new re("**", { beforeExpr: true }), coalesce: Ai("??", 1), _break: Jt("break"), _case: Jt("case", Mi), _catch: Jt("catch"), _continue: Jt("continue"), _debugger: Jt("debugger"), _default: Jt("default", Mi), _do: Jt("do", { isLoop: true, beforeExpr: true }), _else: Jt("else", Mi), _finally: Jt("finally"), _for: Jt("for", { isLoop: true }), _function: Jt("function", Qn), _if: Jt("if"), _return: Jt("return", Mi), _switch: Jt("switch"), _throw: Jt("throw", Mi), _try: Jt("try"), _var: Jt("var"), _const: Jt("const"), _while: Jt("while", { isLoop: true }), _with: Jt("with"), _new: Jt("new", { beforeExpr: true, startsExpr: true }), _this: Jt("this", Qn), _super: Jt("super", Qn), _class: Jt("class", Qn), _extends: Jt("extends", Mi), _export: Jt("export"), _import: Jt("import", Qn), _null: Jt("null", Qn), _true: Jt("true", Qn), _false: Jt("false", Qn), _in: Jt("in", { beforeExpr: true, binop: 7 }), _instanceof: Jt("instanceof", { beforeExpr: true, binop: 7 }), _typeof: Jt("typeof", { beforeExpr: true, prefix: true, startsExpr: true }), _void: Jt("void", { beforeExpr: true, prefix: true, startsExpr: true }), _delete: Jt("delete", { beforeExpr: true, prefix: true, startsExpr: true }) }, Hi = /\r\n?|\n|\u2028|\u2029/, yq = new RegExp(Hi.source, "g");
+var R = { num: new re("num", Qn), regexp: new re("regexp", Qn), string: new re("string", Qn), name: new re("name", Qn), privateId: new re("privateId", Qn), eof: new re("eof"), bracketL: new re("[", { beforeExpr: true, startsExpr: true }), bracketR: new re("]"), braceL: new re("{", { beforeExpr: true, startsExpr: true }), braceR: new re("}"), parenL: new re("(", { beforeExpr: true, startsExpr: true }), parenR: new re(")"), comma: new re(",", Mi), semi: new re(";", Mi), colon: new re(":", Mi), dot: new re("."), question: new re("?", Mi), questionDot: new re("?."), arrow: new re("=>", Mi), template: new re("template"), invalidTemplate: new re("invalidTemplate"), ellipsis: new re("...", Mi), backQuote: new re("`", Qn), dollarBraceL: new re("${", { beforeExpr: true, startsExpr: true }), eq: new re("=", { beforeExpr: true, isAssign: true }), assign: new re("_=", { beforeExpr: true, isAssign: true }), incDec: new re("++/--", { prefix: true, postfix: true, startsExpr: true }), prefix: new re("!/~", { beforeExpr: true, prefix: true, startsExpr: true }), logicalOR: Ai("||", 1), logicalAND: Ai("&&", 2), bitwiseOR: Ai("|", 3), bitwiseXOR: Ai("^", 4), bitwiseAND: Ai("&", 5), equality: Ai("==/!=/===/!==", 6), relational: Ai("</>/<=/>=", 7), bitShift: Ai("<</>>/>>>", 8), plusMin: new re("+/-", { beforeExpr: true, binop: 9, prefix: true, startsExpr: true }), modulo: Ai("%", 10), star: Ai("*", 10), slash: Ai("/", 10), starstar: new re("**", { beforeExpr: true }), coalesce: Ai("??", 1), _break: ee("break"), _case: ee("case", Mi), _catch: ee("catch"), _continue: ee("continue"), _debugger: ee("debugger"), _default: ee("default", Mi), _do: ee("do", { isLoop: true, beforeExpr: true }), _else: ee("else", Mi), _finally: ee("finally"), _for: ee("for", { isLoop: true }), _function: ee("function", Qn), _if: ee("if"), _return: ee("return", Mi), _switch: ee("switch"), _throw: ee("throw", Mi), _try: ee("try"), _var: ee("var"), _const: ee("const"), _while: ee("while", { isLoop: true }), _with: ee("with"), _new: ee("new", { beforeExpr: true, startsExpr: true }), _this: ee("this", Qn), _super: ee("super", Qn), _class: ee("class", Qn), _extends: ee("extends", Mi), _export: ee("export"), _import: ee("import", Qn), _null: ee("null", Qn), _true: ee("true", Qn), _false: ee("false", Qn), _in: ee("in", { beforeExpr: true, binop: 7 }), _instanceof: ee("instanceof", { beforeExpr: true, binop: 7 }), _typeof: ee("typeof", { beforeExpr: true, prefix: true, startsExpr: true }), _void: ee("void", { beforeExpr: true, prefix: true, startsExpr: true }), _delete: ee("delete", { beforeExpr: true, prefix: true, startsExpr: true }) }, Hi = /\r\n?|\n|\u2028|\u2029/, yq = new RegExp(Hi.source, "g");
 function Tl(t15) {
   return t15 === 10 || t15 === 13 || t15 === 8232 || t15 === 8233;
 }
@@ -14223,45 +14223,45 @@ St.regexp_eatFixedHexDigits = function(t15, e) {
 };
 var bx = function(e) {
   this.type = e.type, this.value = e.value, this.start = e.start, this.end = e.end, e.options.locations && (this.loc = new Dm(e, e.startLoc, e.endLoc)), e.options.ranges && (this.range = [e.start, e.end]);
-}, Wt = on.prototype;
-Wt.next = function(t15) {
+}, te = on.prototype;
+te.next = function(t15) {
   !t15 && this.type.keyword && this.containsEsc && this.raiseRecoverable(this.start, "Escape sequence in keyword " + this.type.keyword), this.options.onToken && this.options.onToken(new bx(this)), this.lastTokEnd = this.end, this.lastTokStart = this.start, this.lastTokEndLoc = this.endLoc, this.lastTokStartLoc = this.startLoc, this.nextToken();
 };
-Wt.getToken = function() {
+te.getToken = function() {
   return this.next(), new bx(this);
 };
-typeof Symbol < "u" && (Wt[Symbol.iterator] = function() {
+typeof Symbol < "u" && (te[Symbol.iterator] = function() {
   var t15 = this;
   return { next: function() {
     var e = t15.getToken();
     return { done: e.type === R.eof, value: e };
   } };
 });
-Wt.nextToken = function() {
+te.nextToken = function() {
   var t15 = this.curContext();
   if ((!t15 || !t15.preserveSpace) && this.skipSpace(), this.start = this.pos, this.options.locations && (this.startLoc = this.curPosition()), this.pos >= this.input.length) return this.finishToken(R.eof);
   if (t15.override) return t15.override(this);
   this.readToken(this.fullCharCodeAtPos());
 };
-Wt.readToken = function(t15) {
+te.readToken = function(t15) {
   return Ra(t15, this.options.ecmaVersion >= 6) || t15 === 92 ? this.readWord() : this.getTokenFromCode(t15);
 };
-Wt.fullCharCodeAtPos = function() {
+te.fullCharCodeAtPos = function() {
   var t15 = this.input.charCodeAt(this.pos);
   if (t15 <= 55295 || t15 >= 56320) return t15;
   var e = this.input.charCodeAt(this.pos + 1);
   return e <= 56319 || e >= 57344 ? t15 : (t15 << 10) + e - 56613888;
 };
-Wt.skipBlockComment = function() {
+te.skipBlockComment = function() {
   var t15 = this.options.onComment && this.curPosition(), e = this.pos, n = this.input.indexOf("*/", this.pos += 2);
   if (n === -1 && this.raise(this.pos - 2, "Unterminated comment"), this.pos = n + 2, this.options.locations) for (var i = void 0, r = e; (i = nT(this.input, r, this.pos)) > -1; ) ++this.curLine, r = this.lineStart = i;
   this.options.onComment && this.options.onComment(true, this.input.slice(e + 2, n), e, this.pos, t15, this.curPosition());
 };
-Wt.skipLineComment = function(t15) {
+te.skipLineComment = function(t15) {
   for (var e = this.pos, n = this.options.onComment && this.curPosition(), i = this.input.charCodeAt(this.pos += t15); this.pos < this.input.length && !Tl(i); ) i = this.input.charCodeAt(++this.pos);
   this.options.onComment && this.options.onComment(false, this.input.slice(e + t15, this.pos), e, this.pos, n, this.curPosition());
 };
-Wt.skipSpace = function() {
+te.skipSpace = function() {
   t: for (; this.pos < this.input.length; ) {
     var t15 = this.input.charCodeAt(this.pos);
     switch (t15) {
@@ -14294,26 +14294,26 @@ Wt.skipSpace = function() {
     }
   }
 };
-Wt.finishToken = function(t15, e) {
+te.finishToken = function(t15, e) {
   this.end = this.pos, this.options.locations && (this.endLoc = this.curPosition());
   var n = this.type;
   this.type = t15, this.value = e, this.updateContext(n);
 };
-Wt.readToken_dot = function() {
+te.readToken_dot = function() {
   var t15 = this.input.charCodeAt(this.pos + 1);
   if (t15 >= 48 && t15 <= 57) return this.readNumber(true);
   var e = this.input.charCodeAt(this.pos + 2);
   return this.options.ecmaVersion >= 6 && t15 === 46 && e === 46 ? (this.pos += 3, this.finishToken(R.ellipsis)) : (++this.pos, this.finishToken(R.dot));
 };
-Wt.readToken_slash = function() {
+te.readToken_slash = function() {
   var t15 = this.input.charCodeAt(this.pos + 1);
   return this.exprAllowed ? (++this.pos, this.readRegexp()) : t15 === 61 ? this.finishOp(R.assign, 2) : this.finishOp(R.slash, 1);
 };
-Wt.readToken_mult_modulo_exp = function(t15) {
+te.readToken_mult_modulo_exp = function(t15) {
   var e = this.input.charCodeAt(this.pos + 1), n = 1, i = t15 === 42 ? R.star : R.modulo;
   return this.options.ecmaVersion >= 7 && t15 === 42 && e === 42 && (++n, i = R.starstar, e = this.input.charCodeAt(this.pos + 2)), e === 61 ? this.finishOp(R.assign, n + 1) : this.finishOp(i, n);
 };
-Wt.readToken_pipe_amp = function(t15) {
+te.readToken_pipe_amp = function(t15) {
   var e = this.input.charCodeAt(this.pos + 1);
   if (e === t15) {
     if (this.options.ecmaVersion >= 12) {
@@ -14324,23 +14324,23 @@ Wt.readToken_pipe_amp = function(t15) {
   }
   return e === 61 ? this.finishOp(R.assign, 2) : this.finishOp(t15 === 124 ? R.bitwiseOR : R.bitwiseAND, 1);
 };
-Wt.readToken_caret = function() {
+te.readToken_caret = function() {
   var t15 = this.input.charCodeAt(this.pos + 1);
   return t15 === 61 ? this.finishOp(R.assign, 2) : this.finishOp(R.bitwiseXOR, 1);
 };
-Wt.readToken_plus_min = function(t15) {
+te.readToken_plus_min = function(t15) {
   var e = this.input.charCodeAt(this.pos + 1);
   return e === t15 ? e === 45 && !this.inModule && this.input.charCodeAt(this.pos + 2) === 62 && (this.lastTokEnd === 0 || Hi.test(this.input.slice(this.lastTokEnd, this.pos))) ? (this.skipLineComment(3), this.skipSpace(), this.nextToken()) : this.finishOp(R.incDec, 2) : e === 61 ? this.finishOp(R.assign, 2) : this.finishOp(R.plusMin, 1);
 };
-Wt.readToken_lt_gt = function(t15) {
+te.readToken_lt_gt = function(t15) {
   var e = this.input.charCodeAt(this.pos + 1), n = 1;
   return e === t15 ? (n = t15 === 62 && this.input.charCodeAt(this.pos + 2) === 62 ? 3 : 2, this.input.charCodeAt(this.pos + n) === 61 ? this.finishOp(R.assign, n + 1) : this.finishOp(R.bitShift, n)) : e === 33 && t15 === 60 && !this.inModule && this.input.charCodeAt(this.pos + 2) === 45 && this.input.charCodeAt(this.pos + 3) === 45 ? (this.skipLineComment(4), this.skipSpace(), this.nextToken()) : (e === 61 && (n = 2), this.finishOp(R.relational, n));
 };
-Wt.readToken_eq_excl = function(t15) {
+te.readToken_eq_excl = function(t15) {
   var e = this.input.charCodeAt(this.pos + 1);
   return e === 61 ? this.finishOp(R.equality, this.input.charCodeAt(this.pos + 2) === 61 ? 3 : 2) : t15 === 61 && e === 62 && this.options.ecmaVersion >= 6 ? (this.pos += 2, this.finishToken(R.arrow)) : this.finishOp(t15 === 61 ? R.eq : R.prefix, 1);
 };
-Wt.readToken_question = function() {
+te.readToken_question = function() {
   var t15 = this.options.ecmaVersion;
   if (t15 >= 11) {
     var e = this.input.charCodeAt(this.pos + 1);
@@ -14358,12 +14358,12 @@ Wt.readToken_question = function() {
   }
   return this.finishOp(R.question, 1);
 };
-Wt.readToken_numberSign = function() {
+te.readToken_numberSign = function() {
   var t15 = this.options.ecmaVersion, e = 35;
   if (t15 >= 13 && (++this.pos, e = this.fullCharCodeAtPos(), Ra(e, true) || e === 92)) return this.finishToken(R.privateId, this.readWord1());
   this.raise(this.pos, "Unexpected character '" + Na(e) + "'");
 };
-Wt.getTokenFromCode = function(t15) {
+te.getTokenFromCode = function(t15) {
   switch (t15) {
     case 46:
       return this.readToken_dot();
@@ -14436,11 +14436,11 @@ Wt.getTokenFromCode = function(t15) {
   }
   this.raise(this.pos, "Unexpected character '" + Na(t15) + "'");
 };
-Wt.finishOp = function(t15, e) {
+te.finishOp = function(t15, e) {
   var n = this.input.slice(this.pos, this.pos + e);
   return this.pos += e, this.finishToken(t15, n);
 };
-Wt.readRegexp = function() {
+te.readRegexp = function() {
   for (var t15, e, n = this.pos; ; ) {
     this.pos >= this.input.length && this.raise(n, "Unterminated regular expression");
     var i = this.input.charAt(this.pos);
@@ -14466,7 +14466,7 @@ Wt.readRegexp = function() {
   }
   return this.finishToken(R.regexp, { pattern: r, flags: u, value: f });
 };
-Wt.readInt = function(t15, e, n) {
+te.readInt = function(t15, e, n) {
   for (var i = this.options.ecmaVersion >= 12 && e === void 0, r = n && this.input.charCodeAt(this.pos) === 48, s = this.pos, u = 0, c = 0, f = 0, d = e ?? 1 / 0; f < d; ++f, ++this.pos) {
     var p = this.input.charCodeAt(this.pos), m = void 0;
     if (i && p === 95) {
@@ -14484,13 +14484,13 @@ function Xq(t15, e) {
 function DT(t15) {
   return typeof BigInt != "function" ? null : BigInt(t15.replace(/_/g, ""));
 }
-Wt.readRadixNumber = function(t15) {
+te.readRadixNumber = function(t15) {
   var e = this.pos;
   this.pos += 2;
   var n = this.readInt(t15);
   return n == null && this.raise(this.start + 2, "Expected number in radix " + t15), this.options.ecmaVersion >= 11 && this.input.charCodeAt(this.pos) === 110 ? (n = DT(this.input.slice(e, this.pos)), ++this.pos) : Ra(this.fullCharCodeAtPos()) && this.raise(this.pos, "Identifier directly after number"), this.finishToken(R.num, n);
 };
-Wt.readNumber = function(t15) {
+te.readNumber = function(t15) {
   var e = this.pos;
   !t15 && this.readInt(10, void 0, true) === null && this.raise(e, "Invalid number");
   var n = this.pos - e >= 2 && this.input.charCodeAt(e) === 48;
@@ -14504,7 +14504,7 @@ Wt.readNumber = function(t15) {
   var s = Xq(this.input.slice(e, this.pos), n);
   return this.finishToken(R.num, s);
 };
-Wt.readCodePoint = function() {
+te.readCodePoint = function() {
   var t15 = this.input.charCodeAt(this.pos), e;
   if (t15 === 123) {
     this.options.ecmaVersion < 6 && this.unexpected();
@@ -14513,7 +14513,7 @@ Wt.readCodePoint = function() {
   } else e = this.readHexChar(4);
   return e;
 };
-Wt.readString = function(t15) {
+te.readString = function(t15) {
   for (var e = "", n = ++this.pos; ; ) {
     this.pos >= this.input.length && this.raise(this.start, "Unterminated string constant");
     var i = this.input.charCodeAt(this.pos);
@@ -14523,7 +14523,7 @@ Wt.readString = function(t15) {
   return e += this.input.slice(n, this.pos++), this.finishToken(R.string, e);
 };
 var $T = {};
-Wt.tryReadTemplateToken = function() {
+te.tryReadTemplateToken = function() {
   this.inTemplateElement = true;
   try {
     this.readTmplToken();
@@ -14533,11 +14533,11 @@ Wt.tryReadTemplateToken = function() {
   }
   this.inTemplateElement = false;
 };
-Wt.invalidStringToken = function(t15, e) {
+te.invalidStringToken = function(t15, e) {
   if (this.inTemplateElement && this.options.ecmaVersion >= 9) throw $T;
   this.raise(t15, e);
 };
-Wt.readTmplToken = function() {
+te.readTmplToken = function() {
   for (var t15 = "", e = this.pos; ; ) {
     this.pos >= this.input.length && this.raise(this.start, "Unterminated template");
     var n = this.input.charCodeAt(this.pos);
@@ -14559,7 +14559,7 @@ Wt.readTmplToken = function() {
     } else ++this.pos;
   }
 };
-Wt.readInvalidTemplateToken = function() {
+te.readInvalidTemplateToken = function() {
   for (; this.pos < this.input.length; this.pos++) switch (this.input[this.pos]) {
     case "\\":
       ++this.pos;
@@ -14580,7 +14580,7 @@ Wt.readInvalidTemplateToken = function() {
   }
   this.raise(this.start, "Unterminated template");
 };
-Wt.readEscapedChar = function(t15) {
+te.readEscapedChar = function(t15) {
   var e = this.input.charCodeAt(++this.pos);
   switch (++this.pos, e) {
     case 110:
@@ -14618,11 +14618,11 @@ Wt.readEscapedChar = function(t15) {
       return Tl(e) ? (this.options.locations && (this.lineStart = this.pos, ++this.curLine), "") : String.fromCharCode(e);
   }
 };
-Wt.readHexChar = function(t15) {
+te.readHexChar = function(t15) {
   var e = this.pos, n = this.readInt(16, t15);
   return n === null && this.invalidStringToken(e, "Bad character escape sequence"), n;
 };
-Wt.readWord1 = function() {
+te.readWord1 = function() {
   this.containsEsc = false;
   for (var t15 = "", e = true, n = this.pos, i = this.options.ecmaVersion >= 6; this.pos < this.input.length; ) {
     var r = this.fullCharCodeAtPos();
@@ -14638,7 +14638,7 @@ Wt.readWord1 = function() {
   }
   return t15 + this.input.slice(n, this.pos);
 };
-Wt.readWord = function() {
+te.readWord = function() {
   var t15 = this.readWord1(), e = R.name;
   return this.keywords.test(t15) && (e = dx[t15]), this.finishToken(e, t15);
 };
@@ -17867,12 +17867,12 @@ const a9 = F.createContext(void 0), LK = ({ initialParams: t15, children: e }) =
 function IK() {
   let [t15] = Yi(), [e, n] = Gm("vaccine"), [i] = Ym(), r = [{ value: 1, label: "One dose" }, { value: 2, label: "Two doses" }];
   const [s, u, c] = F.useMemo(() => [[e.ve_s, e.ve_2s], [e.ve_i, e.ve_2i], [e.ve_p, e.ve_2p]], [e.ve_s, e.ve_2s, e.ve_i, e.ve_2i, e.ve_p, e.ve_2p]);
-  return N.jsxs("div", { children: [N.jsx(ee, { children: N.jsx(y7, { parameter: "mitigations.vaccine.doses", value: r.find((f) => f.value === e.doses), options: r, onChange: (f) => {
+  return N.jsxs("div", { children: [N.jsx(Jt, { children: N.jsx(y7, { parameter: "mitigations.vaccine.doses", value: r.find((f) => f.value === e.doses), options: r, onChange: (f) => {
     let d = f == null ? void 0 : f.value;
     d && n({ doses: d });
-  } }) }), N.jsx(ee, { children: N.jsx(te, { parameter: "mitigations.vaccine.start", range: true, min: 0, max: i, value: e.start, onValue: (f) => n({ start: f }) }) }), N.jsx(ee, { children: N.jsx(te, { parameter: "mitigations.vaccine.doses_available", range: true, min: 0, step: 1e6, max: t15.population, value: e.doses_available, onValue: (f) => n({ doses_available: f }) }) }), N.jsx(ee, { children: N.jsx(te, { parameter: "mitigations.vaccine.administration_rate", range: true, min: 0, max: 3e7, step: 1e6, value: e.administration_rate, onValue: (f) => n({ administration_rate: f }) }) }), e.doses === 2 && N.jsxs(N.Fragment, { children: [N.jsxs(ee, { children: [N.jsx("label", { children: "Delay to second dose campaign" }), N.jsx(te, { range: true, min: 0, max: i, value: e.start2_delay, onValue: (f) => n({ start2_delay: f }) })] }), N.jsxs(ee, { children: [N.jsx("label", { children: "Fraction of all doses that are second doses" }), N.jsx(te, { range: true, min: 0, max: 100, value: e.fraction_2 * 100, onValue: (f) => n({ fraction_2: f / 100 }) })] })] }), [["ve_s", "ve_2s", s], ["ve_i", "ve_2i", u], ["ve_p", "ve_2p", c]].map(([f, d, p]) => N.jsx(ee, { children: e.doses === 2 ? N.jsx(te, { numberType: "pct", parameter: `mitigations.vaccine.${f}`, range: true, isMulti: true, min: 0, max: 1, step: 0.01, value: p, onValue: ([m, y]) => {
+  } }) }), N.jsx(Jt, { children: N.jsx(Wt, { parameter: "mitigations.vaccine.start", range: true, min: 0, max: i, value: e.start, onValue: (f) => n({ start: f }) }) }), N.jsx(Jt, { children: N.jsx(Wt, { parameter: "mitigations.vaccine.doses_available", range: true, min: 0, step: 1e6, max: t15.population, value: e.doses_available, onValue: (f) => n({ doses_available: f }) }) }), N.jsx(Jt, { children: N.jsx(Wt, { parameter: "mitigations.vaccine.administration_rate", range: true, min: 0, max: 3e7, step: 1e6, value: e.administration_rate, onValue: (f) => n({ administration_rate: f }) }) }), e.doses === 2 && N.jsxs(N.Fragment, { children: [N.jsx(Jt, { children: N.jsx(Wt, { parameter: "mitigations.vaccine.ramp_up", range: true, min: 0, max: 30, value: e.ramp_up, onValue: (f) => n({ ramp_up: f }) }) }), N.jsx(Jt, { children: N.jsx(Wt, { parameter: "mitigations.vaccine.dose2_delay", range: true, min: 0, max: i, value: e.dose2_delay, onValue: (f) => n({ dose2_delay: f }) }) }), N.jsx(Jt, { children: N.jsx(Wt, { parameter: "mitigations.vaccine.p_get_2_doses", range: true, min: 0, step: 0.01, max: 1, value: e.p_get_2_doses, numberType: "pct", onValue: (f) => n({ p_get_2_doses: f }) }) })] }), [["ve_s", "ve_2s", s], ["ve_i", "ve_2i", u], ["ve_p", "ve_2p", c]].map(([f, d, p]) => N.jsx(Jt, { children: e.doses === 2 ? N.jsx(Wt, { numberType: "pct", parameter: `mitigations.vaccine.${f}`, range: true, isMulti: true, min: 0, max: 1, step: 0.01, value: p, onValue: ([m, y]) => {
     n({ [f]: m, [d]: y });
-  } }) : N.jsx(te, { numberType: "pct", parameter: `mitigations.vaccine.${f}`, range: true, min: 0, max: 1, step: 0.01, value: e[f], onValue: (m) => n({ [f]: m }) }) }))] });
+  } }) : N.jsx(Wt, { numberType: "pct", parameter: `mitigations.vaccine.${f}`, range: true, min: 0, max: 1, step: 0.01, value: e[f], onValue: (m) => n({ [f]: m }) }) }))] });
 }
 function VK({ value: t15, onChange: e, cols: n, rows: i, symmetric: r, step: s, min: u, max: c }) {
   const f = r !== void 0;
@@ -17883,7 +17883,7 @@ function VK({ value: t15, onChange: e, cols: n, rows: i, symmetric: r, step: s, 
   const p = (m, y) => (b) => {
     isNaN(b) || e(d.newValue(m, y, b));
   };
-  return N.jsx(N.Fragment, { children: N.jsxs("table", { children: [N.jsx("thead", { children: N.jsxs("tr", { children: [N.jsx("th", {}), n.map((m, y) => N.jsx("th", { children: m }, y))] }) }), N.jsx("tbody", { children: i.map((m, y) => N.jsxs("tr", { children: [N.jsx("td", { children: m }), n.map((b, _) => f && _ < y ? N.jsx("td", {}, _) : N.jsx("td", { children: N.jsx(te, { min: u, max: c, numberType: "float", value: t15[d.index(y, _)], onValue: p(y, _), showSaveButton: false, step: s }) }, _))] }, y)) })] }) });
+  return N.jsx(N.Fragment, { children: N.jsxs("table", { children: [N.jsx("thead", { children: N.jsxs("tr", { children: [N.jsx("th", {}), n.map((m, y) => N.jsx("th", { children: m }, y))] }) }), N.jsx("tbody", { children: i.map((m, y) => N.jsxs("tr", { children: [N.jsx("td", { children: m }), n.map((b, _) => f && _ < y ? N.jsx("td", {}, _) : N.jsx("td", { children: N.jsx(Wt, { min: u, max: c, numberType: "float", value: t15[d.index(y, _)], onValue: p(y, _), showSaveButton: false, step: s }) }, _))] }, y)) })] }) });
 }
 class BK {
   constructor(e, n, i, r) {
@@ -17928,13 +17928,13 @@ function PK({ title: t15, parameter: e, initialState: n, children: i }) {
 }
 function zK() {
   let [{ start: t15, duration: e, effectiveness: n }, i] = Gm("community"), [r] = Yi(), [s] = Ym();
-  return N.jsxs("div", { children: [N.jsx(ee, { children: N.jsx(te, { parameter: "mitigations.community.start", range: true, min: 0, max: s, step: 1, value: t15, onValue: (u) => i({ start: u }) }) }), N.jsx(ee, { children: N.jsx(te, { parameter: "mitigations.community.duration", range: true, min: 1, max: s - t15, value: e, onValue: (u) => i({ duration: u }) }) }), N.jsx(ee, { children: N.jsx(PK, { parameter: "mitigations.community.effectiveness", initialState: true, children: N.jsx(VK, { value: n, step: 0.1, min: 0, max: 1, symmetric: r.population_fraction_labels, onChange: (u) => {
+  return N.jsxs("div", { children: [N.jsx(Jt, { children: N.jsx(Wt, { parameter: "mitigations.community.start", range: true, min: 0, max: s, step: 1, value: t15, onValue: (u) => i({ start: u }) }) }), N.jsx(Jt, { children: N.jsx(Wt, { parameter: "mitigations.community.duration", range: true, min: 1, max: s - t15, value: e, onValue: (u) => i({ duration: u }) }) }), N.jsx(Jt, { children: N.jsx(PK, { parameter: "mitigations.community.effectiveness", initialState: true, children: N.jsx(VK, { value: n, step: 0.1, min: 0, max: 1, symmetric: r.population_fraction_labels, onChange: (u) => {
     i({ effectiveness: u });
   } }) }) })] });
 }
 function UK() {
   let [t15, e] = Gm("antivirals");
-  return N.jsxs("div", { children: [N.jsx(ee, { children: N.jsx(te, { parameter: "mitigations.antivirals.ave_i", range: true, min: 0, max: 1, step: 0.01, value: t15.ave_i, numberType: "pct", onValue: (n) => e({ ave_i: n }) }) }), N.jsx(ee, { children: N.jsx(te, { parameter: "mitigations.antivirals.ave_p_hosp", range: true, min: 0, max: 1, step: 0.01, numberType: "pct", value: t15.ave_p_hosp, onValue: (n) => e({ ave_p_hosp: n }) }) }), N.jsx(ee, { children: N.jsx(te, { parameter: "mitigations.antivirals.ave_p_death", range: true, min: 0, max: 1, step: 0.01, numberType: "pct", value: t15.ave_p_death, onValue: (n) => e({ ave_p_death: n }) }) }), N.jsx(ee, { children: N.jsx(te, { parameter: "mitigations.antivirals.fraction_seek_care", range: true, min: 0, max: 1, step: 0.01, numberType: "pct", value: t15.fraction_seek_care, onValue: (n) => e({ fraction_seek_care: n }) }) }), N.jsx(ee, { children: N.jsx(te, { parameter: "mitigations.antivirals.fraction_diagnosed_prescribed_outpatient", range: true, min: 0, max: 1, step: 0.01, numberType: "pct", value: t15.fraction_diagnosed_prescribed_outpatient, onValue: (n) => e({ fraction_diagnosed_prescribed_outpatient: n }) }) }), N.jsx(ee, { children: N.jsx(te, { parameter: "mitigations.antivirals.fraction_adhere", range: true, min: 0, max: 1, step: 0.01, numberType: "pct", value: t15.fraction_adhere, onValue: (n) => e({ fraction_adhere: n }) }) }), N.jsx(ee, { children: N.jsx(te, { parameter: "mitigations.antivirals.fraction_diagnosed_prescribed_inpatient", range: true, min: 0, max: 1, step: 0.01, numberType: "pct", value: t15.fraction_diagnosed_prescribed_inpatient, onValue: (n) => e({ fraction_diagnosed_prescribed_inpatient: n }) }) })] });
+  return N.jsxs("div", { children: [N.jsx(Jt, { children: N.jsx(Wt, { parameter: "mitigations.antivirals.ave_i", range: true, min: 0, max: 1, step: 0.01, value: t15.ave_i, numberType: "pct", onValue: (n) => e({ ave_i: n }) }) }), N.jsx(Jt, { children: N.jsx(Wt, { parameter: "mitigations.antivirals.ave_p_hosp", range: true, min: 0, max: 1, step: 0.01, numberType: "pct", value: t15.ave_p_hosp, onValue: (n) => e({ ave_p_hosp: n }) }) }), N.jsx(Jt, { children: N.jsx(Wt, { parameter: "mitigations.antivirals.ave_p_death", range: true, min: 0, max: 1, step: 0.01, numberType: "pct", value: t15.ave_p_death, onValue: (n) => e({ ave_p_death: n }) }) }), N.jsx(Jt, { children: N.jsx(Wt, { parameter: "mitigations.antivirals.fraction_seek_care", range: true, min: 0, max: 1, step: 0.01, numberType: "pct", value: t15.fraction_seek_care, onValue: (n) => e({ fraction_seek_care: n }) }) }), N.jsx(Jt, { children: N.jsx(Wt, { parameter: "mitigations.antivirals.fraction_diagnosed_prescribed_outpatient", range: true, min: 0, max: 1, step: 0.01, numberType: "pct", value: t15.fraction_diagnosed_prescribed_outpatient, onValue: (n) => e({ fraction_diagnosed_prescribed_outpatient: n }) }) }), N.jsx(Jt, { children: N.jsx(Wt, { parameter: "mitigations.antivirals.fraction_adhere", range: true, min: 0, max: 1, step: 0.01, numberType: "pct", value: t15.fraction_adhere, onValue: (n) => e({ fraction_adhere: n }) }) }), N.jsx(Jt, { children: N.jsx(Wt, { parameter: "mitigations.antivirals.fraction_diagnosed_prescribed_inpatient", range: true, min: 0, max: 1, step: 0.01, numberType: "pct", value: t15.fraction_diagnosed_prescribed_inpatient, onValue: (n) => e({ fraction_diagnosed_prescribed_inpatient: n }) }) })] });
 }
 function FK({ title: t15, titleId: e, ...n }, i) {
   return F.createElement("svg", Object.assign({ xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 20 20", fill: "currentColor", "aria-hidden": "true", "data-slot": "icon", ref: i, "aria-labelledby": e }, n), t15 ? F.createElement("title", { id: e }, t15) : null, F.createElement("path", { fillRule: "evenodd", d: "M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z", clipRule: "evenodd" }));
@@ -17946,7 +17946,7 @@ function qK({ title: t15, titleId: e, ...n }, i) {
 const YK = F.forwardRef(qK);
 function GK() {
   let [{ p_id_infectious: t15, p_infectious_isolates: e, isolation_reduction: n, p_contact_trace: i, p_traced_quarantines: r }, s] = Gm("ttiq");
-  return N.jsxs("div", { children: [N.jsx(ee, { children: N.jsx(te, { parameter: "mitigations.ttiq.p_id_infectious", range: true, min: 0, max: 1, step: 0.01, value: t15, numberType: "pct", onValue: (u) => s({ p_id_infectious: u }) }) }), N.jsx(ee, { children: N.jsx(te, { parameter: "mitigations.ttiq.p_infectious_isolates", range: true, min: 0, max: 1, step: 0.01, value: e, numberType: "pct", onValue: (u) => s({ p_infectious_isolates: u }) }) }), N.jsx(ee, { children: N.jsx(te, { parameter: "mitigations.ttiq.isolation_reduction", range: true, min: 0, max: 1, step: 0.01, value: n, numberType: "pct", onValue: (u) => s({ isolation_reduction: u }) }) }), N.jsx(ee, { children: N.jsx(te, { parameter: "mitigations.ttiq.p_contact_trace", range: true, min: 0, max: 1, step: 0.01, numberType: "pct", value: i, onValue: (u) => s({ p_contact_trace: u }) }) }), N.jsx(ee, { children: N.jsx(te, { parameter: "mitigations.ttiq.p_traced_quarantines", range: true, min: 0, max: 1, step: 0.01, numberType: "pct", value: r, onValue: (u) => s({ p_traced_quarantines: u }) }) })] });
+  return N.jsxs("div", { children: [N.jsx(Jt, { children: N.jsx(Wt, { parameter: "mitigations.ttiq.p_id_infectious", range: true, min: 0, max: 1, step: 0.01, value: t15, numberType: "pct", onValue: (u) => s({ p_id_infectious: u }) }) }), N.jsx(Jt, { children: N.jsx(Wt, { parameter: "mitigations.ttiq.p_infectious_isolates", range: true, min: 0, max: 1, step: 0.01, value: e, numberType: "pct", onValue: (u) => s({ p_infectious_isolates: u }) }) }), N.jsx(Jt, { children: N.jsx(Wt, { parameter: "mitigations.ttiq.isolation_reduction", range: true, min: 0, max: 1, step: 0.01, value: n, numberType: "pct", onValue: (u) => s({ isolation_reduction: u }) }) }), N.jsx(Jt, { children: N.jsx(Wt, { parameter: "mitigations.ttiq.p_contact_trace", range: true, min: 0, max: 1, step: 0.01, numberType: "pct", value: i, onValue: (u) => s({ p_contact_trace: u }) }) }), N.jsx(Jt, { children: N.jsx(Wt, { parameter: "mitigations.ttiq.p_traced_quarantines", range: true, min: 0, max: 1, step: 0.01, numberType: "pct", value: r, onValue: (u) => s({ p_traced_quarantines: u }) }) })] });
 }
 let XK = { vaccine: IK, antivirals: UK, community: zK, ttiq: GK };
 function QK({ name: t15, enabled: e, onToggle: n, children: i }) {
@@ -17987,11 +17987,11 @@ function s9({ activeTab: t15 }) {
 }
 function WK() {
   let [t15, e] = Ym(), [n, i] = Yi();
-  return N.jsxs(N.Fragment, { children: [N.jsxs(ee, { children: [N.jsx("label", { children: "Days" }), N.jsx(te, { range: true, min: 1, max: 400, step: 10, value: t15, numberType: "int", onValue: (r) => e(r) })] }), N.jsx(ee, { children: N.jsx(te, { parameter: "population", min: 0, value: n.population, step: 1e6, numberType: "int", onValue: (r) => i({ population: r }) }) }), N.jsx(ee, { children: N.jsx(te, { parameter: "initial_infections", min: 0, step: 100, value: n.initial_infections, onValue: (r) => i({ initial_infections: r }) }) }), N.jsx(ee, { children: N.jsx(te, { parameter: "fraction_initial_immune", range: true, numberType: "pct", min: 0, max: 1, step: 0.01, value: n.fraction_initial_immune, onValue: (r) => i({ fraction_initial_immune: r }) }) }), N.jsx(ee, { children: N.jsx(te, { parameter: "r0", range: true, min: 0.8, max: 2.2, step: 0.1, value: n.r0, numberType: "float", onValue: (r) => i({ r0: r }) }) }), N.jsx(ee, { children: N.jsx(te, { parameter: "latent_period", range: true, min: 0.5, max: 2.5, step: 0.1, value: n.latent_period, numberType: "float", onValue: (r) => i({ latent_period: r }) }) }), N.jsx(ee, { children: N.jsx(te, { parameter: "infectious_period", range: true, min: 1, max: 4.5, step: 0.1, value: n.infectious_period, numberType: "float", onValue: (r) => i({ infectious_period: r }) }) }), N.jsx(ee, { children: N.jsx(wb, { value: n.fraction_symptomatic, parameter: "fraction_symptomatic", onValue: (r) => i({ fraction_symptomatic: r }), renderInput: (r, s) => N.jsx(te, { range: true, min: 0.3, max: 0.8, step: 0.01, value: r, numberType: "pct", onValue: s }) }) }), N.jsx(ee, { children: N.jsx(wb, { parameter: "fraction_hospitalized", value: n.fraction_hospitalized, onValue: (r) => i({ fraction_hospitalized: r }), renderInput: (r, s) => N.jsx(te, { min: 0, max: 0.1, step: 0.01, value: r, numberType: "float", onValue: s }) }) }), N.jsx(ee, { children: N.jsx(wb, { parameter: "fraction_dead", value: n.fraction_dead, onValue: (r) => i({ fraction_dead: r }), renderInput: (r, s) => N.jsx(te, { min: 0, max: 0.2, step: 5e-3, value: r, numberType: "float", onValue: s }) }) })] });
+  return N.jsxs(N.Fragment, { children: [N.jsxs(Jt, { children: [N.jsx("label", { children: "Days" }), N.jsx(Wt, { range: true, min: 1, max: 400, step: 10, value: t15, numberType: "int", onValue: (r) => e(r) })] }), N.jsx(Jt, { children: N.jsx(Wt, { parameter: "population", min: 0, value: n.population, step: 1e6, numberType: "int", onValue: (r) => i({ population: r }) }) }), N.jsx(Jt, { children: N.jsx(Wt, { parameter: "initial_infections", min: 0, step: 100, value: n.initial_infections, onValue: (r) => i({ initial_infections: r }) }) }), N.jsx(Jt, { children: N.jsx(Wt, { parameter: "fraction_initial_immune", range: true, numberType: "pct", min: 0, max: 1, step: 0.01, value: n.fraction_initial_immune, onValue: (r) => i({ fraction_initial_immune: r }) }) }), N.jsx(Jt, { children: N.jsx(Wt, { parameter: "r0", range: true, min: 0.8, max: 2.2, step: 0.1, value: n.r0, numberType: "float", onValue: (r) => i({ r0: r }) }) }), N.jsx(Jt, { children: N.jsx(Wt, { parameter: "latent_period", range: true, min: 0.5, max: 2.5, step: 0.1, value: n.latent_period, numberType: "float", onValue: (r) => i({ latent_period: r }) }) }), N.jsx(Jt, { children: N.jsx(Wt, { parameter: "infectious_period", range: true, min: 1, max: 4.5, step: 0.1, value: n.infectious_period, numberType: "float", onValue: (r) => i({ infectious_period: r }) }) }), N.jsx(Jt, { children: N.jsx(wb, { value: n.fraction_symptomatic, parameter: "fraction_symptomatic", onValue: (r) => i({ fraction_symptomatic: r }), renderInput: (r, s) => N.jsx(Wt, { range: true, min: 0.3, max: 0.8, step: 0.01, value: r, numberType: "pct", onValue: s }) }) }), N.jsx(Jt, { children: N.jsx(wb, { parameter: "fraction_hospitalized", value: n.fraction_hospitalized, onValue: (r) => i({ fraction_hospitalized: r }), renderInput: (r, s) => N.jsx(Wt, { min: 0, max: 0.1, step: 0.01, value: r, numberType: "float", onValue: s }) }) }), N.jsx(Jt, { children: N.jsx(wb, { parameter: "fraction_dead", value: n.fraction_dead, onValue: (r) => i({ fraction_dead: r }), renderInput: (r, s) => N.jsx(Wt, { min: 0, max: 0.2, step: 5e-3, value: r, numberType: "float", onValue: s }) }) })] });
 }
 function JK() {
   let [t15, e] = Yi();
-  return N.jsxs(N.Fragment, { children: [N.jsx(ee, { children: N.jsx(te, { parameter: "p_test_sympto", range: true, min: 0, max: 0.1, step: 1e-3, value: t15.p_test_sympto, numberType: "pct", onValue: (n) => e({ p_test_sympto: n }) }) }), N.jsx(ee, { children: N.jsx(te, { parameter: "test_sensitivity", range: true, min: 0, max: 1, step: 0.01, value: t15.test_sensitivity, numberType: "pct", onValue: (n) => e({ test_sensitivity: n }) }) }), N.jsx(ee, { children: N.jsx(te, { parameter: "p_test_forward", range: true, min: 0, max: 1, step: 0.01, value: t15.p_test_forward, numberType: "pct", onValue: (n) => e({ p_test_forward: n }) }) })] });
+  return N.jsxs(N.Fragment, { children: [N.jsx(Jt, { children: N.jsx(Wt, { parameter: "p_test_sympto", range: true, min: 0, max: 0.1, step: 1e-3, value: t15.p_test_sympto, numberType: "pct", onValue: (n) => e({ p_test_sympto: n }) }) }), N.jsx(Jt, { children: N.jsx(Wt, { parameter: "test_sensitivity", range: true, min: 0, max: 1, step: 0.01, value: t15.test_sensitivity, numberType: "pct", onValue: (n) => e({ test_sensitivity: n }) }) }), N.jsx(Jt, { children: N.jsx(Wt, { parameter: "p_test_forward", range: true, min: 0, max: 1, step: 0.01, value: t15.p_test_forward, numberType: "pct", onValue: (n) => e({ p_test_forward: n }) }) })] });
 }
 function Zn(t15, e) {
   return t15 == null || e == null ? NaN : t15 < e ? -1 : t15 > e ? 1 : t15 >= e ? 0 : NaN;
@@ -26972,8 +26972,9 @@ function Glt({ params: t15, dataByGroup: e, xScale: n }) {
     x && w ? r.push({ startX: d, endX: p, dy: nD + N2 + 2, startY: x.y, endY: w.y, description: m, color: y }) : console.warn(`Could not find start or end point for ${b} mitigation`);
   }, { vaccine: u, community: c } = t15.mitigations;
   if (u.enabled) {
-    const d = u.start + 1, p = Math.ceil(d + u.doses_available / u.administration_rate);
-    s(d, p, `${Xlt(u.doses_available)} vaccines administered`, "var(--purple)", "vaccine");
+    const d = u.start + 1;
+    let p = 0;
+    u.doses === 1 || u.p_get_2_doses === 0 ? p = Math.ceil(d + u.doses_available / u.administration_rate) : u.doses === 2 && u.p_get_2_doses > 0 && (p = Math.ceil(d + u.dose2_delay + u.doses_available / u.administration_rate)), s(d, p, `${Xlt(u.doses_available)} vaccines administered`, "var(--purple)", "vaccine");
   }
   if (c.enabled) {
     const d = c.start + 1, p = d + c.duration;
