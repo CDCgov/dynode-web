@@ -295,9 +295,18 @@ function getAnnotations({
     if (vaccine.enabled) {
         // TODO off by 1?
         const startX = vaccine.start + 1;
-        const endX = Math.ceil(
-            startX + vaccine.doses_available / vaccine.administration_rate
-        );
+        let endX = 0.0;
+
+        if (vaccine.doses === 1 || vaccine.p_get_2_doses === 0.0) {
+            endX = Math.ceil(
+                startX + vaccine.doses_available / vaccine.administration_rate
+            );
+        } else if (vaccine.doses === 2 && vaccine.p_get_2_doses > 0.0) {
+            endX =  Math.ceil(
+                startX + vaccine.dose2_delay + vaccine.doses_available / vaccine.administration_rate
+            );
+        }
+
         tryAddAnnotation(
             startX,
             endX,

@@ -85,28 +85,40 @@ export function VaccineEditor() {
             {params.doses === 2 && (
                 <>
                     <FormGroup>
-                        <label>Delay to second dose campaign</label>
                         <NumberInput
+                            parameter="mitigations.vaccine.ramp_up"
+                            range
+                            min={0}
+                            max={30}
+                            value={params.ramp_up}
+                            onValue={(ramp_up) => updateParams({ ramp_up })}
+                        />
+                    </FormGroup>
+                    <FormGroup>
+                        <NumberInput
+                            parameter="mitigations.vaccine.dose2_delay"
                             range
                             min={0}
                             max={days}
-                            value={params.start2_delay}
-                            onValue={(start2_delay) =>
-                                updateParams({ start2_delay })
+                            value={params.dose2_delay}
+                            onValue={(dose2_delay) =>
+                                updateParams({ dose2_delay })
                             }
                         />
                     </FormGroup>
                     <FormGroup>
-                        <label>
-                            Fraction of all doses that are second doses
-                        </label>
                         <NumberInput
+                            parameter="mitigations.vaccine.p_get_2_doses"
                             range
                             min={0}
-                            max={100}
-                            value={params.fraction_2 * 100}
-                            onValue={(fraction_2) =>
-                                updateParams({ fraction_2: fraction_2 / 100 })
+                            step={0.01}
+                            max={1}
+                            value={params.p_get_2_doses}
+                            numberType="pct"
+                            onValue={(p_get_2_doses) =>
+                                updateParams({
+                                    p_get_2_doses: p_get_2_doses,
+                                })
                             }
                         />
                     </FormGroup>

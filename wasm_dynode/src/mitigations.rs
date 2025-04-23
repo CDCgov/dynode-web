@@ -20,14 +20,15 @@ pub struct VaccineParams {
     pub doses: usize,
     // start time of vaccine rollout
     pub start: f64,
-    // delay between start of rollout (of first doses) and when second doses start
-    pub start2_delay: f64,
-    // fraction of doses that are second doses
-    pub fraction_2: f64,
+    // delay between first and second doses
+    pub dose2_delay: f64,
+    // fraction of vaccinees that get a second dose
+    pub p_get_2_doses: f64,
     // maximum vaccine administration rate
     pub administration_rate: f64,
     // total number of vaccine doses available
     pub doses_available: f64,
+    pub ramp_up: f64,
     // vaccine effectiveness: first dose
     pub ve_s: f64,
     pub ve_i: f64,
@@ -138,12 +139,12 @@ impl<const N: usize> Default for MitigationParams<N> {
                 enabled: false,
                 editable: true,
                 doses: 1,
+                dose2_delay: 30.0,
                 start: 0.0,
-                start2_delay: 30.0,
-                // note that fraction_2 value does not matter if doses=1
-                fraction_2: 0.25,
+                p_get_2_doses: 0.9,
                 administration_rate: 1_500_000.0,
                 doses_available: 40_000_000.0,
+                ramp_up: 14.0,
                 ve_s: 0.5,
                 ve_i: 0.5,
                 ve_p: 0.5,

@@ -179,38 +179,50 @@ fn _distribute_initials1(n: f64, i0: f64, r0: f64) -> (f64, f64, f64) {
 }
 
 /// Allocate a vaccine administration rate into first and second doses. Administration
-/// can occur at most at `max_rate` (doses per unit time). Starting at `t_start`,
-/// vaccines are administered at that rate, until `doses_available` is exhausted.
-/// At `start2_delay` after `t_start`, administration is split between first and second
-/// doses such that `fraction_2` of all doses are second doses.
+/// can occur at most at `max_rate` (doses per unit time). Starting at `t_start`, first
+/// doses are administered. After `dose2_delay`, second dose administration begins.
+/// Rates of administration are such that first doses and second doses are administered
+/// for the same amount of time, and the rates add up to satisfy `max_rate` and
+/// `p_get_2_doses`, the proportion of vaccinees who get 2 doses.
+///
+/// Return a tuple (`rate1`, `rate2`) of the rates of first and second dose
+/// administrations at time `t`.
 fn vaccine_rates_by_dose(
     t: f64,
     max_rate: f64,
     t_start: f64,
-    start2_delay: f64,
-    fraction_2: f64,
+    dose2_delay: f64,
+    p_get_2_doses: f64,
     doses_available: f64,
 ) -> (f64, f64) {
-    let duration = doses_available / max_rate;
-    let t_end = t_start + duration;
-    let t_start2 = t_start + start2_delay;
-    // this clamp is a kludge: in fact this error should be caught at the UI level
-    let rate_frac = (fraction_2 / (1.0 - start2_delay / duration))
-        .max(0.0)
-        .min(1.0);
-
     assert!(max_rate >= 0.0);
+    assert!(dose2_delay >= 0.0);
+    assert!((0.0..=1.0).contains(&p_get_2_doses));
     assert!(doses_available >= 0.0);
-    assert!(start2_delay >= 0.0);
-    assert!(0.0 <= rate_frac && rate_frac <= 1.0);
 
-    if t_start <= t && t < t_start2 && t < t_end {
-        (max_rate, 0.0)
-    } else if t_start2 <= t && t < t_end {
-        (max_rate * (1.0 - rate_frac), max_rate * rate_frac)
-    } else {
-        (0.0, 0.0)
-    }
+    let duration = doses_available / max_rate;
+
+    let t_start1 = t_start;
+    let t_end1 = t_start1 + duration;
+    let t_start2 = t_start1 + dose2_delay;
+    let t_end2 = t_start2 + duration;
+
+    let rate1 = max_rate / (1.0 + p_get_2_doses);
+    let rate2 = rate1 * p_get_2_doses;
+    float_eq::assert_float_eq!(rate1 + rate2, max_rate, abs <= 1e-10);
+
+    (
+        if t_start1 <= t && t < t_end1 {
+            rate1
+        } else {
+            0.0
+        },
+        if t_start2 <= t && t < t_end2 {
+            rate2
+        } else {
+            0.0
+        },
+    )
 }
 
 impl<const N: usize> DynodeModel for SEIRModel<N>
@@ -377,7 +389,7 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
         let (administration_rate, administration_rate2) =
             if vax_params.enabled && vax_params.doses == 1 {
                 vaccine_rates_by_dose(
-                    x,
+                    x - vax_params.ramp_up,
                     vax_params.administration_rate,
                     vax_params.start,
                     0.0,
@@ -386,11 +398,11 @@ impl<const N: usize> System<f64, State<N>> for &SEIRModel<N> {
                 )
             } else if vax_params.enabled && vax_params.doses == 2 {
                 vaccine_rates_by_dose(
-                    x,
+                    x - vax_params.ramp_up,
                     vax_params.administration_rate,
                     vax_params.start,
-                    vax_params.start2_delay,
-                    vax_params.fraction_2,
+                    vax_params.dose2_delay,
+                    vax_params.p_get_2_doses,
                     vax_params.doses_available,
                 )
             } else {
@@ -655,14 +667,15 @@ mod test {
             start: 0.0,
             administration_rate: 1_000_000.0,
             doses_available: 20_000_000.0,
+            ramp_up: 0.0,
             ve_s: 0.5,
             ve_i: 0.5,
             ve_p: 0.5,
             ve_2s: 0.7,
             ve_2i: 0.7,
             ve_2p: 0.7,
-            start2_delay: 0.0,
-            fraction_2: 0.0,
+            dose2_delay: 0.0,
+            p_get_2_doses: 0.0,
         };
 
         let ttiq_params = TTIQParams {
@@ -911,10 +924,11 @@ mod test {
             editable: true,
             doses: 2,
             start: 0.0,
-            start2_delay: 0.0,
-            fraction_2: 0.5,
+            dose2_delay: 0.0,
+            p_get_2_doses: 1.0,
             administration_rate: 1_000_000.0,
             doses_available: 20_000_000.0,
+            ramp_up: 0.0,
             ve_s: 0.50,
             ve_i: 0.50,
             ve_p: 0.50,
@@ -957,10 +971,11 @@ mod test {
             editable: true,
             doses: 2,
             start: 0.0,
-            start2_delay: 0.0,
-            fraction_2: 0.0,
+            dose2_delay: 0.0,
+            p_get_2_doses: 0.0,
             administration_rate: 1_000_000.0,
             doses_available: 20_000_000.0,
+            ramp_up: 0.0,
             ve_s: 0.50,
             ve_i: 0.50,
             ve_p: 0.50,
@@ -973,7 +988,7 @@ mod test {
         let mut params2 = params1.clone();
         let mut vax_params2 = vax_params1.clone();
         vax_params2.doses = 1;
-        vax_params2.fraction_2 = 0.25;
+        vax_params2.p_get_2_doses = 1.0 / 3.0;
         params2.mitigations.vaccine = vax_params2;
 
         let model1 = SEIRModel::new(params1);
@@ -997,23 +1012,54 @@ mod test {
     #[test]
     fn test_vax_rate_by_dose() {
         // before vaccination starts, no rates
-        let (rate1, rate2) = vaccine_rates_by_dose(0.0, 1.0, 1.0, 0.0, 0.5, 10.0);
+        let (rate1, rate2) = vaccine_rates_by_dose(0.0, 1.0, 1.0, 0.0, 1.0, 10.0);
         assert_float_eq!(rate1, 0.0, abs <= 1e-6);
         assert_float_eq!(rate2, 0.0, abs <= 1e-6);
 
         // when it's only first dose, all rate should be there
-        let (rate1, rate2) = vaccine_rates_by_dose(0.0, 1.0, 0.0, 1.0, 0.5, 10.0);
+        let (rate1, rate2) = vaccine_rates_by_dose(0.0, 1.0, 0.0, 1.0, 0.0, 10.0);
         assert_float_eq!(rate1, 1.0, abs <= 1e-6);
         assert_float_eq!(rate2, 0.0, abs <= 1e-6);
 
         // if both start at the same time, just split
-        let (rate1, rate2) = vaccine_rates_by_dose(0.0, 1.0, 0.0, 0.0, 0.5, 10.0);
+        let (rate1, rate2) = vaccine_rates_by_dose(0.0, 1.0, 0.0, 0.0, 1.0, 10.0);
         assert_float_eq!(rate1, 0.5, abs <= 1e-6);
         assert_float_eq!(rate2, 0.5, abs <= 1e-6);
 
+        let (rate1, rate2) = vaccine_rates_by_dose(0.1, 1.0, 0.0, 0.0, 0.9, 10.0);
+        assert_float_eq!(rate1, 1.0 / 1.9, abs <= 1e-6);
+        assert_float_eq!(rate2, 0.9 * 1.0 / 1.9, abs <= 1e-6);
+
         // if 2nd dose starts later, it needs a certain rate
-        let (rate1, rate2) = vaccine_rates_by_dose(7.5, 1.0, 0.0, 5.0, 0.25, 10.0);
+        let (rate1, rate2) = vaccine_rates_by_dose(7.5, 1.0, 0.0, 5.0, 1.0, 10.0);
         assert_float_eq!(rate1, 0.5, abs <= 1e-6);
         assert_float_eq!(rate2, 0.5, abs <= 1e-6);
+    }
+
+    #[test]
+    fn test_ramp_up() {
+        // ramp up is equivalent to starting the campaign later
+        let mut params1 = Parameters::default();
+        let mut vax_params1 = params1.mitigations.vaccine.clone();
+        vax_params1.enabled = true;
+        vax_params1.start = 0.0;
+        vax_params1.ramp_up = 14.0;
+        params1.mitigations.vaccine = vax_params1;
+
+        let mut params2 = Parameters::default();
+        let mut vax_params2 = vax_params1.clone();
+        vax_params2.enabled = true;
+        vax_params2.start = 14.0;
+        vax_params2.ramp_up = 0.0;
+        params2.mitigations.vaccine = vax_params2;
+
+        let model1 = SEIRModel::new(params1);
+        let model2 = SEIRModel::new(params2);
+
+        let sim_duration = 300;
+        let results1 = TestResults::new(&model1.parameters, &model1.integrate(sim_duration));
+        let results2 = TestResults::new(&model2.parameters, &model2.integrate(sim_duration));
+
+        assert_float_eq!(results1.attack_rate, results2.attack_rate, abs <= 1e-10);
     }
 }
