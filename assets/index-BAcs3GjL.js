@@ -11245,7 +11245,7 @@ function _U(t15, e) {
 }
 async function v7(t15) {
   if (Ue !== void 0) return Ue;
-  typeof t15 < "u" && (Object.getPrototypeOf(t15) === Object.prototype ? { module_or_path: t15 } = t15 : console.warn("using deprecated parameters for the initialization function; pass a single object instead")), typeof t15 > "u" && (t15 = new URL("/dynode-web/assets/wasm_dynode_bg-BZ-Gd5oi.wasm", import.meta.url));
+  typeof t15 < "u" && (Object.getPrototypeOf(t15) === Object.prototype ? { module_or_path: t15 } = t15 : console.warn("using deprecated parameters for the initialization function; pass a single object instead")), typeof t15 > "u" && (t15 = new URL("/dynode-web/assets/wasm_dynode_bg-CbtZ1f5y.wasm", import.meta.url));
   const e = xU();
   (typeof t15 == "string" || typeof Request == "function" && t15 instanceof Request || typeof URL == "function" && t15 instanceof URL) && (t15 = fetch(t15));
   const { instance: n, module: i } = await vU(await t15, e);
