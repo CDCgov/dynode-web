@@ -23,6 +23,7 @@ pub struct Parameters<const N: usize> {
     pub death_delay: f64,
     pub mitigations: MitigationParams<N>,
     // Detection parameters
+    pub n_to_detect: f64,
     // prob. of test given symptomatic infection
     pub p_test_sympto: f64,
     // test sensitivity
@@ -72,6 +73,7 @@ impl Default for Parameters<2> {
                                                                -0.10, 0.0];
                 default
             },
+            n_to_detect: 10.0,
             p_test_sympto: 0.0,
             test_sensitivity: 0.90,
             p_test_forward: 0.90,
@@ -98,6 +100,7 @@ pub struct ParametersExport {
     pub fraction_dead: Vec<f64>,
     pub death_delay: f64,
     pub mitigations: MitigationParamsExport,
+    pub n_to_detect: f64,
     pub p_test_sympto: f64,
     pub test_sensitivity: f64,
     pub p_test_forward: f64,
@@ -130,6 +133,7 @@ impl<const N: usize> TryFrom<ParametersExport> for Parameters<N> {
             fraction_dead: SVector::from_iterator(params.fraction_dead),
             death_delay: params.death_delay,
             mitigations: MitigationParams::try_from(params.mitigations)?,
+            n_to_detect: params.n_to_detect,
             p_test_sympto: params.p_test_sympto,
             test_sensitivity: params.test_sensitivity,
             p_test_forward: params.p_test_forward,
@@ -156,6 +160,7 @@ impl<const N: usize> From<Parameters<N>> for ParametersExport {
             fraction_dead: params.fraction_dead.iter().copied().collect(),
             death_delay: params.hospitalization_delay,
             mitigations: params.mitigations.into(),
+            n_to_detect: params.n_to_detect,
             p_test_sympto: params.p_test_sympto,
             test_sensitivity: params.test_sensitivity,
             p_test_forward: params.p_test_forward,

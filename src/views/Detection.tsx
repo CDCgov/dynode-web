@@ -11,6 +11,14 @@ function formatPct(n: number, d: number = 0): string {
     return (n * 100).toFixed(d);
 }
 
+function pluralize_cases(x: number): string {
+    if (x === 1) {
+      return `1+ case`;
+    } else {
+      return `${x}+ cases`;
+    }
+  }
+
 type AnnotationPoint = BasePoint & { threshold: number };
 
 export function Detection() {
@@ -133,7 +141,7 @@ export function Detection() {
                 maxY={1.0}
                 extraConfig={{
                     marginTop: 30,
-                    marginRight: 110,
+                    marginRight: 115,
                 }}
                 formatTooltipNumber={(n) => `${formatPct(n)}% probability`}
                 renderMarks={(data) => {
@@ -155,7 +163,7 @@ export function Detection() {
                             text: (d) =>
                                 `>=${
                                     d.threshold * 100
-                                }% probability\nto detect 1+ case`,
+                                }% probability\nto detect ${pluralize_cases(params.n_to_detect)}`,
                             x: maxX,
                             y: "threshold",
                             fill: "black",

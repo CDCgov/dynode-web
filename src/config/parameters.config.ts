@@ -44,6 +44,9 @@ export const ParameterEditorConfig = defineEditorConfig<Parameters>({
         tooltip:
             "Proportion of infections that would result in death in the absence of mitigations",
     },
+    n_to_detect: {
+        label: "Number of positives tests to detect outbreak"
+    },
     p_test_sympto: {
         label: "Proportion of symptomatic infections tested",
     },

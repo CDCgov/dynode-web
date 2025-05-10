@@ -49,6 +49,24 @@ impl<const N: usize> AVE<N> {
     }
 }
 
+/// Probability of detecting at least `x` infections if `n` infection each have a
+/// probability `p` of being detected.
+///
+/// This is 1 - CDF_binomial(x - 1; n, p).
+///
+/// Note that statrs::distribution::Binomial requires integer arguments, so we need
+/// to use the beta function directly to allow for float arguments.
+fn p_detect_n(x: f64, n: f64, p: f64) -> f64 {
+    if n == 0.0 {
+        0.0
+    } else if n > 0.0 {
+        1.0 - statrs::function::beta::checked_beta_reg(n - (x - 1.0), 1.0 + (x - 1.0), 1.0 - p)
+            .unwrap()
+    } else {
+        panic!("n must be positive")
+    }
+}
+
 pub struct SEIRModel<const N: usize> {
     pub(crate) parameters: Parameters<N>,
     contact_matrix_normalization: f64,
@@ -131,11 +149,6 @@ impl<const N: usize> SEIRModel<N> {
             ave,
         }
     }
-}
-
-/// Probability of at least 1 success among N trials each with probability p
-pub fn p_detect1(n: f64, p: f64) -> f64 {
-    1.0 - (1.0 - p).powf(n)
 }
 
 /// Distribute initial disease states for groups of size `n`, initial numbers
@@ -285,7 +298,8 @@ where
                 output.add_death_incidence(*time, new_deaths.data.as_slice().into());
                 output.add_p_detect(
                     *time,
-                    p_detect1(
+                    p_detect_n(
+                        self.parameters.n_to_detect,
                         state.get_y_cum().sum() * self.parameters.p_test_sympto,
                         self.parameters.test_sensitivity * self.parameters.p_test_forward,
                     ),
@@ -488,7 +502,7 @@ mod test {
     use float_eq::assert_float_eq;
     use nalgebra::{DVector, Matrix1, Vector1, Vector2, matrix};
 
-    use super::SEIRModel;
+    use super::{SEIRModel, p_detect_n};
     use crate::{
         AntiviralsParams, DynodeModel, MitigationParams, ModelOutput, OutputType, Parameters,
         TTIQParams, VaccineParams,
@@ -562,6 +576,28 @@ mod test {
         assert_float_eq!(r, 75.0, abs <= 1e-5);
     }
 
+    #[test]
+    fn test_p_detect_1() {
+        let x = 1.0;
+        let p: f64 = 0.234;
+        let n = 10.0;
+        assert_float_eq!(p_detect_n(x, n, p), 1.0 - (1.0 - p).powf(n), abs <= 1e-10);
+    }
+
+    #[test]
+    fn test_p_detect_n0() {
+        let x = 1.0;
+        let p: f64 = 0.5;
+        let n = 0.0;
+        assert_float_eq!(p_detect_n(x, n, p), 0.0, abs <= 1e-10);
+    }
+
+    #[test]
+    fn test_p_detect_multiple() {
+        // Cf. R: 1.0 - pbinom(4, size = 10, prob = 0.5)
+        assert_float_eq!(p_detect_n(5.0, 10.0, 0.5), 0.6230469, abs <= 1e-6);
+    }
+
     // Making a proportion x of the population immune (in the absence of vaccination)
     // is equivalent to decreasing the population size, initial infections, and R0
     // by x. To compare attack rates, also need to adjust for reduced denominator.
@@ -585,6 +621,7 @@ mod test {
             hospitalization_delay: 1.0,
             fraction_dead: Vector1::new(0.0),
             death_delay: 1.0,
+            n_to_detect: 1.0,
             p_test_sympto: 0.0,
             test_sensitivity: 0.90,
             p_test_forward: 0.90,
@@ -635,6 +672,7 @@ mod test {
             hospitalization_delay: 1.0,
             fraction_dead: Vector1::new(0.0),
             death_delay: 1.0,
+            n_to_detect: 1.0,
             p_test_sympto: 0.0,
             test_sensitivity: 0.90,
             p_test_forward: 0.90,
@@ -709,6 +747,7 @@ mod test {
             hospitalization_delay: 1.0,
             fraction_dead: Vector1::new(0.0),
             death_delay: 1.0,
+            n_to_detect: 1.0,
             p_test_sympto: 0.0,
             test_sensitivity: 0.90,
             p_test_forward: 0.90,
@@ -858,6 +897,7 @@ mod test {
             hospitalization_delay: 1.0,
             fraction_dead: Vector1::new(0.01),
             death_delay: 1.0,
+            n_to_detect: 1.0,
             p_test_sympto: 0.0,
             test_sensitivity: 0.90,
             p_test_forward: 0.90,
