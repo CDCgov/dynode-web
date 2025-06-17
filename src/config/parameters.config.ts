@@ -10,24 +10,24 @@ export const ParameterEditorConfig = defineEditorConfig<Parameters>({
     },
     initial_infections: {
         label: "Initial infections",
-        tooltip: "Number of people infected at time 0",
+        tooltip: "Number of people infected at the first day of the outbreak",
     },
     r0: {
-        label: "R0",
-        tooltip: "Basic reproduction number",
+        label: "Basic reproduction number",
+        tooltip: "Average number of people infected by a single infectious person.",
     },
     latent_period: {
         label: "Latent period",
-        tooltip: "Mean delay from infection to infectiousness, in days",
+        tooltip: "Mean delay from time of exposure to onset of infectiousness, in days",
     },
     infectious_period: {
         label: "Infectious period",
         tooltip: "Mean duration of infectious period, in days",
     },
     fraction_initial_immune: {
-        label: "Prior Immunity (%)",
+        label: "Prior immunity (%)",
         tooltip:
-            "Proportion of the population that is immune at the start of the simulation",
+            "Proportion of the population that is immune (i.e., cannot be infected during the outbreak) at the start of the simulation",
     },
     fraction_symptomatic: {
         label: "Symptomatic fraction",
@@ -49,27 +49,27 @@ export const ParameterEditorConfig = defineEditorConfig<Parameters>({
     },
     test_sensitivity: {
         label: "Test sensitivity",
-        tooltip: "Proportion of tested infections that are positive",
+        tooltip: "Proportion of tested infections that are correctly identified as infected by the test",
     },
     p_test_forward: {
-        label: " Probability a positive test is forwarded to public health",
+        label: "Probability a positive test is forwarded to public health",
         tooltip:
-            "Proportion of positive tests that are forwarded to public health, resulting in a detection",
+            "Proportion of positive tests that are forwarded to a public health laboratory, resulting in a detection",
     },
     "mitigations.antivirals.ave_i": {
         label: "Effectiveness against onward transmission",
         tooltip:
-            "Proportional reduction in onward transmission among treated, infected individuals",
+            "Proportional reduction in onward transmission among infected individuals who receive outpatient antivirals and adhere to the regimen",
     },
     "mitigations.antivirals.ave_p_hosp": {
         label: "Effectiveness vs. hospitalization",
         tooltip:
-            "Proportion of treated, symptomatic infections that avert hospitalization",
+            "Of symptomatic infections who receive outpatient antivirals and adhere to the regimen, the proportion that avert hospitalization",
     },
     "mitigations.antivirals.ave_p_death": {
         label: "Effectiveness vs. death",
         tooltip:
-            "Proportion of treated, hospitalized infections that avert death",
+            "Of hospitalized infections that receive inpatient antivirals, the proportion that avert death",
     },
     "mitigations.antivirals.fraction_seek_care": {
         label: "Fraction of cases that seek care",
