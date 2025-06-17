@@ -1,6 +1,16 @@
 # dynODE-web
 
-## Model
+## Model overview
+
+This is a Susceptible-Exposed-Infectious-Recovered (SEIR) compartmental ordinary differential equations (ODE) model, modified to account for public health interventions including medical countermeasures (vaccination and antivirals) and non-pharmaceutical interventions (testing, tracing, isolation, and quantine).
+
+In a compartmental ODE model, individuals move through discrete disease states, with the time spent by individuals in each state exponentially distributed across individuals. Individuals are assumed to have a uniform infectiousness while in the Infectious state and not be infectious at all while in the Susceptible, Exposed, and Recovered states.
+
+### Vaccination
+
+### Antivirals
+
+## Technical model description
 
 The population is divided into (age) groups $i$.
 
@@ -236,3 +246,15 @@ T_I^\mathrm{int} = T_I &\times (1 - \mathbb{P}[\text{infectious is identified}] 
 \end{split}
 \end{equation*}
 $$
+
+## References
+
+- Basic reproduction number
+    - [Biggerstaff et al. 2014](https://pmc.ncbi.nlm.nih.gov/articles/PMC4169819/)
+- Latent period and infectious period
+    - [Chan et al. 2025](https://pmc.ncbi.nlm.nih.gov/articles/PMC11986874/)
+    - [Corie et al. 2012](https://pubmed.ncbi.nlm.nih.gov/22939310/)
+    - [Tuite et al. 2010](https://pmc.ncbi.nlm.nih.gov/articles/PMC2817319/)
+    - [Suess et al. 2012](https://pmc.ncbi.nlm.nih.gov/articles/PMC3519848/)
+- Symptomatic fraction
+    - [Biddle et al. 2024](https://pubmed.ncbi.nlm.nih.gov/39602819/)
