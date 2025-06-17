@@ -18,21 +18,21 @@ impl<const N: usize> AVE<N> {
             * av_params.fraction_diagnosed_prescribed_outpatient
             * av_params.fraction_adhere;
 
-        // efficacy against transmission given symptomatic
+        // effectiveness for transmission given symptomatic
         let pop_eff_i_given_symp = if av_params.enabled {
             SVector::<f64, N>::from_element(prob_take_ave_given_symp * av_params.ave_i)
         } else {
             zeros
         };
 
-        // efficacy against hospitalization given symptomatic
+        // effectiveness for hospitalization given symptomatic
         let pop_eff_p_hosp_given_symp = if av_params.enabled {
             SVector::<f64, N>::from_element(prob_take_ave_given_symp * av_params.ave_p_hosp)
         } else {
             zeros
         };
 
-        // efficacy against death given hosp
+        // effectiveness for death given hosp
         let pop_eff_p_death_given_hosp = if av_params.enabled {
             SVector::<f64, N>::from_element(
                 av_params.fraction_diagnosed_prescribed_inpatient * av_params.ave_p_death,

@@ -17,6 +17,14 @@
 - Compile the model to Web Assembly: `pnpm run wasm`
 - Run the frontend: `pnpm run dev`
 
+## Contributing
+
+### Updating parameters
+
+- Labels and tooltips are in `src/config/parameters.config.ts`
+- Ranges are in `src/views/ParamsEditor.tsx` and `src/mitigations/`
+- Default values are in `wasm_dynode/src/parameters.rs` and `wasm_dynode/src/mitigations.rs`
+
 ---
 
 ## General disclaimer
