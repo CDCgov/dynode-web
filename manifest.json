@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "metadata": {
+    "appmode": "static"
+  },
+  "files": {
+    "index.html": {
+      "checksum": "b908ed437c31adec84e057f1cc05e5d7"
+    },
+    "vite.svg": {
+      "checksum": "8e3a10e157f75ada21ab742c022d5430"
+    },
+    "wasm_dynode/pkg/wasm_dynode.d.ts": {
+      "checksum": "83d45e9b7dec8e0fae2315f3f38b6f53"
+    },
+    "wasm_dynode/pkg/wasm_dynode_bg.wasm.d.ts": {
+      "checksum": "87f7c6b82e121d150ee1ae0691a9dbda"
+    },
+    "wasm_dynode/pkg/package.json": {
+      "checksum": "a211e8ec0992ec0d3be8c2326c350a2e"
+    },
+    "wasm_dynode/pkg/wasm_dynode_bg.wasm": {
+      "checksum": "de48dc54776a5093aa23b7dd4ce71894"
+    },
+    "wasm_dynode/pkg/wasm_dynode.js": {
+      "checksum": "c438eea8a550ce30dbd8229dacbe8750"
+    },
+    "assets/wasm_dynode_bg-CbtZ1f5y.wasm": {
+      "checksum": "45b5b1c84381bb28b3d3ff15c530c9fa"
+    },
+    "assets/index-Xm-xBRWB.css": {
+      "checksum": "0ed16deeceac041b84818fa6dfa60088"
+    },
+    "assets/index-BAcs3GjL.js": {
+      "checksum": "173583e3464801e28f20da9db93d3984"
+    }
+  }
+}
