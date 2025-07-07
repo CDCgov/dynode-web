@@ -14,7 +14,7 @@ repos:
     hooks:
       - id: detect-secrets
         args: ["--baseline", ".secrets.baseline"]
-        exclude: package-lock.json
+        exclude: pnpm-lock.yaml
   - repo: local
     hooks:
       - id: prettier
