@@ -213,6 +213,18 @@ function DetectionParamsEditor() {
         <>
             <FormGroup>
                 <NumberInput
+                    parameter="n_to_detect"
+                    range
+                    min={1}
+                    max={100}
+                    step={1}
+                    value={params.n_to_detect}
+                    numberType="float"
+                    onValue={(n_to_detect) => updateParams({ n_to_detect })}
+                />
+            </FormGroup>
+            <FormGroup>
+                <NumberInput
                     parameter="p_test_sympto"
                     range
                     min={0}

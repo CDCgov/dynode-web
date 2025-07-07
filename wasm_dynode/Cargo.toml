@@ -24,6 +24,9 @@ paste = "1.0.15"
 strum = "0.27.1"
 strum_macros = "0.27.1"
 float_eq = "1.0.1"
+statrs = "0.18.0"
+# This is used as a dependency of statsrs and must be matched to that version
+getrandom = { version = "0.2", features = ["js"] }
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.13"
@@ -35,3 +38,6 @@ opt-level = "s"
 [features]
 # default = ["console_error_panic_hook" ,"wee_alloc"]
 default = ["console_error_panic_hook"]
+
+[target.wasm32-unknown-unknown]
+rustflags = ['--cfg', 'getrandom_backend="wasm_js"']
