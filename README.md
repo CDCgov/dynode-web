@@ -9,12 +9,13 @@
     - Depending on your OS, you may need to explicitly specify your architecture, e.g., with `rustup target add x86_64-unknown-linux-gnu`
 - Install wasm-pack: `curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh`
 - Install [node](https://nodejs.org/en/download)
+- Install [pnpm](https://pnpm.io/installation#on-posix-systems)
 - Run model tests: `cargo test`
-- Install frontend: `npm install`
-    - Because of platform differences, you may need to delete `node_modules` and `package-lock.json` and run `npm install` again: `rm -rf package-lock.json node_modules/ && npm install`
-- Run frontend tests: `npm run test`
-- Compile the model to Web Assembly: `npm run wasm`
-- Run the frontend: `npm run dev`
+- Install frontend: `pnpm install`
+    - Because of platform differences, you may need to delete `node_modules` and `package-lock.json` and run `pnpm install` again: `rm -rf package-lock.json node_modules/ && pnpm install`
+- Run frontend tests: `pnpm run test`
+- Compile the model to Web Assembly: `pnpm run wasm`
+- Run the frontend: `pnpm run dev`
 
 ---
 
