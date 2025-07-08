@@ -1,0 +1,5 @@
+[book]
+title = "dynode-web-flu"
+
+[preprocessor.katex]
+command = "mdbook-katex"
