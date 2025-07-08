@@ -7,6 +7,9 @@
 - Install rust
     - The nightly channel is specified in the `rust-toolchain.toml`, but you may need to explicitly swith with `rustup override set nightly`
     - Depending on your OS, you may need to explicitly specify your architecture, e.g., with `rustup target add x86_64-unknown-linux-gnu`
+- Read the docs
+    - Install dependencies: `cargo install mdbook mdbook-katex`
+    - `pnpm run docs`
 - Install wasm-pack: `curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh`
 - Install [node](https://nodejs.org/en/download)
 - Install [pnpm](https://pnpm.io/installation#on-posix-systems)
