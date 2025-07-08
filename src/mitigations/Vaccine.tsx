@@ -86,16 +86,6 @@ export function VaccineEditor() {
                 <>
                     <FormGroup>
                         <NumberInput
-                            parameter="mitigations.vaccine.ramp_up"
-                            range
-                            min={0}
-                            max={30}
-                            value={params.ramp_up}
-                            onValue={(ramp_up) => updateParams({ ramp_up })}
-                        />
-                    </FormGroup>
-                    <FormGroup>
-                        <NumberInput
                             parameter="mitigations.vaccine.dose2_delay"
                             range
                             min={0}
@@ -163,6 +153,16 @@ export function VaccineEditor() {
                     )}
                 </FormGroup>
             ))}
+            <FormGroup>
+                <NumberInput
+                    parameter="mitigations.vaccine.ramp_up"
+                    range
+                    min={0}
+                    max={30}
+                    value={params.ramp_up}
+                    onValue={(ramp_up) => updateParams({ ramp_up })}
+                />
+            </FormGroup>
         </div>
     );
 }
