@@ -141,31 +141,31 @@ Assume that first dose vaccination begins at some rate, continues at that rate, 
 
 First derive the duration $T = \dot{V}_\mathrm{max} / V_\mathrm{tot}$ of each vaccination block.
 
-```math
+$$
 \dot{V}_1(t) = \begin{cases}
 \frac{\dot{V}_\mathrm{max}}{1 + p_{V2}} & t_V \leq t < t_V + T \\
 0 & \text{otherwise}
 \end{cases}
-```
+$$
 
 The second-dose rate is:
 
-```math
+$$
 \dot{V}_2(t) = \begin{cases}
 \frac{p_{V2}}{1 + p_{V2}} \dot{V}_\mathrm{max} & t_V + \Delta t_{V2}
 \leq t < t_V + \Delta t_{V2} + T \\
 0 & \text{otherwise}
 \end{cases}
-```
+$$
 
 The flux into the vaccine-protected compartments are:
 
-```math
+$$
 \begin{align*}
 f(t, \mathrm{SU}_i, \mathrm{SV}_i(t)) &= \frac{\mathrm{SU}}{\mathrm{SU}(t) + \mathrm{EU}(t) + \mathrm{IU}(t) + \mathrm{RU}(t)} \frac{N_i}{N} \dot{V}_1(t - \tau_\mathrm{ramp}) \\
 f(t, \mathrm{SV}_i, \mathrm{S2V}_i) &= \frac{\mathrm{SV}(t)}{\mathrm{SV}(t) + \mathrm{EV}(t) + \mathrm{IV}(t) + \mathrm{RV}(t)} \frac{N_i}{N} \dot{V}_2(t - \tau_\mathrm{ramp})
 \end{align*}
-```
+$$
 
 Vaccines only provide protection if the dose-to-protection delay completes before exposure. Thus, individuals keep their vaccine protection status (U, V, or 2V) as they transition from $S$ to $E$, $I$, and $R$.
 
@@ -173,36 +173,36 @@ Vaccines only provide protection if the dose-to-protection delay completes befor
 
 The effective number of infectious people in group $j$ (`i_effective`), accounting for the effects of vaccination and therapeutics on reducing transmission, is:
 
-```math
+$$
 I^\mathrm{eff}_j(t) = \mathrm{IU}_j(t) \times (1 - \mathrm{FS}_j A_\mathrm{op} \mathrm{AVE}_I)
   + \mathrm{IV}_j(t) \times (1 - \mathrm{VE}_I) \left[ 1 - \mathrm{FS}_j (1 - \mathrm{VE}_P) A_\mathrm{op} \mathrm{AVE}_I \right]
-```
+$$
 
 The force of infection on group $i$ (`infection_rate`, modulo a factor of the population fractions) is:
 
-```math
+$$
 \phi_i(t) = \frac{\beta}{N} \sum_j C_{ij} I^\mathrm{eff}_j(t)
-```
+$$
 
 Note that $\beta$ is divided by $N$ to convert from numbers of people (in terms of which $R_0$ is defined) to proportions,
 
 So that the fluxes from susceptible to exposed are:
 
-```math
+$$
 \begin{align*}
 f(t, \mathrm{SU_i, \mathrm{EU}_i}) &= \phi_i \frac{\mathrm{SU}_i(t)}{N_i/N} \\
 f(t, \mathrm{SV_i, \mathrm{EV}_i}) &= \phi_i (1 - \mathrm{VE}_S) \frac{\mathrm{SV}_i(t)}{N_i/N}
 \end{align*}
-```
+$$
 
 #### Latency and infectiousness
 
-```math
+$$
 \begin{align*}
 f(t, \mathrm{EU}_i, \mathrm{IU}_i) &= \mathrm{EU}_i(t) \times \frac{1}{T_E} \\
 f(t, \mathrm{IU}_i, \mathrm{RU}_i) &= \mathrm{IU}_i(t) \times \frac{1}{T_I} \\
 \end{align*}
-```
+$$
 
 and similarly for the vaccinated compartments.
 
@@ -210,19 +210,19 @@ and similarly for the vaccinated compartments.
 
 The rate of new infections is:
 
-```math
+$$
 \dot{I}^\mathrm{cum}_i(t) = f(t, \mathrm{EU}_i, \mathrm{IU}_i) + f(t, \mathrm{EV}_i, \mathrm{IV}_i)
-```
+$$
 
 The rate of new infections that are not protected by vaccination against progression to symptoms is:
 
-```math
+$$
 \dot{X}_i(t) = f(t, \mathrm{EU}_i, \mathrm{IU}_i) + (1 - \mathrm{VE}_P) f(t, \mathrm{EV}_i, \mathrm{IV}_i)
-```
+$$
 
 The numbers of health outcomes (symptomatic infections, hospitalizations, and deaths) are:
 
-```math
+$$
 \begin{align*}
 \dot{Y}^\mathrm{cum}_i(t) &= \mathrm{FS}_i \times \dot{X}_i(t) \\
 \dot{H}^\mathrm{pre}_i(t) &= \mathrm{IHR}_i \times (1 - \mathrm{FS}_i A_\mathrm{op} \mathrm{AVE}_H) \times \dot{X}_i(t) \\
@@ -230,7 +230,7 @@ The numbers of health outcomes (symptomatic infections, hospitalizations, and de
 \dot{D}^\mathrm{pre}_i(t) &= \mathrm{IFR}_i \times (1 - A_\mathrm{ip} \mathrm{AVE}_H) \times (1 - \mathrm{FS}_i A_\mathrm{op} \mathrm{AVE}_D) \times \dot{X}_i(t) \\
 \dot{D}^\mathrm{cum}_i(t) &= \dot{H}^\mathrm{pre}(t) \times \frac{1}{T_D^\mathrm{pre}}
 \end{align*}
-```
+$$
 
 ## Mitigations
 
@@ -254,13 +254,13 @@ Define the parameters:
 
 Then:
 
-```math
+$$
 \begin{align*}
 \mathrm{CumTested}(t) &= p_{\mathrm{demand}|Y} \sum_i Y^\mathrm{cum}_i \\
 \mathrm{CumProbDetect1}(t) &= 1 - (1 - [\text{test sensitivity}] \times \mathbb{P}[\text{forwarded} | \text{positive}])^{\mathrm{CumTested(t)}} \\
 \mathbb{E}[\mathrm{CumFracInfectionsIdentified(t)}] &= [\text{test sensitivity}] \times \mathbb{P}[\text{forwarded} | \text{positive}] \times \frac{\mathrm{CumTested}(t)}{\sum_i I_i^\mathrm{cum}(t)}
 \end{align*}
-```
+$$
 
 We report the times at which the cumulative detection probability reaches certain thresholds (e.g., 25%, 50%, and 75%).
 
@@ -272,14 +272,14 @@ See the base model description above.
 
 This model approximates the different impacts from these policies as a reduction in the mean duration of the infectious period:
 
-```math
+$$
 \begin{equation*}
 \begin{split}
 T_I^\mathrm{int} = T_I &\times (1 - \mathbb{P}[\text{infectious is identified}] \times \mathbb{P}[\text{identified infectious isolates}] \times [\text{prop. reduction in $T_I$ due to isolation}]) \\
 &\times (1 - \mathbb{P}[\text{contact tracing identifies exposed}] \times \mathbb{P}[\text{identified exposed quarantines}] )
 \end{split}
 \end{equation*}
-```
+$$
 
 ## References
 
