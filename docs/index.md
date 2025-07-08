@@ -163,7 +163,7 @@ The flux into the vaccine-protected compartments are:
 ```math
 \begin{align*}
 f(t, \mathrm{SU}_i, \mathrm{SV}_i(t)) &= \frac{\mathrm{SU}}{\mathrm{SU}(t) + \mathrm{EU}(t) + \mathrm{IU}(t) + \mathrm{RU}(t)} \frac{N_i}{N} \dot{V}_1(t - \tau_\mathrm{ramp}) \\
-f(t, \mathrm{SV}_i, \mathrm{S2V}_i) &= \frac{\mathrm{SV}(t)}{\mathrm{SV}(t) + \mathrm{EV}(t) + \mathrm{IV}(t) + \mathrm{RV}(t)} \frac{N_i}{N} \dot{V}_2(t - \tau_\mathrm{ramp})
+f(t, \mathrm{SV}_i, \mathrm{S2V}_i(t)) &= \frac{\mathrm{SV}(t)}{\mathrm{SV}(t) + \mathrm{EV}(t) + \mathrm{IV}(t) + \mathrm{RV}(t)} \frac{N_i}{N} \dot{V}_2(t - \tau_\mathrm{ramp})
 \end{align*}
 ```
 
