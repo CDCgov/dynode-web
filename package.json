@@ -16,7 +16,7 @@
         "coverage": "vitest --coverage",
         "check": "npm run wasm && cargo test && npm run lint && npm run build && npm run test -- --no-watch",
         "preview": "vite preview",
-        "docs": "mkdocs serve docs --open"
+        "docs": "mdbook serve docs --open"
     },
     "dependencies": {
         "@emotion/react": "^11.14.0",
