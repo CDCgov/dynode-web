@@ -110,8 +110,8 @@ function ScenarioParams() {
                 <NumberInput
                     parameter="r0"
                     range
-                    min={0.8}
-                    max={2.2}
+                    min={1.0}
+                    max={2.0}
                     step={0.1}
                     value={params.r0}
                     numberType="float"
@@ -216,7 +216,7 @@ function DetectionParamsEditor() {
                     parameter="p_test_sympto"
                     range
                     min={0}
-                    max={0.1}
+                    max={0.25}
                     step={0.001}
                     value={params.p_test_sympto}
                     numberType="pct"
@@ -227,7 +227,7 @@ function DetectionParamsEditor() {
                 <NumberInput
                     parameter="test_sensitivity"
                     range
-                    min={0}
+                    min={0.6}
                     max={1.0}
                     step={0.01}
                     value={params.test_sensitivity}

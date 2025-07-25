@@ -10,24 +10,24 @@ export const ParameterEditorConfig = defineEditorConfig<Parameters>({
     },
     initial_infections: {
         label: "Initial infections",
-        tooltip: "Number of people infected at time 0",
+        tooltip: "Number of people infected at the first day of the outbreak",
     },
     r0: {
-        label: "R0",
-        tooltip: "Basic reproduction number",
+        label: "Basic reproduction number",
+        tooltip: "Average number of people infected by a single infectious person.",
     },
     latent_period: {
         label: "Latent period",
-        tooltip: "Mean delay from infection to infectiousness, in days",
+        tooltip: "Mean delay from time of exposure to onset of infectiousness, in days",
     },
     infectious_period: {
         label: "Infectious period",
         tooltip: "Mean duration of infectious period, in days",
     },
     fraction_initial_immune: {
-        label: "Prior Immunity (%)",
+        label: "Prior immunity (%)",
         tooltip:
-            "Proportion of the population that is immune at the start of the simulation",
+            "Proportion of the population that is immune (i.e., cannot be infected during the outbreak) at the start of the simulation",
     },
     fraction_symptomatic: {
         label: "Symptomatic fraction",
@@ -49,41 +49,41 @@ export const ParameterEditorConfig = defineEditorConfig<Parameters>({
     },
     test_sensitivity: {
         label: "Test sensitivity",
-        tooltip: "Proportion of tested infections that are positive",
+        tooltip: "Proportion of tested infections that are correctly identified as infected by the test",
     },
     p_test_forward: {
-        label: " Probability a positive test is forwarded to public health",
+        label: "Probability a positive test is forwarded to public health",
         tooltip:
-            "Proportion of positive tests that are forwarded to public health, resulting in a detection",
+            "Proportion of positive tests that are forwarded to a public health laboratory, resulting in a detection",
     },
     "mitigations.antivirals.ave_i": {
-        label: "Effectiveness against onward transmission",
+        label: "Effectiveness for onward transmission",
         tooltip:
-            "Proportional reduction in onward transmission among treated, infected individuals",
+            "Proportional reduction in onward transmission among infected individuals who receive outpatient antivirals and adhere to the regimen",
     },
     "mitigations.antivirals.ave_p_hosp": {
-        label: "Effectiveness vs. hospitalization",
+        label: "Effectiveness for hospitalization",
         tooltip:
-            "Proportion of treated, symptomatic infections that avert hospitalization",
+            "Of symptomatic infections who receive outpatient antivirals and adhere to the regimen, the proportion that avert hospitalization",
     },
     "mitigations.antivirals.ave_p_death": {
-        label: "Effectiveness vs. death",
+        label: "Effectiveness for death",
         tooltip:
-            "Proportion of treated, hospitalized infections that avert death",
+            "Of hospitalized infections that receive inpatient antivirals, the proportion that avert death",
     },
     "mitigations.antivirals.fraction_seek_care": {
         label: "Fraction of cases that seek care",
         tooltip: "Proportion of symptomatic infections that seek care",
     },
     "mitigations.antivirals.fraction_diagnosed_prescribed_outpatient": {
-        label: "Fraction of diagnosed care-seeking outpatient cases",
+        label: "Fraction of care-seeking outpatient cases that receive antivirals",
         tooltip:
             "Proportion of care-seeking infections that are prescribed outpatient antivirals",
     },
     "mitigations.antivirals.fraction_adhere": {
         label: "Fraction of individuals that adhere to prescribed outpatient antiviral regimen",
         tooltip:
-            "Proportion of individuals prescribed outpatient antivirals who take their course",
+            "Proportion of individuals prescribed outpatient antivirals who take their full course of medication",
     },
     "mitigations.antivirals.fraction_diagnosed_prescribed_inpatient": {
         label: "Fraction of hospitalized cases that receive antivirals",
@@ -91,32 +91,36 @@ export const ParameterEditorConfig = defineEditorConfig<Parameters>({
             "Proportion of hospitalized infections that are prescribed inpatient antivirals",
     },
     "mitigations.community.start": {
-        label: "Day to begin community mitigation",
-        tooltip: "Start day of the mitigation",
+        label: "Start day",
+        tooltip: "First day that the intervention has its effect",
     },
     "mitigations.community.duration": {
-        label: "Duration of community mitigation",
-        tooltip: "Duration of the mitigation in days",
+        label: "Duration (days)",
+        tooltip: "Time over which the intervention has its effect",
     },
     "mitigations.community.effectiveness": {
-        label: "Community mitigation effectiveness",
+        label: "Effectiveness",
         tooltip:
-            "Proportional reduction in transmission due to the mitigation, where negative values mean an increase in transmission",
+            "Proportional reduction in transmission due to the mitigation, where negative values mean an increase in transmission. Effects are symmetric (e.g., child-to-adult and adult-to-child are changed equally).",
     },
     "mitigations.ttiq.p_id_infectious": {
         label: "Probability an infectious person becomes aware of their own infection",
     },
     "mitigations.ttiq.p_infectious_isolates": {
-        label: "Probability an aware, infectious person will isolate",
+        label: "Probability of isolation",
+        tooltip: "Probability an aware, infectious person will isolate",
     },
     "mitigations.ttiq.isolation_reduction": {
-        label: "Proportional reduction in infectious period due to isolation",
+        label: "Isolation effectiveness",
+        tooltip: "Proportional reduction in duration of infectious period due to isolation",
     },
     "mitigations.ttiq.p_contact_trace": {
-        label: "Probability contact tracing will identify an exposed person",
+        label: "Probability of contact tracing",
+        tooltip: "Probability contact tracing will identify an exposed person",
     },
     "mitigations.ttiq.p_traced_quarantines": {
-        label: "Probability a traced contact will quarantine and never transmit",
+        label: "Contact tracing effectiveness",
+        tooltip: "Probability a traced contact will quarantine and never transmit",
     },
     "mitigations.vaccine.start": {
         label: "Vaccination start",
@@ -132,12 +136,12 @@ export const ParameterEditorConfig = defineEditorConfig<Parameters>({
     },
     "mitigations.vaccine.administration_rate": {
         label: "Vaccine administration rate",
-        tooltip: "Maximum number of doses administered per day",
+        tooltip: "Maximum possible number of doses administered per day",
     },
     "mitigations.vaccine.ramp_up": {
-        label: "Ramp-up period",
-        tooltip: "Time from vaccination to achieving protection from vaccination, in days. " +
-          "Individuals infected before the ramp-up period is complete have no protection from vaccination."
+        label: "Delay from dose to protection (days)",
+        tooltip: "Time from vaccination to achieving protection from vaccination. " +
+          "Individuals infected before the delay is complete have no protection from vaccination."
     },
     "mitigations.vaccine.dose2_delay": {
         label: "Delay between doses",
@@ -149,15 +153,15 @@ export const ParameterEditorConfig = defineEditorConfig<Parameters>({
             "Of people who receive a first dose, the proportion that also receive a second dose",
     },
     "mitigations.vaccine.ve_s": {
-        label: "Vaccine effectiveness against infection",
-        tooltip: "Vaccine effectiveness against infection",
+        label: "Effectiveness for susceptibility",
+        tooltip: "Proportion of potential infections among the vaccine-protected that are averted",
     },
     "mitigations.vaccine.ve_i": {
-        label: "Vaccine effectiveness against onward transmission",
-        tooltip: "Vaccine effectiveness against onward transmission",
+        label: "Effectiveness for onward transmission",
+        tooltip: "Proportion of onward transmissions among the vaccine-protected that are averted",
     },
     "mitigations.vaccine.ve_p": {
-        label: "Vaccine effectiveness against illness",
-        tooltip: "Vaccine effectiveness against illness",
+        label: "Effectiveness for symptomatic disease",
+        tooltip: "Proportion of symptomatic disease among the vaccine-protected that is averted",
     },
 });
