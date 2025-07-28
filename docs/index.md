@@ -6,6 +6,16 @@ This is a Susceptible-Exposed-Infectious-Removed (SEIR) compartmental ordinary d
 
 In a compartmental ODE model, individuals move through discrete disease states, with the time spent by individuals in each state exponentially distributed across individuals. Individuals are assumed to have a constant infectiousness while in the Infectious state. Individuals are not infectious at all while in the Susceptible, Exposed, and Removed states. Removed individuals cannot be re-infected.
 
+### Infectiousness
+
+An ODE SEIR model is an approximation of a reality in which:
+
+- There is a delay, the _latent period_, between exposure and the onset of infectiousness. This delay varies from person to person. The population-wide average duration of this delay is a model parameter. The delays are distributed according to an exponential distribution around this mean.
+- Each person, while infectious, contacts other people at a constant rate. The per-contact probability that a susceptible contacted person will contract infection (i.e., enter their latent period) is fixed during the _infectious period_. Each infectious person is equally infectious over their entire infectious period.
+- The duration of the infectious period varies from person to person. The population-wide average duration of this period is a model parameter. The durations are distributed according to an exponential distribution around this mean.
+
+#### Model inputs
+
 ### Health outcomes
 
 Some infections are symptomatic. Symptomatic infections are assumed to be equally infectious in the absence of mitigations. However, symptoms can trigger mitigations like isolation and antiviral usage that do affect onward transmission.
@@ -86,7 +96,7 @@ These compartments currently represent the proportion of the total population $N
     - $R_0$: basic reproduction number
     - Derive: $\beta = R_0 / T_I$ (note that this is a population-wide, average scalar)
     - $C_{ij}$: contact matrix, normalized so that dominant eigenvector is 1
-- Times & delays
+- Times & delays (see [infectiousness](#infectiousness) above )
     - $T_E$: mean duration of latent period
     - $T_I$: mean duration of infectious period
     - $T_H^\mathrm{pre}$: mean delay between infection (i.e., exposure) and hospitalization, among those who are hospitalized
