@@ -16,7 +16,7 @@ An ODE SEIR model is an approximation of a reality in which:
 
 #### Model inputs
 
-The model takes as input basic reproduction number $R_0$, serial interval $S$, and mean duration of latent period $T_L$ and infers the mean infectious period $T_I$ according to:
+The model takes as input the serial interval $S$ and mean duration of latent period $T_L$. It infers the mean infectious period $T_I$ according to:
 
 $$
 S = T_L + \tfrac{1}{2} T_I
