@@ -13,14 +13,7 @@ An ODE SEIR model is an approximation of a reality in which:
 - There is a delay, the _latent period_, between exposure and the onset of infectiousness. This delay varies from person to person. The population-wide average duration of this delay is a model parameter. The delays are distributed according to an exponential distribution around this mean.
 - Each person, while infectious, contacts other people at a constant rate. The per-contact probability that a susceptible contacted person will contract infection (i.e., enter their latent period) is fixed during the _infectious period_. Each infectious person is equally infectious over their entire infectious period.
 - The duration of the infectious period varies from person to person. The population-wide average duration of this period is a model parameter. The durations are distributed according to an exponential distribution around this mean.
-
-#### Model inputs
-
-The model takes as input the serial interval $S$ and mean duration of latent period $T_L$. It infers the mean infectious period $T_I$ according to:
-
-$$
-S = T_L + \tfrac{1}{2} T_I
-$$
+- In an ODE SEIR model, the mean serial interval is equal to the sum of the mean latent duration $T_L$ and the mean infectious duration $T_I$. (This is a potentially counterintuitive result due to size-biased sampling: longer infectious periods produce more secondary infections.)
 
 ### Health outcomes
 
