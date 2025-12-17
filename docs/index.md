@@ -8,7 +8,7 @@ In a compartmental ODE model, individuals move through discrete disease states, 
 
 ### Health outcomes
 
-Some infections are symptomatic. Symptomatic infections are assumed to be equally infectious in the absence of mitigations. However, symptoms can trigger mitigations like isolation and antiviral usage that do affect onward transmission.
+Some infections are symptomatic. Symptomatic infections are assumed to be equally infectious in the absence of mitigations. However, symptoms can trigger mitigations like isolation and antiviral usage that do affect onward transmission. (In terms of the simulation, "symptoms" are by definition what qualify someone for antivirals and TTIQ. The model only has a single category of "symptoms" and does not distinguish between, for example, symptoms that qualify someone to be counted as a case, symptoms that indicate antivirals, or symptoms that trigger isolation and quaratine.)
 
 Hospitalization and death are included in the model, but only as counting functions. Upon infection, some proportion of people will go on to these outcomes at some later time, depending on model parameters and other mitigations. The model makes the simplifying assumption that hospitalization and death have no impact on disease dynamics.
 
@@ -87,8 +87,9 @@ These compartments currently represent the proportion of the total population $N
     - Derive: $\beta = R_0 / T_I$ (note that this is a population-wide, average scalar)
     - $C_{ij}$: contact matrix, normalized so that dominant eigenvector is 1
 - Times & delays
-    - $T_E$: mean duration of latent period
-    - $T_I$: mean duration of infectious period
+    - $T_E$: mean duration of latent period (i.e., from exposure to onset of infectiousness)
+    - $T_I$: mean duration of infectious period (i.e., from onset to end of infectiousness)
+        - The mean serial interval is $T_E + T_I$.
     - $T_H^\mathrm{pre}$: mean delay between infection (i.e., exposure) and hospitalization, among those who are hospitalized
     - $T_D^\mathrm{pre}$: mean delay between infection (i.e., exposure) and death, among those who die
 - Vaccination
@@ -120,9 +121,11 @@ These compartments currently represent the proportion of the total population $N
     - $A_\mathrm{ip}$: proportion of hospitalized ("ip" is for "inpatient") people who receive antivirals
 - Health outcomes
     - $\mathrm{FS}_i$: fraction symptomatic, i.e., proportion of infections that are symptomatic
-        - Symptomatic and asymptomatic cases are assumed otherwise equal (e.g., equally infectious) so that this fraction does not affect transmission (except via mitigations that depend on symptoms)
+        - Symptomatic and asymptomatic infections are assumed otherwise equal (e.g., equally infectious) so that this fraction does not affect transmission (except via mitigations that depend on symptoms).
     - $\mathrm{IHR}_i$: proportion of infections that result in hospitalization
     - $\mathrm{IFR}_i$: proportion of infections that result in death ("F" is for "fatality")
+        - If a case is defined as a symptomatic infection, then the case-fatality ratio (i.e., proportion of cases that die) is $\mathrm{IFR} / \mathrm{FS}$, and similarly for the case-hospitalization ratio. It follows that $\mathrm{FS} > \mathrm{IFR}$ and $\mathrm{FS} > \mathrm{IHR}$.
+        - It is not necessarily the case that $\mathrm{IHR} > \mathrm{IFR}$, since there may be more fatalities that did not involve hospitalization than hospitalizations that did not result in death.
 
 ### Model initialization
 
@@ -244,13 +247,19 @@ Define the parameters:
 
 During the period from $t_\mathrm{start}$ to $t_\mathrm{start} + \Delta t_\mathrm{duration}$, adjust the contact matrix entries from $C_{ij}$ to $(1 - \mathrm{Eff}) \times C_{ij}$.
 
+Note that $\mathrm{Eff}$ reflects the reduction in the _effective_ contact rate, i.e., both the rate of contacts and the per-contact probability of transmission.
+
 ### Surveillance and detection
 
 Define the parameters:
 
-- $p_{\mathrm{test}|Y}$: proportion of newly infectious, symptomatic people who are tested (e.g., who seek and receive a test), assumed constant
+- $p_{\mathrm{test}|Y}$: proportion of newly infectious, symptomatic people who are tested, assumed constant
 - test sensitivity
-- probability a positive test is forwarded to public health
+- probability a positive test results in a detection
+
+The precise meaning of "tested" will vary based on the application. For example, "tested" might mean than an individual sought and received a PCR test, or that they purchases and used a self-administered test.
+
+The precise meaning of "detection" will vary based on the application. For example, "detection" might mean that a test-positive specimen is forwarded to a public health lab and confirmed, or it might mean that an individual tested positive on a self-administered test and reported that outcome to their local public health department.
 
 Then:
 
