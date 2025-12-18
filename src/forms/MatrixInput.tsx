@@ -1,4 +1,4 @@
-import { NumberInput } from "./NumberInput";
+import { NumberInput, NumberType } from "./NumberInput";
 
 export type MatrixInputProps = {
     /** Must be in column-major form */
@@ -13,6 +13,8 @@ export type MatrixInputProps = {
     symmetric?: string[];
     /** Step for the matrix inputs */
     step?: number;
+    /** Number format */
+    numberType: NumberType;
     /** Min for the matrix inputs */
     min?: number;
     /** Max for the matrix inputs */
@@ -26,6 +28,7 @@ export function MatrixInput({
     rows,
     symmetric,
     step,
+    numberType,
     min,
     max,
 }: MatrixInputProps) {
@@ -76,7 +79,7 @@ export function MatrixInput({
                                         <NumberInput
                                             min={min}
                                             max={max}
-                                            numberType="float"
+                                            numberType={numberType}
                                             value={value[m.index(i, j)]}
                                             onValue={handleChange(i, j)}
                                             showSaveButton={false}

@@ -178,7 +178,7 @@ function ScenarioParams() {
                             max={0.1}
                             step={0.01}
                             value={value}
-                            numberType="float"
+                            numberType="pct"
                             onValue={onValue}
                         />
                     )}
@@ -197,7 +197,7 @@ function ScenarioParams() {
                             max={0.2}
                             step={0.005}
                             value={value}
-                            numberType="float"
+                            numberType="pct"
                             onValue={onValue}
                         />
                     )}

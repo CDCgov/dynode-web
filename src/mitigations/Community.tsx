@@ -41,8 +41,9 @@ export function CommunityEditor() {
                     <MatrixInput
                         value={effectiveness}
                         step={0.1}
-                        min={0.0}
+                        min={-0.5}
                         max={1.0}
+                        numberType="pct"
                         symmetric={params.population_fraction_labels}
                         onChange={(newVal) => {
                             updateParams({ effectiveness: newVal });

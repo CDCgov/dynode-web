@@ -9,28 +9,71 @@ import Range from "./Range";
 
 export type NumberType = "float" | "int" | "pct";
 
-function inputToNumber(input: string, numberType: NumberType): number | Error {
-    if (!/^[\d\s.,]+$/.test(input)) {
-        return new Error("Invalid characters in input.");
-    }
+export function inputToNumber(
+    input: string,
+    numberType: NumberType,
+): number | Error {
+    // remove whitespace and commas
     let normalized = input.replace(/\s+/g, "").replace(/,/g, "");
-    if (numberType === "int" && normalized.includes(".")) {
-        return new Error("Integers should not contain a decimal point.");
+
+    // for each number type, we check its format against a regex. if that fails,
+    // throw an error. if it matches, use a parser function.
+    function testAndParse(
+        regex: RegExp,
+        parse: (s: string) => number | Error,
+    ): number | Error {
+        if (!regex.test(normalized)) {
+            return new Error("Invalid number format.");
+        } else {
+            return parse(normalized);
+        }
     }
-    const number =
-        numberType === "int"
-            ? parseInt(normalized, 10)
-            : parseFloat(normalized);
-    return isNaN(number) ? new Error("Invalid number format.") : number;
+
+    let x;
+    if (numberType == "int") {
+        x = testAndParse(/^\d+$/, (s: string) => parseInt(s, 10));
+    } else if (numberType == "float") {
+        x = testAndParse(/^\d+(.\d*)?$/, (s: string) => parseFloat(s));
+    } else if (numberType == "pct") {
+        x = testAndParse(
+            /^\d+(.\d*)?%?$/,
+            (s: string) => parseFloat(s) / 100.0,
+        );
+    } else {
+        return new Error("Invalid number type");
+    }
+
+    if (x instanceof Error) {
+        // parser errors are passed through
+        return x;
+    } else if (isNaN(x)) {
+        // number NaN's are errors
+        return new Error("Invalid number format.");
+    } else {
+        // actual numbers
+        return x;
+    }
 }
 
-function formatNumberToDisplay(num: number, numberType: NumberType) {
-    return numberType === "float"
-        ? num.toLocaleString("en-US", {
-              minimumFractionDigits: 1,
-              maximumFractionDigits: 20,
-          })
-        : num.toLocaleString("en-US");
+export function formatNumberToDisplay(
+    num: number,
+    numberType: NumberType,
+): string {
+    if (numberType == "float") {
+        return num.toLocaleString("en-US", {
+            minimumFractionDigits: 1,
+            maximumFractionDigits: 20,
+        });
+    } else if (numberType == "int") {
+        return num.toLocaleString("en-US");
+    } else if (numberType == "pct") {
+        return num.toLocaleString("en-US", {
+            style: "percent",
+            maximumFractionDigits: 20,
+        });
+    } else {
+        throw new Error("Invalid number type");
+    }
 }
 
 function addFloat(a: number, b: number): number {
@@ -124,12 +167,23 @@ function TextNumberInput({
 
     const commitValue = () => {
         const parsed = inputToNumber(inputValue, numberType);
+
         if (parsed instanceof Error) {
             setErrorMessage(parsed.message);
         } else {
+            let newValue;
+
+            if (max !== undefined && parsed > max) {
+                newValue = max;
+            } else if (min !== undefined && parsed < min) {
+                newValue = min;
+            } else {
+                newValue = parsed;
+            }
+
             setErrorMessage("");
-            onValue(parsed);
-            setInputValue(formatNumberToDisplay(parsed, numberType));
+            onValue(newValue);
+            setInputValue(formatNumberToDisplay(newValue, numberType));
         }
     };
 
